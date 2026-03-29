@@ -3,8 +3,10 @@ import { Badge } from '@/src/components/atoms/badge'
 import { Button } from '@/src/components/atoms/button'
 import { Input } from '@/src/components/atoms/input'
 import { Select } from '@/src/components/atoms/select'
+import Link from 'next/link'
 import { auth } from '@/src/lib/auth/auth'
 import { prisma } from '@/src/lib/prisma'
+import { parseReportNotes } from '@/src/lib/auth/report-access'
 import { redirect } from 'next/navigation'
 import {
   Bell,
@@ -47,6 +49,7 @@ export default async function AdminDashboardPage() {
 
   const now = new Date()
   const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1)
+  const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000)
 
   const [
     totalReports,
@@ -56,6 +59,7 @@ export default async function AdminDashboardPage() {
     allReportsForTypes,
     lastSixMonthsReports,
     resolvedForSla,
+    newReportsCount,
   ] = await Promise.all([
     prisma.report.count(),
     prisma.report.count({ where: { status: { in: ['RECEIVED', 'REVIEWING'] } } }),
@@ -68,6 +72,7 @@ export default async function AdminDashboardPage() {
         createdAt: true,
         status: true,
         type: true,
+        notes: true,
       },
     }),
     prisma.report.findMany({ select: { type: true } }),
@@ -78,6 +83,9 @@ export default async function AdminDashboardPage() {
     prisma.report.findMany({
       where: { status: { in: ['RESOLVED', 'CLOSED'] } },
       select: { createdAt: true, updatedAt: true },
+    }),
+    prisma.report.count({
+      where: { createdAt: { gte: oneDayAgo } },
     }),
   ])
 
@@ -178,14 +186,16 @@ export default async function AdminDashboardPage() {
 
   const recentReports = recentReportsRaw.map((report) => {
     const meta = statusMeta(report.status)
+    const notes = parseReportNotes(report.notes)
+    const counsellor = notes.counsellorName || notes.investigatorName || 'Pending Assignment'
     return {
       id: report.code,
       submittedAt: formatSubmittedAt(report.createdAt),
       statusLabel: meta.label,
       statusVariant: meta.variant,
       category: report.type,
-      investigator: 'Pending Assignment',
-      investigatorAssigned: false,
+      counsellor,
+      counsellorAssigned: Boolean(notes.counsellorName || notes.investigatorName),
     }
   })
 
@@ -196,19 +206,24 @@ export default async function AdminDashboardPage() {
           <div className="relative w-full lg:max-w-[460px]">
             <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <Input
-              placeholder="Search cases, IDs, or investigator"
+              placeholder="Search cases, IDs, or counsellor"
               className="h-11 border-gray-200 bg-white pl-9 text-sm"
             />
           </div>
 
           <div className="flex items-center justify-end gap-2">
-            <button
-              type="button"
+            <Link
+              href="/admin/notifications"
               aria-label="Notifications"
-              className="inline-flex h-11 w-11 items-center justify-center rounded-[10px] border border-gray-200 bg-white text-navy hover:bg-navy-light"
+              className="relative inline-flex h-11 w-11 items-center justify-center rounded-[10px] border border-gray-200 bg-white text-navy hover:bg-navy-light"
             >
               <Bell size={18} />
-            </button>
+              {newReportsCount > 0 ? (
+                <span className="absolute -top-1 -right-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-red text-xs font-semibold text-white">
+                  {newReportsCount}
+                </span>
+              ) : null}
+            </Link>
 
             <Button size="sm" className="h-11 rounded-[10px] px-4">
               <Plus size={16} /> New Report
@@ -314,7 +329,7 @@ export default async function AdminDashboardPage() {
                   <th className="px-4 py-3 font-semibold">Report ID</th>
                   <th className="px-4 py-3 font-semibold">Status</th>
                   <th className="px-4 py-3 font-semibold">Category</th>
-                  <th className="px-4 py-3 font-semibold">Investigator</th>
+                  <th className="px-4 py-3 font-semibold">Counsellor</th>
                   <th className="px-4 py-3 font-semibold">Actions</th>
                 </tr>
               </thead>
@@ -334,25 +349,22 @@ export default async function AdminDashboardPage() {
 
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-2">
-                        {report.investigatorAssigned ? (
+                        {report.counsellorAssigned ? (
                           <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-navy-light text-navy">
                             <UserRound size={14} />
                           </span>
                         ) : null}
-                        <span className={report.investigatorAssigned ? 'text-gray-800' : 'italic text-gray-400'}>
-                          {report.investigator}
+                        <span className={report.counsellorAssigned ? 'text-gray-800' : 'italic text-gray-400'}>
+                          {report.counsellor}
                         </span>
                       </div>
                     </td>
 
                     <td className="px-4 py-4">
                       <div className="flex gap-3 text-xs font-semibold">
-                        <button type="button" className="text-navy hover:text-navy-dark">
-                          Assign Investigator
-                        </button>
-                        <button type="button" className="text-gray-700 hover:text-navy">
-                          Update Status
-                        </button>
+                        <Link href={`/admin/reports/${encodeURIComponent(report.id)}`} className="text-navy hover:text-navy-dark">
+                          View Details
+                        </Link>
                       </div>
                     </td>
                   </tr>

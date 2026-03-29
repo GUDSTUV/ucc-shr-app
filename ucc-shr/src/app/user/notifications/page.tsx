@@ -1,31 +1,72 @@
 import Link from 'next/link'
 import { ArrowLeft, Bell, BellRing, CheckCircle2, Clock3 } from 'lucide-react'
+import { redirect } from 'next/navigation'
+import { auth } from '@/src/lib/auth/auth'
+import { prisma } from '@/src/lib/prisma'
+import { belongsToUser, parseReportNotes } from '@/src/lib/auth/report-access'
 
-const notifications = [
-  {
-    id: 1,
-    title: 'Report UCC-8291 updated',
-    message: 'Status changed to Investigation by admin.',
-    time: '10 min ago',
-    unread: true,
-  },
-  {
-    id: 2,
-    title: 'Report UCC-8501 reviewed',
-    message: 'Admin added feedback to your report.',
-    time: '1 hour ago',
-    unread: true,
-  },
-  {
-    id: 3,
-    title: 'Report UCC-7942 resolved',
-    message: 'This report has been marked as resolved.',
-    time: 'Yesterday',
-    unread: false,
-  },
-]
+type NotificationItem = {
+  id: string
+  title: string
+  message: string
+  time: string
+  unread: boolean
+  atMs: number
+}
 
-export default function UserNotificationsPage() {
+function formatRelativeTime(value: string) {
+  const at = new Date(value).getTime()
+  const now = Date.now()
+  const deltaMinutes = Math.max(1, Math.floor((now - at) / (1000 * 60)))
+
+  if (deltaMinutes < 60) return `${deltaMinutes} min ago`
+  const deltaHours = Math.floor(deltaMinutes / 60)
+  if (deltaHours < 24) return `${deltaHours} hour${deltaHours === 1 ? '' : 's'} ago`
+  const deltaDays = Math.floor(deltaHours / 24)
+  if (deltaDays === 1) return 'Yesterday'
+  return `${deltaDays} days ago`
+}
+
+export default async function UserNotificationsPage() {
+  const session = await auth()
+
+  if (!session?.user) {
+    redirect('/login')
+  }
+
+  const reports = await prisma.report.findMany({
+    select: {
+      code: true,
+      notes: true,
+    },
+  })
+
+  const notifications: NotificationItem[] = []
+
+  for (const report of reports) {
+    if (!belongsToUser(report.notes, session.user.id, session.user.email ?? null)) {
+      continue
+    }
+
+    const notes = parseReportNotes(report.notes)
+    const updates = Array.isArray(notes.adminUpdates) ? notes.adminUpdates : []
+
+    for (const update of updates) {
+      const atMs = new Date(update.at).getTime()
+
+      notifications.push({
+        id: update.id,
+        title: `Report ${report.code} updated`,
+        message: update.message,
+        time: formatRelativeTime(update.at),
+        unread: Date.now() - atMs < 1000 * 60 * 60 * 24,
+        atMs,
+      })
+    }
+  }
+
+  notifications.sort((a, b) => b.atMs - a.atMs)
+
   const unreadCount = notifications.filter((item) => item.unread).length
 
   return (
@@ -87,6 +128,12 @@ export default function UserNotificationsPage() {
               </div>
             </article>
           ))}
+
+          {notifications.length === 0 ? (
+            <article className="rounded-2xl border border-gray-100 bg-white p-4 text-center text-sm text-gray-600 shadow-sm">
+              No notifications yet. You will see updates here when admin updates your reports.
+            </article>
+          ) : null}
         </section>
       </main>
     </div>

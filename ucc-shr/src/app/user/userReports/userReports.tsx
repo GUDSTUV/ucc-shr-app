@@ -100,7 +100,7 @@ function ReportsCard({ report }: { report: UserReport }) {
 			</div>
 
 			<Link
-				href={`/track?code=${encodeURIComponent(report.code)}`}
+				href={`/user/userReports/${encodeURIComponent(report.code)}`}
 				className={`mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3 text-base font-semibold transition sm:text-lg ${
 					report.status === 'RECEIVED' ? 'bg-navy text-white hover:bg-navy-dark' : 'bg-navy-light text-navy hover:bg-[#dfe6fa]'
 				}`}
@@ -182,7 +182,7 @@ export default function UserReports({ reports }: UserReportsProps) {
 					) : (
 						<div className="space-y-4">
 							{filteredReports.map((report) => (
-								<ReportsCard key={report.id} report={report} />
+								<ReportsCard key={report.code} report={report} />
 							))}
 						</div>
 					)}

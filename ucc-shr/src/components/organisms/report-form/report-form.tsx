@@ -14,6 +14,13 @@ type ReportFormProps = {
   initialContact?: string
 }
 
+type EvidenceKind = 'photo' | 'doc' | 'audio'
+
+type EvidenceUploadItem = {
+  kind: EvidenceKind
+  file: File
+}
+
 export function ReportForm({ canToggleAnonymous = false, initialContact = '' }: ReportFormProps) {
   const totalSteps = 3
   const [step, setStep] = useState(1)
@@ -25,7 +32,7 @@ export function ReportForm({ canToggleAnonymous = false, initialContact = '' }: 
   const [witness, setWitness] = useState('')
   const [witnesses, setWitnesses] = useState<string[]>([])
   const [anonymous, setAnonymous] = useState(true)
-  const [evidenceFiles, setEvidenceFiles] = useState<string[]>([])
+  const [evidenceFiles, setEvidenceFiles] = useState<EvidenceUploadItem[]>([])
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [submittedCode, setSubmittedCode] = useState<string | null>(null)
   const [stepError, setStepError] = useState<string | null>(null)
@@ -48,14 +55,55 @@ export function ReportForm({ canToggleAnonymous = false, initialContact = '' }: 
     setWitness('')
   }
 
-  const captureEvidence = (kind: 'photo' | 'doc' | 'audio') =>
+  const captureEvidence = (kind: EvidenceKind) =>
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const files = event.target.files
       if (!files || files.length === 0) return
 
-      const nextNames = Array.from(files).map((file) => `${kind}:${file.name}`)
-      setEvidenceFiles((prev) => [...prev, ...nextNames])
+      const nextItems = Array.from(files).map((file) => ({ kind, file }))
+      setEvidenceFiles((prev) => [...prev, ...nextItems])
     }
+
+  const uploadEvidenceFiles = async () => {
+    if (evidenceFiles.length === 0) return [] as string[]
+
+    const formData = new FormData()
+
+    evidenceFiles.forEach((item) => {
+      formData.append('files', item.file)
+      formData.append('kinds', item.kind)
+    })
+
+    const response = await fetch('/api/uploads', {
+      method: 'POST',
+      body: formData,
+    })
+
+    let result: {
+      ok?: boolean
+      files?: string[]
+      error?: string
+    }
+
+    try {
+      result = (await response.json()) as {
+        ok?: boolean
+        files?: string[]
+        error?: string
+      }
+    } catch {
+      result = {
+        ok: false,
+        error: 'Unexpected upload response. Please try again.',
+      }
+    }
+
+    if (!response.ok || !result.ok || !result.files) {
+      throw new Error(result.error ?? 'Unable to upload evidence files.')
+    }
+
+    return result.files
+  }
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -63,17 +111,19 @@ export function ReportForm({ canToggleAnonymous = false, initialContact = '' }: 
     setSubmitError(null)
     setSubmittedCode(null)
 
-    const payload = {
-      type: typeValue,
-      location: locationValue,
-      contact: contactValue,
-      description: descriptionValue,
-      isAnonymous: canToggleAnonymous ? anonymous : true,
-      witnesses,
-      evidenceFiles,
-    }
-
     try {
+      const uploadedEvidenceFiles = await uploadEvidenceFiles()
+
+      const payload = {
+        type: typeValue,
+        location: locationValue,
+        contact: contactValue,
+        description: descriptionValue,
+        isAnonymous: canToggleAnonymous ? anonymous : true,
+        witnesses,
+        evidenceFiles: uploadedEvidenceFiles,
+      }
+
       const response = await fetch('/api/reports', {
         method: 'POST',
         headers: {
@@ -116,8 +166,10 @@ export function ReportForm({ canToggleAnonymous = false, initialContact = '' }: 
       setWitnesses([])
       setEvidenceFiles([])
       setAnonymous(true)
-    } catch {
-      setSubmitError('Network error while submitting report. Please try again.')
+    } catch (error) {
+      setSubmitError(
+        error instanceof Error ? error.message : 'Network error while submitting report. Please try again.'
+      )
     } finally {
       setSubmitting(false)
     }
@@ -232,6 +284,16 @@ export function ReportForm({ canToggleAnonymous = false, initialContact = '' }: 
 
             {evidenceFiles.length > 0 ? (
               <p className="text-[11px] text-gray-500">{evidenceFiles.length} evidence file(s) selected</p>
+            ) : null}
+
+            {evidenceFiles.length > 0 ? (
+              <div className="space-y-1">
+                {evidenceFiles.map((item, index) => (
+                  <p key={`${item.file.name}-${index}`} className="truncate text-[11px] text-gray-500">
+                    {item.kind.toUpperCase()}: {item.file.name}
+                  </p>
+                ))}
+              </div>
             ) : null}
           </div>
 

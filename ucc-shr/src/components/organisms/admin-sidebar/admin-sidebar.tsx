@@ -1,11 +1,12 @@
 'use client'
-import { LayoutDashboard, FileText, CalendarDays, Flag } from 'lucide-react'
+import { LayoutDashboard, FileText, CalendarDays, Flag, BellRing } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import { NavItem } from '@/src/components/molecules/nav-item'
 
 const items = [
   { href: '/admin', label: 'Dashboard', icon: <LayoutDashboard size={16} /> },
   { href: '/admin/reports', label: 'Reports', icon: <Flag size={16} /> },
+  { href: '/admin/notifications', label: 'Notifications', icon: <BellRing size={16} /> },
   { href: '/admin/articles', label: 'Articles', icon: <FileText size={16} /> },
   { href: '/admin/events', label: 'Events', icon: <CalendarDays size={16} /> },
 ]

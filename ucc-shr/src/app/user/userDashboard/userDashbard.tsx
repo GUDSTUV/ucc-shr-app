@@ -98,8 +98,6 @@ export default async function UserDashbard({
   email = 'user@ucc.edu.gh',
 }: UserDashboardProps) {
   const stats = await getDashboardStats()
-  const reportSubtitle = `${stats.submittedReports} report${stats.submittedReports === 1 ? '' : 's'} submitted`
-  const resourceSubtitle = `${stats.savedItems} saved item${stats.savedItems === 1 ? '' : 's'} • ${stats.resources} resource${stats.resources === 1 ? '' : 's'}`
 
   return (
     <PublicLayout>
@@ -146,16 +144,6 @@ export default async function UserDashbard({
           value={stats.resolvedReports.toString()}
           hint="Closed cases"
         />
-        <StatCard
-          title="Saved Items"
-          value={stats.savedItems.toString()}
-          hint="Bookmarked resources"
-        />
-        <StatCard
-          title="Resources"
-          value={stats.resources.toString()}
-          hint="Published events"
-        />
       </section>
 
       <section className="mt-5 space-y-3">
@@ -170,13 +158,13 @@ export default async function UserDashbard({
           href="/user/userReports"
           icon={<FileText size={18} />}
           title="Reports"
-          subtitle={reportSubtitle}
+          subtitle="View and manage submissions"
         />
         <QuickLink
           href="/help"
           icon={<Bookmark size={18} />}
           title="Resources"
-          subtitle={resourceSubtitle}
+          subtitle="Support information and guides"
         />
              <Link
               href={`/report/new?name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`}

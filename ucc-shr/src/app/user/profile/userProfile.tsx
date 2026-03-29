@@ -60,13 +60,13 @@ export default function UserProfile({ name, email }: { name?: string; email?: st
 	return (
 		<div className="mx-auto min-h-screen max-w-md bg-gray-50 pb-8 font-sans">
 			<header className="sticky top-0 z-10 flex items-center border-b border-gray-100 bg-white px-4 py-4">
-				<button
-					type="button"
-					aria-label="Back"
+				<Link
+					href="/user/userDashboard"
+					aria-label="Go back"
 					className="rounded-full p-1 text-gray-900 transition hover:bg-gray-100"
 				>
 					<ArrowLeft className="h-5 w-5" />
-				</button>
+				</Link>
 
 				<h1 className="mx-auto pr-8 text-lg font-semibold text-gray-900">Profile</h1>
 			</header>
