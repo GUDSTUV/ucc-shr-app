@@ -1,73 +1,25 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
 }
 
-// ── Staff / Admin users
-model User {
-  id        String    @id @default(cuid())
-  email     String    @unique
-  name      String
-  password  String
-  role      Role      @default(STAFF)
-  createdAt DateTime  @default(now())
-  articles  Article[]
-  events    Event[]
-}
-
-enum Role {
-  STAFF
-  SUPER_ADMIN
-}
-
-// ── Harassment reports (core feature)
-model Report {
-  id          String       @id @default(cuid())
-  code        String       @unique // e.g. RPT-78X2-9KQA
-  type        String
-  description String
-  location    String?
-  date        DateTime?
-  status      ReportStatus @default(RECEIVED)
-  isAnonymous Boolean      @default(true)
-  files       String[] // Supabase Storage URLs
-  notes       String? // Internal admin notes
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-}
-
-enum ReportStatus {
-  RECEIVED
-  REVIEWING
-  RESOLVED
-  CLOSED
-}
-
-// ── Awareness articles
 model Article {
   id         String   @id @default(cuid())
   title      String
   slug       String   @unique
-  content    Json // TipTap JSON
+  content    Json
   category   String
   coverImage String?
   published  Boolean  @default(false)
   authorId   String
-  author     User     @relation(fields: [authorId], references: [id])
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+  User       User     @relation(fields: [authorId], references: [id])
 }
 
-// ── Events
 model Event {
   id          String    @id @default(cuid())
   title       String
@@ -78,28 +30,64 @@ model Event {
   capacity    Int?
   published   Boolean   @default(false)
   authorId    String
-  author      User      @relation(fields: [authorId], references: [id])
-  rsvps       Rsvp[]
   createdAt   DateTime  @default(now())
+  User        User      @relation(fields: [authorId], references: [id])
+  Rsvp        Rsvp[]
 }
 
-// ── Event RSVPs
-model Rsvp {
-  id        String   @id @default(cuid())
-  eventId   String
-  event     Event    @relation(fields: [eventId], references: [id])
-  name      String
-  email     String
-  phone     String?
-  userType  String // "student" | "staff"
-  createdAt DateTime @default(now())
-}
-
-// ── Push notification subscriptions
 model PushSubscription {
   id        String   @id @default(cuid())
   endpoint  String   @unique
   p256dh    String
   auth      String
   createdAt DateTime @default(now())
+}
+
+model Report {
+  id          String       @id @default(cuid())
+  code        String       @unique
+  type        String
+  description String
+  location    String?
+  date        DateTime?
+  status      ReportStatus @default(RECEIVED)
+  isAnonymous Boolean      @default(true)
+  files       String[]
+  notes       String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Rsvp {
+  id        String   @id @default(cuid())
+  eventId   String
+  name      String
+  email     String
+  phone     String?
+  userType  String
+  createdAt DateTime @default(now())
+  Event     Event    @relation(fields: [eventId], references: [id])
+}
+
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  name      String
+  password  String
+  role      Role      @default(STAFF)
+  createdAt DateTime  @default(now())
+  Article   Article[]
+  Event     Event[]
+}
+
+enum ReportStatus {
+  RECEIVED
+  REVIEWING
+  RESOLVED
+  CLOSED
+}
+
+enum Role {
+  STAFF
+  SUPER_ADMIN
 }

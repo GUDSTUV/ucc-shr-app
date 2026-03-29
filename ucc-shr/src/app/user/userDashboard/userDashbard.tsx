@@ -3,10 +3,49 @@ import { PublicLayout } from '@/src/components/templates/public-layout'
 import { AlertBox } from '@/src/components/molecules/alert-box'
 import { Button } from '@/src/components/atoms/button'
 import { Bell, Bookmark, FileText, Plus, UserCircle2 } from 'lucide-react'
+import { prisma } from '@/src/lib/prisma'
 
 type UserDashboardProps = {
   name?: string
   email?: string
+}
+
+type DashboardStats = {
+  submittedReports: number
+  inReviewReports: number
+  resolvedReports: number
+  savedItems: number
+  resources: number
+}
+
+async function getDashboardStats(): Promise<DashboardStats> {
+  try {
+    const [submittedReports, inReviewReports, resolvedOnlyReports, closedReports, savedItems, resources] =
+      await prisma.$transaction([
+        prisma.report.count(),
+        prisma.report.count({ where: { status: 'REVIEWING' } }),
+        prisma.report.count({ where: { status: 'RESOLVED' } }),
+        prisma.report.count({ where: { status: 'CLOSED' } }),
+        prisma.article.count({ where: { published: true } }),
+        prisma.event.count({ where: { published: true } }),
+      ])
+
+    return {
+      submittedReports,
+      inReviewReports,
+      resolvedReports: resolvedOnlyReports + closedReports,
+      savedItems,
+      resources,
+    }
+  } catch {
+    return {
+      submittedReports: 0,
+      inReviewReports: 0,
+      resolvedReports: 0,
+      savedItems: 0,
+      resources: 0,
+    }
+  }
 }
 
 function StatCard({
@@ -54,10 +93,14 @@ function QuickLink({
   )
 }
 
-export default function UserDashbard({
+export default async function UserDashbard({
   name = 'User',
   email = 'user@ucc.edu.gh',
 }: UserDashboardProps) {
+  const stats = await getDashboardStats()
+  const reportSubtitle = `${stats.submittedReports} report${stats.submittedReports === 1 ? '' : 's'} submitted`
+  const resourceSubtitle = `${stats.savedItems} saved item${stats.savedItems === 1 ? '' : 's'} • ${stats.resources} resource${stats.resources === 1 ? '' : 's'}`
+
   return (
     <PublicLayout>
       <div className="font-sans">
@@ -88,9 +131,31 @@ export default function UserDashbard({
       </section>
 
       <section className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <StatCard title="Submitted" value="3" hint="Reports created" />
-        <StatCard title="In Review" value="1" hint="Pending feedback" />
-        <StatCard title="Resolved" value="2" hint="Closed cases" />
+        <StatCard
+          title="Submitted"
+          value={stats.submittedReports.toString()}
+          hint="Reports created"
+        />
+        <StatCard
+          title="In Review"
+          value={stats.inReviewReports.toString()}
+          hint="Pending feedback"
+        />
+        <StatCard
+          title="Resolved"
+          value={stats.resolvedReports.toString()}
+          hint="Closed cases"
+        />
+        <StatCard
+          title="Saved Items"
+          value={stats.savedItems.toString()}
+          hint="Bookmarked resources"
+        />
+        <StatCard
+          title="Resources"
+          value={stats.resources.toString()}
+          hint="Published events"
+        />
       </section>
 
       <section className="mt-5 space-y-3">
@@ -105,13 +170,13 @@ export default function UserDashbard({
           href="/user/userReports"
           icon={<FileText size={18} />}
           title="Reports"
-          subtitle="View and manage submissions"
+          subtitle={reportSubtitle}
         />
         <QuickLink
           href="/help"
           icon={<Bookmark size={18} />}
           title="Resources"
-          subtitle="Support information and guides"
+          subtitle={resourceSubtitle}
         />
              <Link
               href={`/report/new?name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`}

@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -9,11 +9,12 @@ import { Input } from '@/src/components/atoms/input'
 import { Button } from '@/src/components/atoms/button'
 import { AlertBox } from '@/src/components/molecules/alert-box'
 
-export default function SignupPage() {
+export default function AdminSignupPage() {
   const router = useRouter()
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [adminKey, setAdminKey] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
@@ -22,7 +23,6 @@ export default function SignupPage() {
     setError('')
     setIsLoading(true)
 
-    // Client-side validation for institutional email
     if (!email.endsWith('@stu.ucc.edu.gh')) {
       setError('Only UCC institutional emails (@stu.ucc.edu.gh) are allowed')
       setIsLoading(false)
@@ -30,7 +30,7 @@ export default function SignupPage() {
     }
 
     try {
-      const response = await fetch('/api/auth/signup', {
+      const response = await fetch('/api/auth/admin-signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -40,54 +40,39 @@ export default function SignupPage() {
           name: fullName,
           email,
           password,
+          adminKey,
         }),
       })
 
       const contentType = response.headers.get('content-type') || ''
       const isJsonResponse = contentType.includes('application/json')
-
       const data = isJsonResponse ? await response.json() : null
 
       if (!response.ok) {
-        if (isJsonResponse && data?.error) {
-          setError(data.error)
-        } else {
-          setError('Signup failed. Please try again in a moment.')
-        }
+        setError(isJsonResponse && data?.error ? data.error : 'Admin signup failed. Please try again.')
         setIsLoading(false)
         return
       }
 
-      if (!isJsonResponse) {
-        setError('Unexpected server response. Please try again.')
-        setIsLoading(false)
-        return
-      }
-
-      // Redirect to login page after successful signup
-      router.push('/login?signup=success')
+      router.push('/admin/login')
     } catch (err) {
-      console.error('Signup error:', err)
-      setError(
-        err instanceof Error
-          ? `Error: ${err.message}`
-          : 'Network error. Please check your connection and try again.'
-      )
+      console.error('Admin signup error:', err)
+      setError('Network error. Please check your connection and try again.')
       setIsLoading(false)
     }
   }
 
   return (
-    <FormLayout title="Sign Up">
-      <AlertBox title="Create your account" variant="info">
-        Use your UCC institutional email to create an account and manage reports.
+    <FormLayout title="Admin Sign Up">
+      <AlertBox title="Restricted setup" variant="info">
+        This page requires a valid admin setup key and is intended for authorized setup only.
       </AlertBox>
 
-      {error && (
+      {error ? (
         <AlertBox title="Error" variant="danger">
           {error}
         </AlertBox>
-      )}
+      ) : null}
 
       <form onSubmit={handleSubmit} className="space-y-4 rounded-xl border border-gray-100 bg-white p-4">
         <FormField label="Full Name">
@@ -100,7 +85,7 @@ export default function SignupPage() {
           />
         </FormField>
 
-        <FormField label="Email">
+        <FormField label="Admin Email">
           <Input
             type="email"
             placeholder="you@stu.ucc.edu.gh"
@@ -123,17 +108,25 @@ export default function SignupPage() {
           />
         </FormField>
 
+        <FormField label="Admin Setup Key">
+          <Input
+            type="password"
+            placeholder="Enter secure setup key"
+            value={adminKey}
+            onChange={(event) => setAdminKey(event.target.value)}
+            required
+            disabled={isLoading}
+          />
+        </FormField>
+
         <Button type="submit" fullWidth disabled={isLoading}>
-          {isLoading ? 'Creating Account...' : 'Create Account'}
+          {isLoading ? 'Creating Admin...' : 'Create Admin Account'}
         </Button>
       </form>
 
       <div className="flex flex-wrap items-center gap-3 text-[13px] font-medium">
-        <Link href="/login" className="text-navy underline underline-offset-2">
-          Already have an account? Login
-        </Link>
-        <Link href="/report/new" className="text-red underline underline-offset-2">
-          Continue as Guest
+        <Link href="/admin/login" className="text-navy underline underline-offset-2">
+          Already have admin account? Login
         </Link>
       </div>
     </FormLayout>

@@ -11,15 +11,16 @@ import { AlertBox } from '@/src/components/molecules/alert-box'
 
 type ReportFormProps = {
   canToggleAnonymous?: boolean
+  initialContact?: string
 }
 
-export function ReportForm({ canToggleAnonymous = false }: ReportFormProps) {
+export function ReportForm({ canToggleAnonymous = false, initialContact = '' }: ReportFormProps) {
   const totalSteps = 3
   const [step, setStep] = useState(1)
   const [submitting, setSubmitting] = useState(false)
   const [typeValue, setTypeValue] = useState('')
   const [locationValue, setLocationValue] = useState('')
-  const [contactValue, setContactValue] = useState('')
+  const [contactValue, setContactValue] = useState(initialContact)
   const [descriptionValue, setDescriptionValue] = useState('')
   const [witness, setWitness] = useState('')
   const [witnesses, setWitnesses] = useState<string[]>([])
@@ -34,6 +35,10 @@ export function ReportForm({ canToggleAnonymous = false }: ReportFormProps) {
       setAnonymous(true)
     }
   }, [canToggleAnonymous])
+
+  useEffect(() => {
+    setContactValue(initialContact)
+  }, [initialContact])
 
   const addWitness = () => {
     const value = witness.trim()
@@ -77,10 +82,23 @@ export function ReportForm({ canToggleAnonymous = false }: ReportFormProps) {
         body: JSON.stringify(payload),
       })
 
-      const result = await response.json() as {
+      let result: {
         ok?: boolean
         code?: string
         error?: string
+      }
+
+      try {
+        result = (await response.json()) as {
+          ok?: boolean
+          code?: string
+          error?: string
+        }
+      } catch {
+        result = {
+          ok: false,
+          error: 'Unexpected server response. Please try again.',
+        }
       }
 
       if (!response.ok || !result.ok) {
@@ -92,7 +110,7 @@ export function ReportForm({ canToggleAnonymous = false }: ReportFormProps) {
   setStep(1)
   setTypeValue('')
   setLocationValue('')
-  setContactValue('')
+  setContactValue(initialContact)
   setDescriptionValue('')
       setWitness('')
       setWitnesses([])

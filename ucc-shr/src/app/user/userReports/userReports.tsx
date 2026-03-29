@@ -11,7 +11,40 @@ import {
 	MessageSquare,
 	Search,
 } from 'lucide-react'
-import { reportStatusStyles, type UserReport, userReportsMock } from './userReportsData'
+
+type UserReportStatus = 'RECEIVED' | 'REVIEWING' | 'RESOLVED' | 'CLOSED'
+
+type UserReport = {
+	code: string
+	type: string
+	status: UserReportStatus
+	createdAt: string
+}
+
+const reportStatusStyles: Record<
+	UserReportStatus,
+	{
+		label: string
+		chip: string
+	}
+> = {
+	RECEIVED: {
+		label: 'Submitted',
+		chip: 'bg-navy-light text-navy border border-navy/20',
+	},
+	REVIEWING: {
+		label: 'Under review',
+		chip: 'bg-red-light text-red-dark border border-red/30',
+	},
+	RESOLVED: {
+		label: 'Resolved',
+		chip: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+	},
+	CLOSED: {
+		label: 'Closed',
+		chip: 'bg-gray-100 text-gray-700 border border-gray-200',
+	},
+}
 
 type ReportTab = 'ACTIVE' | 'RESOLVED'
 
@@ -31,14 +64,14 @@ function formatSubmittedDate(value: string) {
 }
 
 function getCardIcon(status: UserReport['status']) {
-	if (status === 'UNDER_REVIEW') return <MessageSquare size={19} />
-	if (status === 'INVESTIGATION') return <Search size={19} />
-	if (status === 'RESOLVED') return <CheckCircle2 size={19} />
+	if (status === 'REVIEWING') return <MessageSquare size={19} />
+	if (status === 'RESOLVED' || status === 'CLOSED') return <CheckCircle2 size={19} />
+	if (status === 'RECEIVED') return <Search size={19} />
 	return <FileText size={19} />
 }
 
 function reportActionLabel(status: UserReport['status']) {
-	return status === 'RESOLVED' ? 'Archive Report' : 'View Details'
+	return status === 'RESOLVED' || status === 'CLOSED' ? 'View Summary' : 'View Details'
 }
 
 function ReportsCard({ report }: { report: UserReport }) {
@@ -53,8 +86,8 @@ function ReportsCard({ report }: { report: UserReport }) {
 					>
 						{statusMeta.label}
 					</p>
-					<h3 className="mt-3 text-xl text-gray-900 sm:text-2xl">Incident #{report.id.replace('UCC-', '')}</h3>
-					<p className="mt-1 text-sm text-gray-600">{report.title}</p>
+					<h3 className="mt-3 text-xl text-gray-900 sm:text-2xl">Incident #{report.code.replace('UCC-', '')}</h3>
+					<p className="mt-1 text-sm text-gray-600">{report.type}</p>
 				</div>
 				<div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-navy-light text-navy">
 					{getCardIcon(report.status)}
@@ -63,13 +96,13 @@ function ReportsCard({ report }: { report: UserReport }) {
 
 			<div className="mt-3 flex items-center gap-2 text-sm text-gray-500 sm:text-base">
 				<CalendarDays size={14} />
-				<span>Date: {formatSubmittedDate(report.submittedAt)}</span>
+				<span>Date: {formatSubmittedDate(report.createdAt)}</span>
 			</div>
 
 			<Link
-				href={`/track?code=${encodeURIComponent(report.id)}`}
+				href={`/track?code=${encodeURIComponent(report.code)}`}
 				className={`mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3 text-base font-semibold transition sm:text-lg ${
-					report.status === 'SUBMITTED' ? 'bg-navy text-white hover:bg-navy-dark' : 'bg-navy-light text-navy hover:bg-[#dfe6fa]'
+					report.status === 'RECEIVED' ? 'bg-navy text-white hover:bg-navy-dark' : 'bg-navy-light text-navy hover:bg-[#dfe6fa]'
 				}`}
 			>
 				{reportActionLabel(report.status)}
@@ -79,18 +112,22 @@ function ReportsCard({ report }: { report: UserReport }) {
 	)
 }
 
-export default function UserReports() {
+type UserReportsProps = {
+	reports: UserReport[]
+}
+
+export default function UserReports({ reports }: UserReportsProps) {
 	const [selectedTab, setSelectedTab] = useState<ReportTab>('ACTIVE')
 
 	const sortedReports = useMemo(
-		() => [...userReportsMock].sort((a, b) => +new Date(b.submittedAt) - +new Date(a.submittedAt)),
-		[]
+		() => [...reports].sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt)),
+		[reports]
 	)
 
 	const filteredReports = useMemo(() => {
 		return selectedTab === 'ACTIVE'
-			? sortedReports.filter((report) => report.status !== 'RESOLVED')
-			: sortedReports.filter((report) => report.status === 'RESOLVED')
+			? sortedReports.filter((report) => report.status !== 'RESOLVED' && report.status !== 'CLOSED')
+			: sortedReports.filter((report) => report.status === 'RESOLVED' || report.status === 'CLOSED')
 	}, [selectedTab, sortedReports])
 
 	return (

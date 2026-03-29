@@ -2,32 +2,49 @@ import Link from 'next/link'
 import { AdminLayout } from '@/src/components/templates/admin-layout'
 import { Badge } from '@/src/components/atoms/badge'
 import { Button } from '@/src/components/atoms/button'
+import { auth } from '@/src/lib/auth/auth'
+import { prisma } from '@/src/lib/prisma'
+import { redirect } from 'next/navigation'
 
-const reports = [
-  {
-    id: '#SH-2024-912',
-    submittedAt: 'Mar 19, 2026 • 11:40 AM',
-    status: { label: 'Reviewing', variant: 'warning' as const },
-    category: 'Verbal Harassment',
-    assignee: 'Sarah Coleman',
-  },
-  {
-    id: '#SH-2024-909',
-    submittedAt: 'Mar 18, 2026 • 03:10 PM',
-    status: { label: 'Received', variant: 'navy' as const },
-    category: 'Cyber Harassment',
-    assignee: 'Unassigned',
-  },
-  {
-    id: '#SH-2024-904',
-    submittedAt: 'Mar 17, 2026 • 08:25 AM',
-    status: { label: 'Resolved', variant: 'success' as const },
-    category: 'Stalking',
-    assignee: 'James Denton',
-  },
-]
+function formatSubmittedAt(value: Date) {
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(value)
+}
 
-export default function AdminReportsPage() {
+function statusMeta(status: 'RECEIVED' | 'REVIEWING' | 'RESOLVED' | 'CLOSED') {
+  if (status === 'REVIEWING') return { label: 'Reviewing', variant: 'warning' as const }
+  if (status === 'RESOLVED') return { label: 'Resolved', variant: 'success' as const }
+  if (status === 'CLOSED') return { label: 'Closed', variant: 'gray' as const }
+  return { label: 'Received', variant: 'navy' as const }
+}
+
+export default async function AdminReportsPage() {
+  const session = await auth()
+  if (!session?.user) {
+    redirect('/admin/login')
+  }
+
+  if (session.user.role !== 'SUPER_ADMIN') {
+    redirect('/admin/login')
+  }
+
+  const reports = await prisma.report.findMany({
+    orderBy: {
+      createdAt: 'desc',
+    },
+    select: {
+      code: true,
+      createdAt: true,
+      status: true,
+      type: true,
+    },
+  })
+
   return (
     <AdminLayout title="Case Management">
       <section className="rounded-2xl border border-gray-200 bg-white shadow-sm">
@@ -51,16 +68,16 @@ export default function AdminReportsPage() {
             </thead>
             <tbody>
               {reports.map((report) => (
-                <tr key={report.id} className="border-t border-gray-100 text-sm text-gray-700">
+                <tr key={report.code} className="border-t border-gray-100 text-sm text-gray-700">
                   <td className="px-4 py-4">
-                    <p className="font-semibold text-gray-900">{report.id}</p>
-                    <p className="text-xs text-gray-500">{report.submittedAt}</p>
+                    <p className="font-semibold text-gray-900">{report.code}</p>
+                    <p className="text-xs text-gray-500">{formatSubmittedAt(report.createdAt)}</p>
                   </td>
                   <td className="px-4 py-4">
-                    <Badge variant={report.status.variant}>{report.status.label}</Badge>
+                    <Badge variant={statusMeta(report.status).variant}>{statusMeta(report.status).label}</Badge>
                   </td>
-                  <td className="px-4 py-4 text-gray-800">{report.category}</td>
-                  <td className="px-4 py-4 text-gray-800">{report.assignee}</td>
+                  <td className="px-4 py-4 text-gray-800">{report.type}</td>
+                  <td className="px-4 py-4 text-gray-800">Unassigned</td>
                   <td className="px-4 py-4">
                     <div className="flex gap-3 text-xs font-semibold">
                       <button type="button" className="text-navy hover:text-navy-dark">
@@ -73,6 +90,14 @@ export default function AdminReportsPage() {
                   </td>
                 </tr>
               ))}
+
+              {reports.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-4 py-8 text-center text-sm text-gray-500">
+                    No reports found yet.
+                  </td>
+                </tr>
+              ) : null}
             </tbody>
           </table>
         </div>

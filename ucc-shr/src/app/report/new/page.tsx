@@ -11,10 +11,11 @@ type NewReportPageProps = {
 export default async function NewReportPage({ searchParams }: NewReportPageProps) {
   const params = (await searchParams) ?? {}
   const hasAccount = Boolean(params.name && params.email)
+  const initialContact = params.email?.trim() ?? ''
 
   return (
     <FormLayout title={hasAccount ? 'New Report' : 'Anonymous Report'}>
-      <ReportForm canToggleAnonymous={hasAccount} />
+      <ReportForm canToggleAnonymous={hasAccount} initialContact={initialContact} />
     </FormLayout>
   )
 }

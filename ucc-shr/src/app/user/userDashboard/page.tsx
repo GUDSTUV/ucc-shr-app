@@ -1,19 +1,18 @@
 import UserDashbard from '@/src/app/user/userDashboard/userDashbard'
+import { redirect } from 'next/navigation'
+import { auth } from '@/src/lib/auth/auth'
 
-type DashboardPageProps = {
-  searchParams?: Promise<{
-    name?: string
-    email?: string
-  }>
-}
+export default async function DashboardPage() {
+  const session = await auth()
 
-export default async function DashboardPage({ searchParams }: DashboardPageProps) {
-  const params = (await searchParams) ?? {}
+  if (!session?.user) {
+    redirect('/login')
+  }
 
   return (
     <UserDashbard
-      name={params.name ? decodeURIComponent(params.name) : undefined}
-      email={params.email ? decodeURIComponent(params.email) : undefined}
+      name={session.user.name ?? undefined}
+      email={session.user.email ?? undefined}
     />
   )
 }

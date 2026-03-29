@@ -25,7 +25,8 @@ export function AlertBox({
   noBorder = false,
   children,
 }: AlertBoxProps) {
-  const { wrap, icon, Icon } = styles[variant]
+  const selected = styles[variant] ?? styles.info
+  const { wrap, icon, Icon } = selected
   const wrapTokens = wrap.split(' ')
   const bgClass = wrapTokens.find((token) => token.startsWith('bg-'))
   const borderColorClass = wrapTokens.find((token) => token.startsWith('border-') && token !== 'border-l-4')

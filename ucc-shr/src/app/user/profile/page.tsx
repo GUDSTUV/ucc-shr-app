@@ -1,13 +1,13 @@
 import UserProfile from "./userProfile"
+import { redirect } from 'next/navigation'
+import { auth } from '@/src/lib/auth/auth'
 
-export default async function UserProfilePage({
-	searchParams,
-}: {
-	searchParams: Promise<Record<string, string | string[]>>
-}) {
-	const params = await searchParams
-	const name = typeof params.name === 'string' ? decodeURIComponent(params.name) : undefined
-	const email = typeof params.email === 'string' ? decodeURIComponent(params.email) : undefined
+export default async function UserProfilePage() {
+	const session = await auth()
 
-	return <UserProfile name={name} email={email} />
+	if (!session?.user) {
+		redirect('/login')
+	}
+
+	return <UserProfile name={session.user.name ?? undefined} email={session.user.email ?? undefined} />
 }

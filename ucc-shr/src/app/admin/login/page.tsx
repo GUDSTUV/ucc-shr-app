@@ -1,42 +1,29 @@
-"use client"
+'use client'
 
-import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { useState, useEffect } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
+import { useState } from 'react'
 import { signIn } from 'next-auth/react'
+import Link from 'next/link'
 import { FormLayout } from '@/src/components/templates/form-layout'
 import { FormField } from '@/src/components/molecules/form-field'
 import { Input } from '@/src/components/atoms/input'
 import { Button } from '@/src/components/atoms/button'
 import { AlertBox } from '@/src/components/molecules/alert-box'
 
-export default function LoginPage() {
-  const router = useRouter()
+export default function AdminLoginPage() {
   const searchParams = useSearchParams()
+  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [successMessage, setSuccessMessage] = useState('')
 
-  useEffect(() => {
-    if (searchParams.get('signup') === 'success') {
-      setSuccessMessage('Account created successfully! Please login.')
-    }
-  }, [searchParams])
+  const callbackUrl = searchParams.get('callbackUrl') || '/admin'
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setError('')
-    setSuccessMessage('')
     setIsLoading(true)
-
-    // Client-side validation for institutional email
-    if (!email.endsWith('@stu.ucc.edu.gh')) {
-      setError('Only UCC institutional emails (@stu.ucc.edu.gh) are allowed')
-      setIsLoading(false)
-      return
-    }
 
     try {
       const result = await signIn('credentials', {
@@ -46,44 +33,32 @@ export default function LoginPage() {
       })
 
       if (result?.error) {
-        setError('Invalid email or password')
+        setError('Invalid admin credentials')
         setIsLoading(false)
         return
       }
 
-      // Respect callback target from middleware-protected routes.
-      const callbackUrl = searchParams.get('callbackUrl')
-      if (callbackUrl && callbackUrl.startsWith('/')) {
-        router.push(callbackUrl)
-      } else {
-        router.push('/user/userDashboard')
-      }
-    } catch (err) {
-      setError('An error occurred. Please try again.')
+      router.push(callbackUrl.startsWith('/admin') ? callbackUrl : '/admin')
+    } catch {
+      setError('Unable to sign in right now. Please try again.')
       setIsLoading(false)
     }
   }
 
   return (
-    <FormLayout title="Login">
-      <AlertBox title="Secure access" variant="info">
-        Login with your UCC institutional account to manage reports and access protected features.
+    <FormLayout title="Admin Login">
+      <AlertBox title="Restricted access" variant="info">
+        Sign in with a SUPER_ADMIN account to access the admin dashboard.
       </AlertBox>
 
-      {successMessage && (
-        <AlertBox title="Success" variant="success">
-          {successMessage}
-        </AlertBox>
-      )}
-
-      {error && (
-        <AlertBox title="Error" variant="danger">
+      {error ? (
+        <AlertBox title="Login failed" variant="danger">
           {error}
         </AlertBox>
-      )}
+      ) : null}
 
       <form onSubmit={handleSubmit} className="space-y-4 rounded-xl border border-gray-100 bg-white p-4">
-        <FormField label="Email">
+        <FormField label="Admin Email">
           <Input
             type="email"
             placeholder="you@stu.ucc.edu.gh"
@@ -106,16 +81,13 @@ export default function LoginPage() {
         </FormField>
 
         <Button type="submit" fullWidth disabled={isLoading}>
-          {isLoading ? 'Signing In...' : 'Sign In'}
+          {isLoading ? 'Signing In...' : 'Sign In to Admin'}
         </Button>
       </form>
 
       <div className="flex flex-wrap items-center gap-3 text-[13px] font-medium">
-        <Link href="/signup" className="text-navy underline underline-offset-2">
-          Create account
-        </Link>
-        <Link href="/report/new" className="text-red underline underline-offset-2">
-          Continue as Guest
+        <Link href="/admin/signup" className="text-navy underline underline-offset-2">
+          Need to set up an admin account?
         </Link>
       </div>
     </FormLayout>

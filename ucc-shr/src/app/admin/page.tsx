@@ -3,6 +3,9 @@ import { Badge } from '@/src/components/atoms/badge'
 import { Button } from '@/src/components/atoms/button'
 import { Input } from '@/src/components/atoms/input'
 import { Select } from '@/src/components/atoms/select'
+import { auth } from '@/src/lib/auth/auth'
+import { prisma } from '@/src/lib/prisma'
+import { redirect } from 'next/navigation'
 import {
   Bell,
   CheckCircle2,
@@ -15,81 +18,177 @@ import {
   UserRound,
 } from 'lucide-react'
 
-const statCards = [
-  {
-    label: 'Total Reports',
-    value: '1,284',
-    trend: '+12.4%',
-    trendVariant: 'success' as const,
-    icon: <ClipboardList size={18} />,
-    iconClass: 'bg-navy-light text-navy',
-  },
-  {
-    label: 'Active Cases',
-    value: '156',
-    trend: '42 pending',
-    trendVariant: 'warning' as const,
-    icon: <FileWarning size={18} />,
-    iconClass: 'bg-red-light text-red',
-  },
-  {
-    label: 'Resolved Cases',
-    value: '1,024',
-    trend: '88% rate',
-    trendVariant: 'success' as const,
-    icon: <CheckCircle2 size={18} />,
-    iconClass: 'bg-[#E8F5EE] text-[#1A6B50]',
-  },
-  {
-    label: 'Avg. Response Time',
-    value: '18.4 hrs',
-    trend: '-2h from avg',
-    trendVariant: 'red' as const,
-    icon: <Clock3 size={18} />,
-    iconClass: 'bg-navy-light text-navy',
-  },
-]
+function formatSubmittedAt(value: Date) {
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(value)
+}
 
-const trendBars = [44, 61, 82, 53, 91, 72]
+function statusMeta(status: 'RECEIVED' | 'REVIEWING' | 'RESOLVED' | 'CLOSED') {
+  if (status === 'REVIEWING') return { label: 'Reviewing', variant: 'warning' as const }
+  if (status === 'RESOLVED') return { label: 'Resolved', variant: 'success' as const }
+  if (status === 'CLOSED') return { label: 'Closed', variant: 'gray' as const }
+  return { label: 'Received', variant: 'navy' as const }
+}
 
-const categoryData = [
-  { label: 'Verbal Harassment', percent: 42 },
-  { label: 'Cyber Stalking', percent: 28 },
-  { label: 'Physical Misconduct', percent: 18 },
-  { label: 'Other Types', percent: 12 },
-]
+export default async function AdminDashboardPage() {
+  const session = await auth()
+  if (!session?.user) {
+    redirect('/admin/login')
+  }
 
-const recentReports = [
-  {
-    id: '#SH-2024-891',
-    submittedAt: 'Oct 24, 2023 • 09:45 AM',
-    statusLabel: 'In Progress',
-    statusVariant: 'warning' as const,
-    category: 'Cyber Harassment',
-    investigator: 'James Denton',
-    investigatorAssigned: true,
-  },
-  {
-    id: '#SH-2024-889',
-    submittedAt: 'Oct 23, 2023 • 02:30 PM',
-    statusLabel: 'Urgent',
-    statusVariant: 'red' as const,
-    category: 'Physical Misconduct',
-    investigator: 'Unassigned',
-    investigatorAssigned: false,
-  },
-  {
-    id: '#SH-2024-885',
-    submittedAt: 'Oct 22, 2023 • 11:12 AM',
-    statusLabel: 'Reviewing',
-    statusVariant: 'navy' as const,
-    category: 'Verbal Harassment',
-    investigator: 'Sarah Coleman',
-    investigatorAssigned: true,
-  },
-]
+  if (session.user.role !== 'SUPER_ADMIN') {
+    redirect('/admin/login')
+  }
 
-export default function AdminDashboardPage() {
+  const now = new Date()
+  const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1)
+
+  const [
+    totalReports,
+    activeCases,
+    resolvedCases,
+    recentReportsRaw,
+    allReportsForTypes,
+    lastSixMonthsReports,
+    resolvedForSla,
+  ] = await Promise.all([
+    prisma.report.count(),
+    prisma.report.count({ where: { status: { in: ['RECEIVED', 'REVIEWING'] } } }),
+    prisma.report.count({ where: { status: { in: ['RESOLVED', 'CLOSED'] } } }),
+    prisma.report.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 6,
+      select: {
+        code: true,
+        createdAt: true,
+        status: true,
+        type: true,
+      },
+    }),
+    prisma.report.findMany({ select: { type: true } }),
+    prisma.report.findMany({
+      where: { createdAt: { gte: sixMonthsAgo } },
+      select: { createdAt: true },
+    }),
+    prisma.report.findMany({
+      where: { status: { in: ['RESOLVED', 'CLOSED'] } },
+      select: { createdAt: true, updatedAt: true },
+    }),
+  ])
+
+  const avgResponseHours = resolvedForSla.length
+    ? Math.round(
+        (resolvedForSla.reduce((sum, report) => {
+          const diffMs = report.updatedAt.getTime() - report.createdAt.getTime()
+          return sum + diffMs / (1000 * 60 * 60)
+        }, 0) /
+          resolvedForSla.length) *
+          10
+      ) / 10
+    : 0
+
+  const previousMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+  const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+  const previousMonthCount = lastSixMonthsReports.filter(
+    (report) => report.createdAt >= previousMonthStart && report.createdAt < currentMonthStart
+  ).length
+  const currentMonthCount = lastSixMonthsReports.filter((report) => report.createdAt >= currentMonthStart).length
+
+  const trendDiff = currentMonthCount - previousMonthCount
+  const trendPercent =
+    previousMonthCount > 0 ? Math.round((trendDiff / previousMonthCount) * 1000) / 10 : currentMonthCount > 0 ? 100 : 0
+
+  const monthBuckets = Array.from({ length: 6 }, (_, index) => {
+    const date = new Date(now.getFullYear(), now.getMonth() - (5 - index), 1)
+    const key = `${date.getFullYear()}-${date.getMonth()}`
+    return {
+      key,
+      label: date.toLocaleString('en-US', { month: 'short' }).toUpperCase(),
+      count: 0,
+    }
+  })
+
+  for (const report of lastSixMonthsReports) {
+    const key = `${report.createdAt.getFullYear()}-${report.createdAt.getMonth()}`
+    const bucket = monthBuckets.find((item) => item.key === key)
+    if (bucket) bucket.count += 1
+  }
+
+  const maxBucketCount = Math.max(...monthBuckets.map((item) => item.count), 1)
+  const trendBars = monthBuckets.map((item) => ({
+    ...item,
+    height: Math.max(12, Math.round((item.count / maxBucketCount) * 100)),
+  }))
+
+  const typeCounts = allReportsForTypes.reduce<Record<string, number>>((acc, report) => {
+    const key = report.type || 'Other'
+    acc[key] = (acc[key] || 0) + 1
+    return acc
+  }, {})
+
+  const sortedTypeEntries = Object.entries(typeCounts).sort((a, b) => b[1] - a[1])
+  const topTypeEntries = sortedTypeEntries.slice(0, 3)
+  const otherCount = sortedTypeEntries.slice(3).reduce((sum, [, count]) => sum + count, 0)
+  const categorySource = otherCount > 0 ? [...topTypeEntries, ['Other Types', otherCount] as const] : topTypeEntries
+
+  const categoryData = categorySource.map(([label, count]) => ({
+    label,
+    percent: totalReports > 0 ? Math.round((count / totalReports) * 100) : 0,
+  }))
+
+  const statCards = [
+    {
+      label: 'Total Reports',
+      value: totalReports.toLocaleString(),
+      trend: `${trendDiff >= 0 ? '+' : ''}${trendPercent}%`,
+      trendVariant: trendDiff >= 0 ? ('success' as const) : ('red' as const),
+      icon: <ClipboardList size={18} />,
+      iconClass: 'bg-navy-light text-navy',
+    },
+    {
+      label: 'Active Cases',
+      value: activeCases.toLocaleString(),
+      trend: `${activeCases} pending`,
+      trendVariant: 'warning' as const,
+      icon: <FileWarning size={18} />,
+      iconClass: 'bg-red-light text-red',
+    },
+    {
+      label: 'Resolved Cases',
+      value: resolvedCases.toLocaleString(),
+      trend: totalReports > 0 ? `${Math.round((resolvedCases / totalReports) * 100)}% rate` : '0% rate',
+      trendVariant: 'success' as const,
+      icon: <CheckCircle2 size={18} />,
+      iconClass: 'bg-[#E8F5EE] text-[#1A6B50]',
+    },
+    {
+      label: 'Avg. Response Time',
+      value: `${avgResponseHours.toFixed(1)} hrs`,
+      trend: resolvedForSla.length ? `${resolvedForSla.length} closed cases` : 'No closed cases yet',
+      trendVariant: 'navy' as const,
+      icon: <Clock3 size={18} />,
+      iconClass: 'bg-navy-light text-navy',
+    },
+  ]
+
+  const recentReports = recentReportsRaw.map((report) => {
+    const meta = statusMeta(report.status)
+    return {
+      id: report.code,
+      submittedAt: formatSubmittedAt(report.createdAt),
+      statusLabel: meta.label,
+      statusVariant: meta.variant,
+      category: report.type,
+      investigator: 'Pending Assignment',
+      investigatorAssigned: false,
+    }
+  })
+
   return (
     <AdminLayout title="Reporting Dashboard">
       <section className="space-y-6">
@@ -141,15 +240,15 @@ export default function AdminDashboardPage() {
             </div>
 
             <div className="flex h-[230px] items-end gap-3 rounded-xl bg-gray-50 p-4">
-              {trendBars.map((barHeight, index) => (
-                <div key={`${barHeight}-${index}`} className="flex flex-1 flex-col items-center gap-2">
+              {trendBars.map((bar, index) => (
+                <div key={bar.key} className="flex flex-1 flex-col items-center gap-2">
                   <div
                     className={`w-full rounded-t-xl ${index === trendBars.length - 1 ? 'bg-navy' : 'bg-navy/25'}`}
-                    style={{ height: `${barHeight}%` }}
+                    style={{ height: `${bar.height}%` }}
                     aria-hidden="true"
                   />
                   <span className="text-[11px] font-semibold tracking-wide text-gray-400">
-                    {['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN'][index]}
+                    {bar.label}
                   </span>
                 </div>
               ))}
