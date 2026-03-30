@@ -21,13 +21,13 @@ export function HubHeader({ search, onSearchChange }: HubHeaderProps) {
 
         <h1 className="text-xl font-semibold text-navy">Posts &amp; Events</h1>
 
-        <button
-          type="button"
+        <Link
+          href="/user/notifications"
           className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-navy-light text-navy"
           aria-label="Notifications"
         >
           <Bell size={20} />
-        </button>
+        </Link>
       </div>
 
       <HubSearchInput value={search} onChange={onSearchChange} />

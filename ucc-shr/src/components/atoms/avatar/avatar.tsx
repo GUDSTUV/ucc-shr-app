@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import Image from 'next/image'
 
 export interface AvatarProps {
   src?: string
@@ -15,6 +16,12 @@ const sizes = {
   lg: 'w-12 h-12 text-base',
 }
 
+const imageSizes = {
+  sm: 32,
+  md: 40,
+  lg: 48,
+}
+
 export function Avatar({
   src,
   alt = 'avatar',
@@ -25,9 +32,12 @@ export function Avatar({
 }: AvatarProps) {
   if (src) {
     return (
-      <img
+      <Image
         src={src}
         alt={alt}
+        width={imageSizes[size]}
+        height={imageSizes[size]}
+        unoptimized
         className={`${sizes[size]} rounded-full object-cover bg-gray-100 ${className ?? ''}`}
       />
     )

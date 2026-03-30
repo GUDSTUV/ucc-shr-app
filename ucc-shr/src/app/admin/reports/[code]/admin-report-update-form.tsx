@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/src/components/atoms/button'
 import { Select } from '@/src/components/atoms/select'
 import { Textarea } from '@/src/components/atoms/textarea'
@@ -18,6 +19,7 @@ export function AdminReportUpdateForm({
   counsellors,
   currentCounsellorId,
 }: AdminReportUpdateFormProps) {
+  const router = useRouter()
   const [status, setStatus] = useState(currentStatus)
   const [counsellorId, setCounsellorId] = useState(currentCounsellorId ?? '')
   const [message, setMessage] = useState('')
@@ -48,7 +50,7 @@ export function AdminReportUpdateForm({
         return
       }
 
-      window.location.reload()
+      router.refresh()
     } catch {
       setError('Network error while updating report.')
       setSubmitting(false)
@@ -56,10 +58,10 @@ export function AdminReportUpdateForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3 rounded-xl border border-gray-200 bg-white p-4">
+    <form onSubmit={handleSubmit} className="space-y-4 rounded-xl border border-gray-200 bg-white p-5">
       <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-gray-400">Assign Counsellor</p>
-        <Select value={counsellorId} onChange={(event) => setCounsellorId(event.target.value)} className="mt-2">
+        <p className="text-base font-semibold text-gray-700">Assign Counsellor</p>
+        <Select value={counsellorId} onChange={(event) => setCounsellorId(event.target.value)} className="mt-2 h-11 text-base">
           <option value="">Unassigned</option>
           {counsellors.map((counsellor) => (
             <option key={counsellor.id} value={counsellor.id}>
@@ -70,11 +72,11 @@ export function AdminReportUpdateForm({
       </div>
 
       <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-gray-400">Update Status</p>
+        <p className="text-base font-semibold text-gray-700">Update Status</p>
         <Select
           value={status}
           onChange={(event) => setStatus(event.target.value as typeof currentStatus)}
-          className="mt-2"
+          className="mt-2 h-11 text-base"
         >
           <option value="RECEIVED">Received</option>
           <option value="REVIEWING">Reviewing</option>
@@ -84,19 +86,19 @@ export function AdminReportUpdateForm({
       </div>
 
       <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-gray-400">Admin Note</p>
+        <p className="text-base font-semibold text-gray-700">Admin Note</p>
         <Textarea
           value={message}
           onChange={(event) => setMessage(event.target.value)}
           placeholder="Optional note shown to the user in notifications"
           rows={4}
-          className="mt-2"
+          className="mt-2 text-base leading-relaxed"
         />
       </div>
 
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-base text-red-600">{error}</p> : null}
 
-      <Button type="submit" disabled={submitting}>
+      <Button type="submit" disabled={submitting} className="h-11 px-4 text-base">
         {submitting ? 'Saving...' : 'Save Update'}
       </Button>
     </form>

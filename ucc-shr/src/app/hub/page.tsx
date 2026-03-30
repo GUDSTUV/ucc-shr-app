@@ -1,142 +1,120 @@
-'use client'
-
-import { useMemo, useState } from 'react'
 import { PublicLayout } from '@/src/components/templates/public-layout'
-import { HubHeader } from '@/src/components/organisms/hub-header/hub-header'
-import { HubFilterChips } from '@/src/components/molecules/hub-filter-chips/hub-filter-chips'
-import { HubFeedCard } from '@/src/components/organisms/hub-feed-card/hub-feed-card'
+import { prisma } from '@/src/lib/prisma'
+import { auth } from '@/src/lib/auth/auth'
+import { HubClient } from './hub-client'
 
-type HubCategory = 'All' | 'Awareness' | 'Workshop' | 'Safety Tips' | 'Events'
+const DEFAULT_ARTICLE_IMAGE = '/icons/default-article.svg'
+const DEFAULT_EVENT_IMAGE = '/icons/default-event.svg'
 
 interface HubItem {
-	id: number
+	id: string
+	resourceType: 'ARTICLE' | 'EVENT'
+	resourceId: string
+	href: string
 	title: string
 	excerpt: string
-	category: Exclude<HubCategory, 'All'>
+	category: 'Awareness' | 'Events' | 'Rights'
 	readTime: string
+	imageUrl?: string
 	dateLabel?: string
 	timeLabel?: string
 	isRegistration?: boolean
 	imageTheme: string
+	isSaved: boolean
 }
 
-const categoryBadgeStyles: Record<Exclude<HubCategory, 'All'>, string> = {
-	Awareness: 'bg-navy text-white border border-white/20 backdrop-blur-[1px]',
-	Workshop: 'bg-navy/75 text-white border border-white/20 backdrop-blur-[1px]',
-	'Safety Tips': 'bg-navy/75 text-white border border-white/20 backdrop-blur-[1px]',
-	Events: 'bg-navy/75 text-white border border-white/20 backdrop-blur-[1px]',
-}
+export default async function HubPage() {
+	const session = await auth()
 
-const categories: HubCategory[] = ['All', 'Awareness', 'Events']
+	const [articles, events, saved] = await Promise.all([
+		prisma.article.findMany({
+			where: { published: true },
+			orderBy: { updatedAt: 'desc' },
+			take: 30,
+			select: {
+				id: true,
+				slug: true,
+				title: true,
+				category: true,
+				content: true,
+				coverImage: true,
+				updatedAt: true,
+			},
+		}),
+		prisma.event.findMany({
+			where: { published: true },
+			orderBy: { startDate: 'desc' },
+			take: 30,
+			select: {
+				id: true,
+				title: true,
+				description: true,
+				image: true,
+				startDate: true,
+			},
+		}),
+		session?.user
+			? prisma.savedResource.findMany({
+					where: { userId: session.user.id },
+					select: { resourceType: true, resourceId: true },
+				})
+			: Promise.resolve([]),
+	])
 
-const items: HubItem[] = [
-	{
-		id: 1,
-		title: 'Mental Health in the Workplace: Supporting Your Peers',
-		excerpt: 'Learn how to recognize burnout signs and offer meaningful support to colleagues.',
-		category: 'Awareness',
-		readTime: '5 min read',
-		imageTheme: 'from-navy-light via-white to-gray-100',
-	},
-	{
-		id: 2,
-		title: 'First Aid Certification: Advanced Response Training',
-		excerpt: 'Join our certified trainers for practical emergency response and recovery drills.',
-		category: 'Workshop',
-		readTime: 'Event',
-		dateLabel: 'OCT 24',
-		timeLabel: '14:00 - 16:30',
-		isRegistration: true,
-		imageTheme: 'from-navy via-navy-dark to-gray-900',
-	},
-	{
-		id: 3,
-		title: 'Digital Safety: Securing Your Professional Data',
-		excerpt: 'Quick steps to keep personal records and project files protected online.',
-		category: 'Safety Tips',
-		readTime: '3 min read',
-		imageTheme: 'from-navy-dark via-navy to-gray-900',
-	},
-	{
-		id: 4,
-		title: 'Cyber Awareness Week: Spotting Phishing Attempts',
-		excerpt: 'Practical examples to help you identify suspicious links and protect your account access.',
-		category: 'Awareness',
-		readTime: '4 min read',
-		imageTheme: 'from-navy via-navy-dark to-gray-900',
-	},
-	{
-		id: 5,
-		title: 'Campus Safety Briefing: Emergency Preparedness Session',
-		excerpt: 'Join the in-person briefing for updated response procedures and safety contact lines.',
-		category: 'Events',
-		readTime: 'Event',
-		dateLabel: 'NOV 06',
-		timeLabel: '09:30 - 11:00',
-		isRegistration: true,
-		imageTheme: 'from-navy-dark via-navy to-gray-900',
-	},
-	{
-		id: 6,
-		title: 'Digital Wellbeing: Reducing Online Fatigue',
-		excerpt: 'Simple routines to improve focus, reduce burnout, and build healthier screen habits.',
-		category: 'Awareness',
-		readTime: '6 min read',
-		imageTheme: 'from-navy-light via-white to-gray-100',
-	},
-]
+	const savedKeys = new Set(saved.map((entry) => `${entry.resourceType}:${entry.resourceId}`))
 
-export default function HubPage() {
-	const [activeCategory, setActiveCategory] = useState<HubCategory>('All')
-	const [search, setSearch] = useState('')
+	const articleItems: Array<HubItem & { sortAt: number }> = articles.map((article) => {
+		const category = article.category === 'Rights' ? 'Rights' : 'Awareness'
+		const contentText = typeof article.content === 'string' ? article.content : JSON.stringify(article.content)
+		const key = `ARTICLE:${article.id}`
 
-	const filteredItems = useMemo(() => {
-		return items.filter((item) => {
-			const categoryMatch = activeCategory === 'All' || item.category === activeCategory
-			const query = search.trim().toLowerCase()
-			const searchMatch =
-				query.length === 0 ||
-				item.title.toLowerCase().includes(query) ||
-				item.excerpt.toLowerCase().includes(query) ||
-				item.category.toLowerCase().includes(query)
+		return {
+			id: key,
+			resourceType: 'ARTICLE',
+			resourceId: article.id,
+			href: `/hub/${article.slug}`,
+			title: article.title,
+			excerpt: contentText.slice(0, 140) || 'Read the latest CEGRAD update.',
+			category,
+			readTime: '3 min read',
+			imageUrl: article.coverImage || DEFAULT_ARTICLE_IMAGE,
+			imageTheme:
+				category === 'Rights' ? 'from-red/10 via-red/5 to-white' : 'from-navy-light via-white to-gray-100',
+			isRegistration: false,
+			isSaved: savedKeys.has(key),
+			sortAt: article.updatedAt.getTime(),
+		}
+	})
 
-			return categoryMatch && searchMatch
-		})
-	}, [activeCategory, search])
+	const eventItems: Array<HubItem & { sortAt: number }> = events.map((event) => {
+		const key = `EVENT:${event.id}`
+
+		return {
+			id: key,
+			resourceType: 'EVENT',
+			resourceId: event.id,
+			href: `/events/${event.id}`,
+			title: event.title,
+			excerpt: `${event.description.slice(0, 120)}${event.description.length > 120 ? '...' : ''}`,
+			category: 'Events',
+			readTime: 'Event',
+			imageUrl: event.image || DEFAULT_EVENT_IMAGE,
+			dateLabel: new Intl.DateTimeFormat('en-US', { month: 'short', day: '2-digit' }).format(event.startDate).toUpperCase(),
+			timeLabel: new Intl.DateTimeFormat('en-US', { hour: '2-digit', minute: '2-digit' }).format(event.startDate),
+			isRegistration: true,
+			imageTheme: 'from-navy-dark via-navy to-gray-900',
+			isSaved: savedKeys.has(key),
+			sortAt: event.startDate.getTime(),
+		}
+	})
+
+	const items: HubItem[] = [...articleItems, ...eventItems]
+		.sort((a, b) => b.sortAt - a.sortAt)
+		.slice(0, 30)
 
 	return (
 		<PublicLayout>
-			<div className="font-sans">
-				<HubHeader search={search} onSearchChange={setSearch} />
-				<HubFilterChips
-					categories={categories}
-					activeCategory={activeCategory}
-					onCategoryChange={setActiveCategory}
-				/>
-
-				<section className="mt-6 space-y-5">
-					{filteredItems.map((item) => (
-						<HubFeedCard
-							key={item.id}
-							title={item.title}
-							excerpt={item.excerpt}
-							category={item.category}
-							readTime={item.readTime}
-							dateLabel={item.dateLabel}
-							timeLabel={item.timeLabel}
-							isRegistration={item.isRegistration}
-							imageTheme={item.imageTheme}
-							categoryBadgeClass={categoryBadgeStyles[item.category]}
-						/>
-					))}
-
-					{filteredItems.length === 0 ? (
-						<div className="rounded-2xl border border-gray-100 bg-white p-5 text-center text-sm text-gray-600">
-							No results for this filter yet.
-						</div>
-					) : null}
-				</section>
-			</div>
+			<HubClient items={items} isAuthenticated={Boolean(session?.user)} />
 		</PublicLayout>
 	)
 }

@@ -1,5 +1,6 @@
 'use client'
 
+import { useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Input } from '@/src/components/atoms/input'
 import { Select } from '@/src/components/atoms/select'
@@ -22,30 +23,49 @@ export function ReportFilters({
   currentSort,
 }: ReportFiltersProps) {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const searchDebounceRef = useRef<number | null>(null)
 
-  function handleFilterChange(key: string, value: string) {
+  function pushFilters(next: Partial<{ q: string; status: string; type: string; assigned: string; sort: string }>) {
     const params = new URLSearchParams()
+    const current = new URLSearchParams(searchParams.toString())
 
-    params.set('q', key === 'q' ? value : currentQ)
-    params.set('status', key === 'status' ? value : currentStatus)
-    params.set('type', key === 'type' ? value : currentType)
-    params.set('assigned', key === 'assigned' ? value : currentAssigned)
-    params.set('sort', key === 'sort' ? value : currentSort)
+    const q = (next.q ?? current.get('q') ?? currentQ).trim()
+    const status = next.status ?? current.get('status') ?? currentStatus
+    const type = next.type ?? current.get('type') ?? currentType
+    const assigned = next.assigned ?? current.get('assigned') ?? currentAssigned
+    const sort = next.sort ?? current.get('sort') ?? currentSort
+
+    if (q) params.set('q', q)
+    if (status) params.set('status', status)
+    if (type) params.set('type', type)
+    if (assigned) params.set('assigned', assigned)
+    if (sort && sort !== 'newest') params.set('sort', sort)
 
     const queryString = params.toString()
-    router.push(`/admin/reports?${queryString}`)
+    router.replace(queryString ? `/admin/reports?${queryString}` : '/admin/reports', { scroll: false })
   }
 
   return (
-    <div className="grid grid-cols-1 gap-2 md:grid-cols-5">
+    <div className="grid grid-cols-1 gap-2.5 md:grid-cols-5">
       <Input
-        value={currentQ}
-        onChange={(e) => handleFilterChange('q', e.target.value)}
-        placeholder="Search code, category, or counsellor"
-        className="h-10"
+        defaultValue={currentQ}
+        onChange={(e) => {
+          if (searchDebounceRef.current) {
+            window.clearTimeout(searchDebounceRef.current)
+          }
+
+          const nextValue = e.target.value
+          searchDebounceRef.current = window.setTimeout(() => {
+            pushFilters({ q: nextValue })
+          }, 250)
+        }}
+        placeholder="Search report ID, category, status, or counsellor"
+        className="h-11 text-base"
+        aria-label="Search reports"
       />
 
-      <Select value={currentStatus} onChange={(e) => handleFilterChange('status', e.target.value)} className="h-10">
+      <Select value={currentStatus} onChange={(e) => pushFilters({ status: e.target.value })} className="h-11 text-base" aria-label="Filter by status">
         <option value="">Status: All</option>
         <option value="RECEIVED">Received</option>
         <option value="REVIEWING">Reviewing</option>
@@ -53,7 +73,7 @@ export function ReportFilters({
         <option value="CLOSED">Closed</option>
       </Select>
 
-      <Select value={currentType} onChange={(e) => handleFilterChange('type', e.target.value)} className="h-10">
+      <Select value={currentType} onChange={(e) => pushFilters({ type: e.target.value })} className="h-11 text-base" aria-label="Filter by category">
         <option value="">Category: All</option>
         {availableTypes.map((type) => (
           <option key={type} value={type}>
@@ -62,13 +82,13 @@ export function ReportFilters({
         ))}
       </Select>
 
-      <Select value={currentAssigned} onChange={(e) => handleFilterChange('assigned', e.target.value)} className="h-10">
+      <Select value={currentAssigned} onChange={(e) => pushFilters({ assigned: e.target.value })} className="h-11 text-base" aria-label="Filter by assignment">
         <option value="">Assignment: All</option>
         <option value="assigned">Assigned</option>
         <option value="unassigned">Unassigned</option>
       </Select>
 
-      <Select value={currentSort} onChange={(e) => handleFilterChange('sort', e.target.value)} className="h-10">
+      <Select value={currentSort} onChange={(e) => pushFilters({ sort: e.target.value })} className="h-11 text-base" aria-label="Sort reports">
         <option value="newest">Sort: Newest</option>
         <option value="oldest">Sort: Oldest</option>
         <option value="updated">Sort: Recently Updated</option>

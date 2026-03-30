@@ -4,8 +4,11 @@ import { AlertBox } from '@/src/components/molecules/alert-box'
 import { Button } from '@/src/components/atoms/button'
 import { Bell, Bookmark, FileText, Plus, UserCircle2 } from 'lucide-react'
 import { prisma } from '@/src/lib/prisma'
+import { belongsToUser, parseReportNotes } from '@/src/lib/auth/report-access'
+import { getNotificationReadIds, getNotificationState } from '@/src/lib/notification-state'
 
 type UserDashboardProps = {
+  userId: string
   name?: string
   email?: string
 }
@@ -94,10 +97,52 @@ function QuickLink({
 }
 
 export default async function UserDashbard({
+  userId,
   name = 'User',
   email = 'user@ucc.edu.gh',
 }: UserDashboardProps) {
   const stats = await getDashboardStats()
+
+  const [reports, notificationState] = await Promise.all([
+    prisma.report.findMany({
+      select: {
+        notes: true,
+      },
+    }),
+    getNotificationState(userId, 'USER'),
+  ])
+
+  const cutoffMs = Math.max(
+    notificationState?.lastSeenAt?.getTime() ?? 0,
+    notificationState?.clearedAt?.getTime() ?? 0,
+  )
+
+  const userNotificationIds: string[] = []
+  for (const report of reports) {
+    if (!belongsToUser(report.notes, userId, email ?? null)) {
+      continue
+    }
+
+    const notes = parseReportNotes(report.notes)
+    const updates = Array.isArray(notes.adminUpdates) ? notes.adminUpdates : []
+    userNotificationIds.push(...updates.map((update) => update.id))
+  }
+
+  const readIds = await getNotificationReadIds(userId, 'USER', userNotificationIds)
+
+  let unreadNotificationCount = 0
+  for (const report of reports) {
+    if (!belongsToUser(report.notes, userId, email ?? null)) {
+      continue
+    }
+
+    const notes = parseReportNotes(report.notes)
+    const updates = Array.isArray(notes.adminUpdates) ? notes.adminUpdates : []
+    unreadNotificationCount += updates.filter((update) => {
+      const isAfterCutoff = new Date(update.at).getTime() > cutoffMs
+      return isAfterCutoff && !readIds.has(update.id)
+    }).length
+  }
 
   return (
     <PublicLayout>
@@ -118,7 +163,9 @@ export default async function UserDashbard({
             className="relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20"
           >
             <Bell size={18} />
-            <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-cyan-300 ring-2 ring-navy" />
+            {unreadNotificationCount > 0 ? (
+              <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-cyan-300 ring-2 ring-navy" />
+            ) : null}
           </Link>
         </div>
 
@@ -161,10 +208,10 @@ export default async function UserDashbard({
           subtitle="View and manage submissions"
         />
         <QuickLink
-          href="/help"
+          href="/user/saved"
           icon={<Bookmark size={18} />}
           title="Resources"
-          subtitle="Support information and guides"
+          subtitle="Your saved posts and events"
         />
              <Link
               href={`/report/new?name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`}

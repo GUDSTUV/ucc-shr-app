@@ -1,7 +1,7 @@
 'use client'
 
 import { useSearchParams, useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import { signIn } from 'next-auth/react'
 import Link from 'next/link'
 import { FormLayout } from '@/src/components/templates/form-layout'
@@ -9,8 +9,9 @@ import { FormField } from '@/src/components/molecules/form-field'
 import { Input } from '@/src/components/atoms/input'
 import { Button } from '@/src/components/atoms/button'
 import { AlertBox } from '@/src/components/molecules/alert-box'
+import { resolveSafeCallback } from '@/src/lib/auth/safe-redirect'
 
-export default function AdminLoginPage() {
+function AdminLoginContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const [email, setEmail] = useState('')
@@ -18,7 +19,7 @@ export default function AdminLoginPage() {
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
-  const callbackUrl = searchParams.get('callbackUrl') || '/admin'
+  const callbackUrl = searchParams.get('callbackUrl')
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -29,6 +30,7 @@ export default function AdminLoginPage() {
       const result = await signIn('credentials', {
         email,
         password,
+        portal: 'admin',
         redirect: false,
       })
 
@@ -38,7 +40,7 @@ export default function AdminLoginPage() {
         return
       }
 
-      router.push(callbackUrl.startsWith('/admin') ? callbackUrl : '/admin')
+      router.push(resolveSafeCallback(callbackUrl, '/admin', { requirePrefix: '/admin' }))
     } catch {
       setError('Unable to sign in right now. Please try again.')
       setIsLoading(false)
@@ -91,5 +93,13 @@ export default function AdminLoginPage() {
         </Link>
       </div>
     </FormLayout>
+  )
+}
+
+export default function AdminLoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <AdminLoginContent />
+    </Suspense>
   )
 }

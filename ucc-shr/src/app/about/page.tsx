@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from 'react'
-import { useEffect } from 'react'
 import { PublicLayout } from '@/src/components/templates/public-layout'
 import { ChevronRight, FileText, HelpCircle, Info, Shield } from 'lucide-react'
 
@@ -133,15 +132,16 @@ const legalItems = [
 ]
 
 export default function AboutPage() {
-  const [openItem, setOpenItem] = useState(legalItems[0].id)
+  const [openItem, setOpenItem] = useState(() => {
+    if (typeof window === 'undefined') {
+      return legalItems[0].id
+    }
 
-  useEffect(() => {
     const hash = window.location.hash.replace('#', '')
-    if (!hash) return
-
     const exists = legalItems.some((item) => item.id === hash)
-    if (exists) setOpenItem(hash)
-  }, [])
+    return exists ? hash : legalItems[0].id
+  })
+
   const toggleItem = (itemId: string) => {
     setOpenItem((current) => (current === itemId ? '' : itemId))
   }
@@ -187,7 +187,7 @@ export default function AboutPage() {
               className={`grid transition-all duration-300 ease-out ${openItem === item.id ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}
             >
               <div className="overflow-hidden">
-                <div className="px-4 pb-4 pl-[4.5rem] text-sm text-gray-600">
+                <div className="px-4 pb-4 pl-18 text-sm text-gray-600">
                   {typeof item.content === 'string' ? <p>{item.content}</p> : item.content}
                 </div>
               </div>

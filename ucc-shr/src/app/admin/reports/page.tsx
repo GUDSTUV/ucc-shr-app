@@ -1,9 +1,8 @@
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
 import { AdminLayout } from '@/src/components/templates/admin-layout'
 import { Badge } from '@/src/components/atoms/badge'
 import { Button } from '@/src/components/atoms/button'
-import { auth } from '@/src/lib/auth/auth'
+import { requireSuperAdmin } from '@/src/lib/auth/guards'
 import { prisma } from '@/src/lib/prisma'
 import { parseReportNotes } from '@/src/lib/auth/report-access'
 import { ReportFilters } from './report-filters'
@@ -17,6 +16,10 @@ type PageProps = {
     sort?: string
   }>
 }
+
+const ALLOWED_STATUSES = new Set(['RECEIVED', 'REVIEWING', 'RESOLVED', 'CLOSED'])
+const ALLOWED_ASSIGNED = new Set(['assigned', 'unassigned'])
+const ALLOWED_SORT = new Set(['newest', 'oldest', 'updated', 'status'])
 
 function formatSubmittedAt(value: Date) {
   return new Intl.DateTimeFormat('en-US', {
@@ -75,24 +78,35 @@ function sortReports(
 }
 
 export default async function AdminReportsPage({ searchParams }: PageProps) {
-  const session = await auth()
-  if (!session?.user) {
-    redirect('/admin/login')
-  }
-
-  if (session.user.role !== 'SUPER_ADMIN') {
-    redirect('/admin/login')
-  }
+  await requireSuperAdmin()
 
   const params = (await searchParams) ?? {}
 
-  const query = (params.q ?? '').trim().toLowerCase()
-  const statusFilter = (params.status ?? '').trim()
-  const typeFilter = (params.type ?? '').trim()
-  const assignedFilter = (params.assigned ?? '').trim()
-  const sortBy = (params.sort ?? 'newest').trim()
+  const rawQuery = (params.q ?? '').trim().slice(0, 120)
+  const query = rawQuery.toLowerCase()
+  const rawStatus = (params.status ?? '').trim().toUpperCase()
+  const rawType = (params.type ?? '').trim()
+  const rawAssigned = (params.assigned ?? '').trim().toLowerCase()
+  const rawSort = (params.sort ?? 'newest').trim().toLowerCase()
+
+  const statusFilter = ALLOWED_STATUSES.has(rawStatus) ? rawStatus : ''
+  const typeFilter = rawType.slice(0, 100)
+  const assignedFilter = ALLOWED_ASSIGNED.has(rawAssigned) ? rawAssigned : ''
+  const sortBy = ALLOWED_SORT.has(rawSort) ? rawSort : 'newest'
 
   const reportsRaw = await prisma.report.findMany({
+    where: {
+      ...(statusFilter ? { status: statusFilter as 'RECEIVED' | 'REVIEWING' | 'RESOLVED' | 'CLOSED' } : {}),
+      ...(typeFilter ? { type: typeFilter } : {}),
+      ...(rawQuery
+        ? {
+            OR: [
+              { code: { contains: rawQuery, mode: 'insensitive' } },
+              { type: { contains: rawQuery, mode: 'insensitive' } },
+            ],
+          }
+        : {}),
+    },
     select: {
       code: true,
       createdAt: true,
@@ -118,9 +132,6 @@ export default async function AdminReportsPage({ searchParams }: PageProps) {
   const availableTypes = Array.from(new Set(reportsWithAssignment.map((report) => report.type))).sort()
 
   const filtered = reportsWithAssignment.filter((report) => {
-    if (statusFilter && report.status !== statusFilter) return false
-    if (typeFilter && report.type !== typeFilter) return false
-
     if (assignedFilter === 'assigned' && !report.counsellorName) return false
     if (assignedFilter === 'unassigned' && report.counsellorName) return false
 
@@ -137,7 +148,7 @@ export default async function AdminReportsPage({ searchParams }: PageProps) {
       <section className="rounded-2xl border border-gray-200 bg-white shadow-sm">
         <div className="flex flex-col gap-3 border-b border-gray-100 p-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm text-gray-600">Monitor and update all incident reports.</p>
+            <p className="text-base text-gray-700">Monitor and update all incident reports.</p>
             <Link href="/admin">
               <Button size="sm">Back to Dashboard</Button>
             </Link>
@@ -154,30 +165,30 @@ export default async function AdminReportsPage({ searchParams }: PageProps) {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="min-w-[760px] w-full text-left">
+          <table className="min-w-190 w-full text-left">
             <thead>
-              <tr className="bg-gray-50 text-[11px] uppercase tracking-[0.12em] text-gray-400">
-                <th className="px-4 py-3 font-semibold">Report ID</th>
-                <th className="px-4 py-3 font-semibold">Status</th>
-                <th className="px-4 py-3 font-semibold">Category</th>
-                <th className="px-4 py-3 font-semibold">Counsellor</th>
-                <th className="px-4 py-3 font-semibold">Actions</th>
+              <tr className="bg-gray-50 text-xs uppercase tracking-[0.08em] text-gray-600">
+                <th className="px-4 py-4 font-semibold">Report ID</th>
+                <th className="px-4 py-4 font-semibold">Status</th>
+                <th className="px-4 py-4 font-semibold">Category</th>
+                <th className="px-4 py-4 font-semibold">Counsellor</th>
+                <th className="px-4 py-4 font-semibold">Actions</th>
               </tr>
             </thead>
             <tbody>
               {reports.map((report) => (
-                <tr key={report.code} className="border-t border-gray-100 text-sm text-gray-700">
-                  <td className="px-4 py-4">
+                <tr key={report.code} className="border-t border-gray-100 text-[15px] text-gray-800">
+                  <td className="px-4 py-5">
                     <p className="font-semibold text-gray-900">{report.code}</p>
-                    <p className="text-xs text-gray-500">{formatSubmittedAt(report.createdAt)}</p>
+                    <p className="text-sm text-gray-700">{formatSubmittedAt(report.createdAt)}</p>
                   </td>
-                  <td className="px-4 py-4">
+                  <td className="px-4 py-5">
                     <Badge variant={statusMeta(report.status).variant}>{statusMeta(report.status).label}</Badge>
                   </td>
-                  <td className="px-4 py-4 text-gray-800">{report.type}</td>
-                  <td className="px-4 py-4 text-gray-800">{report.counsellorName || 'Unassigned'}</td>
-                  <td className="px-4 py-4">
-                    <div className="flex gap-3 text-xs font-semibold">
+                  <td className="px-4 py-5 text-gray-900">{report.type}</td>
+                  <td className="px-4 py-5 text-gray-900">{report.counsellorName || 'Unassigned'}</td>
+                  <td className="px-4 py-5">
+                    <div className="flex gap-3 text-sm font-semibold">
                       <Link href={`/admin/reports/${encodeURIComponent(report.code)}`} className="text-navy hover:text-navy-dark">
                         View Details
                       </Link>

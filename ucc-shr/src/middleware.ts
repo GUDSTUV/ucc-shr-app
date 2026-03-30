@@ -36,6 +36,13 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
 
+  // Keep admin and client sessions scoped to their own route groups.
+  if (pathname.startsWith('/user') && token.role === 'SUPER_ADMIN') {
+    const loginUrl = new URL('/login', req.nextUrl.origin)
+    loginUrl.searchParams.set('callbackUrl', `${pathname}${req.nextUrl.search}`)
+    return NextResponse.redirect(loginUrl)
+  }
+
   return NextResponse.next()
 }
 

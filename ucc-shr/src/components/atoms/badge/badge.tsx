@@ -10,8 +10,8 @@ const styles: Record<BadgeVariant, string> = {
 
 export function Badge({ variant = 'navy', children }: BadgeProps) {
   return (
-    <span className={`inline-flex items-center gap-1 px-2.5 py-0.5
-      rounded-full text-[11px] font-semibold ${styles[variant]}`}>
+    <span className={`inline-flex items-center gap-1 px-2.5 py-1
+      rounded-full text-xs font-semibold ${styles[variant]}`}>
       {children}
     </span>
   )

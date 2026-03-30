@@ -9,12 +9,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     Credentials({
       credentials: {
         email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
+        password: { label: "Password", type: "password" },
+        portal: { label: "Portal", type: "text" }
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
           return null
         }
+
+        const portal = String(credentials.portal ?? '').toLowerCase()
 
         const user = await prisma.user.findUnique({
           where: {
@@ -35,10 +38,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return null
         }
 
+        // Enforce separated auth entry points for admin and user apps.
+        if (portal === 'admin' && user.role !== 'SUPER_ADMIN') {
+          return null
+        }
+
+        if (portal === 'user' && user.role === 'SUPER_ADMIN') {
+          return null
+        }
+
         return {
           id: user.id,
           email: user.email,
           name: user.name,
+          image: user.image,
           role: user.role
         }
       }
@@ -49,6 +62,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (user) {
         token.id = user.id
         token.role = user.role
+        token.picture = user.image
       }
       return token
     },
@@ -56,6 +70,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (session.user) {
         session.user.id = token.id as string
         session.user.role = token.role as string
+        session.user.image = token.picture as string | null | undefined
       }
       return session
     }

@@ -5,11 +5,16 @@ import { HomeSwiper }   from '@/src/components/organisms/home-swiper'
 import { HomeEventsPreview } from '@/src/components/organisms/home-events-preview'
 import { HomeEmergencyCard } from '@/src/components/organisms/home-emergency-card'
 import { HomeFaq } from '@/src/components/organisms/home-faq'
+import { auth } from '@/src/lib/auth/auth'
 import { Flag, SearchCheck } from 'lucide-react'
 import Image from 'next/image'
 import Link             from 'next/link'
 
-export default function HomePage() {
+export default async function HomePage() {
+  const session = await auth()
+  const isSignedInUser = Boolean(session?.user) && session?.user?.role !== 'SUPER_ADMIN'
+  const reportHref = isSignedInUser ? '/user/userDashboard' : '/report'
+
   return (
     <PublicLayout>
       {/* Hero */}
@@ -44,7 +49,7 @@ export default function HomePage() {
       <HomeSwiper />
 
       {/* Report CTA */}
-      <Link href="/report">
+      <Link href={reportHref}>
         <Button variant="report" size="lg">
           <Flag size={20} /> Report an Incident
         </Button>

@@ -24,6 +24,7 @@ model Event {
   id          String    @id @default(cuid())
   title       String
   description String
+  image       String?
   venue       String
   startDate   DateTime
   endDate     DateTime?
@@ -56,6 +57,10 @@ model Report {
   notes       String?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
+
+  @@index([status, createdAt])
+  @@index([status, updatedAt])
+  @@index([type, createdAt])
 }
 
 model Rsvp {
@@ -70,14 +75,67 @@ model Rsvp {
 }
 
 model User {
-  id        String    @id @default(cuid())
-  email     String    @unique
-  name      String
-  password  String
-  role      Role      @default(STAFF)
-  createdAt DateTime  @default(now())
-  Article   Article[]
-  Event     Event[]
+  id                    String                  @id @default(cuid())
+  email                 String                  @unique
+  name                  String
+  image                 String?
+  password              String
+  role                  Role                    @default(STAFF)
+  createdAt             DateTime                @default(now())
+  Article               Article[]
+  Event                 Event[]
+  SavedResource         SavedResource[]
+  NotificationState     NotificationState[]
+  NotificationRead      NotificationRead[]
+  NotificationDismissed NotificationDismissed[]
+}
+
+model NotificationState {
+  id         String            @id @default(cuid())
+  userId     String
+  scope      NotificationScope
+  lastSeenAt DateTime?
+  clearedAt  DateTime?
+  User       User              @relation(fields: [userId], references: [id])
+
+  @@unique([userId, scope])
+  @@index([userId])
+}
+
+model NotificationRead {
+  id             String            @id @default(cuid())
+  userId         String
+  scope          NotificationScope
+  notificationId String
+  createdAt      DateTime          @default(now())
+  User           User              @relation(fields: [userId], references: [id])
+
+  @@unique([userId, scope, notificationId])
+  @@index([userId, scope, createdAt])
+}
+
+model NotificationDismissed {
+  id             String            @id @default(cuid())
+  userId         String
+  scope          NotificationScope
+  notificationId String
+  createdAt      DateTime          @default(now())
+  User           User              @relation(fields: [userId], references: [id])
+
+  @@unique([userId, scope, notificationId])
+  @@index([userId, scope, createdAt])
+}
+
+model SavedResource {
+  id           String            @id @default(cuid())
+  userId       String
+  resourceType SavedResourceType
+  resourceId   String
+  createdAt    DateTime          @default(now())
+  User         User              @relation(fields: [userId], references: [id])
+
+  @@unique([userId, resourceType, resourceId])
+  @@index([userId, createdAt])
 }
 
 enum ReportStatus {
@@ -90,4 +148,14 @@ enum ReportStatus {
 enum Role {
   STAFF
   SUPER_ADMIN
+}
+
+enum SavedResourceType {
+  ARTICLE
+  EVENT
+}
+
+enum NotificationScope {
+  USER
+  ADMIN
 }

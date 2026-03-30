@@ -1,8 +1,9 @@
 import Link from 'next/link'
-import { redirect, notFound } from 'next/navigation'
+import Image from 'next/image'
+import { notFound } from 'next/navigation'
 import { ArrowLeft, Clock3, FileText, Mic } from 'lucide-react'
 import { AdminLayout } from '@/src/components/templates/admin-layout'
-import { auth } from '@/src/lib/auth/auth'
+import { requireSuperAdmin } from '@/src/lib/auth/guards'
 import { prisma } from '@/src/lib/prisma'
 import { parseReportNotes } from '@/src/lib/auth/report-access'
 import { StatusBadge } from '@/src/components/molecules/status-badge'
@@ -57,11 +58,7 @@ function getAudioMimeType(fileName: string) {
 }
 
 export default async function AdminReportDetailsPage({ params }: PageProps) {
-  const session = await auth()
-
-  if (!session?.user || session.user.role !== 'SUPER_ADMIN') {
-    redirect('/admin/login')
-  }
+  await requireSuperAdmin()
 
   const { code } = await params
   const reportCode = decodeURIComponent(code).trim()
@@ -115,107 +112,111 @@ export default async function AdminReportDetailsPage({ params }: PageProps) {
 
   return (
     <AdminLayout title="Report Details">
-      <div className="space-y-4">
-        <Link href="/admin/reports" className="inline-flex items-center gap-1 text-sm font-semibold text-navy hover:text-navy-dark">
+      <div className="space-y-5">
+        <Link href="/admin/reports" className="inline-flex items-center gap-1 text-base font-semibold text-navy hover:text-navy-dark">
           <ArrowLeft size={14} /> Back to reports
         </Link>
 
-        <section className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+        <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-gray-400">Report Code</p>
-              <h2 className="mt-1 text-xl font-bold text-gray-900">{report.code}</h2>
+              <p className="text-sm font-semibold uppercase tracking-[0.08em] text-gray-700">Report Code</p>
+              <h2 className="mt-1 text-2xl font-bold text-gray-900">{report.code}</h2>
             </div>
             <StatusBadge status={report.status} />
           </div>
 
-          <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
+          <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-gray-400">Type</p>
-              <p className="mt-1 text-sm text-gray-800">{report.type}</p>
+              <p className="text-sm font-semibold uppercase tracking-[0.08em] text-gray-700">Type</p>
+              <p className="mt-1 text-base text-gray-900">{report.type}</p>
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-gray-400">Location</p>
-              <p className="mt-1 text-sm text-gray-800">{report.location || 'Not specified'}</p>
+              <p className="text-sm font-semibold uppercase tracking-[0.08em] text-gray-700">Location</p>
+              <p className="mt-1 text-base text-gray-900">{report.location || 'Not specified'}</p>
             </div>
             <div className="md:col-span-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-gray-400">Description</p>
-              <p className="mt-1 text-sm text-gray-800">{report.description}</p>
+              <p className="text-sm font-semibold uppercase tracking-[0.08em] text-gray-700">Description</p>
+              <p className="mt-1 text-base leading-relaxed text-gray-900">{report.description}</p>
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-gray-400">Submitted Contact</p>
-              <p className="mt-1 text-sm text-gray-800">{notes.contact || 'Not provided'}</p>
+              <p className="text-sm font-semibold uppercase tracking-[0.08em] text-gray-700">Submitted Contact</p>
+              <p className="mt-1 text-base text-gray-900">{notes.contact || 'Not provided'}</p>
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-gray-400">Reporter Email</p>
-              <p className="mt-1 text-sm text-gray-800">{notes.reporterEmail || 'Not available'}</p>
+              <p className="text-sm font-semibold uppercase tracking-[0.08em] text-gray-700">Reporter Email</p>
+              <p className="mt-1 text-base text-gray-900">{notes.reporterEmail || 'Not available'}</p>
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-gray-400">Assigned Counsellor</p>
-              <p className="mt-1 text-sm text-gray-800">{assignedCounsellor || 'Unassigned'}</p>
+              <p className="text-sm font-semibold uppercase tracking-[0.08em] text-gray-700">Assigned Counsellor</p>
+              <p className="mt-1 text-base text-gray-900">{assignedCounsellor || 'Unassigned'}</p>
             </div>
-            <div className="text-xs text-gray-500 md:col-span-2">
+            <div className="text-sm text-gray-700 md:col-span-2">
               Submitted: {formatDate(report.createdAt)} | Last updated: {formatDate(report.updatedAt)}
             </div>
           </div>
 
-          <div className="mt-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-gray-400">Witnesses</p>
+          <div className="mt-5">
+            <p className="text-sm font-semibold uppercase tracking-[0.08em] text-gray-700">Witnesses</p>
             {witnesses.length > 0 ? (
-              <ul className="mt-2 space-y-1 text-sm text-gray-800">
+              <ul className="mt-2 space-y-2 text-base text-gray-900">
                 {witnesses.map((witness, index) => (
-                  <li key={`${witness}-${index}`} className="rounded-lg bg-gray-50 px-3 py-2">
+                  <li key={`${witness}-${index}`} className="rounded-lg bg-gray-50 px-3 py-2.5">
                     {witness}
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="mt-1 text-sm text-gray-700">No witness details were submitted.</p>
+              <p className="mt-1 text-base text-gray-700">No witness details were submitted.</p>
             )}
           </div>
         </section>
 
-        <section className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-gray-400">Evidence Files</p>
+        <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+          <p className="text-sm font-semibold uppercase tracking-[0.08em] text-gray-700">Evidence Files</p>
           {evidenceFiles.length > 0 ? (
-            <ul className="mt-2 space-y-2">
+            <ul className="mt-3 space-y-3">
               {evidenceFiles.map((item, index) => {
                 const parsed = parseEvidenceItem(item)
                 const audioInline = parsed.url && (parsed.kindLabel === 'Audio' || isAudioFile(parsed.fileName))
+                const fileUrl = parsed.url ?? undefined
 
                 return (
-                  <li key={`${item}-${index}`} className="rounded-lg bg-gray-50 px-3 py-2">
+                  <li key={`${item}-${index}`} className="rounded-lg bg-gray-50 px-3 py-3">
                     <div className="flex items-center gap-2">
                       <parsed.icon size={14} className="text-navy" />
                       <div className="min-w-0">
-                        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-gray-500">{parsed.kindLabel}</p>
+                        <p className="text-sm font-semibold uppercase tracking-[0.08em] text-gray-600">{parsed.kindLabel}</p>
                         {parsed.url && !audioInline ? (
                           <a
                             href={parsed.url}
                             target="_blank"
                             rel="noreferrer"
-                            className="block break-all text-sm text-navy underline underline-offset-2"
+                            className="block break-all text-base text-navy underline underline-offset-2"
                           >
                             {parsed.fileName}
                           </a>
                         ) : (
-                          <p className="break-all text-sm text-gray-800">{parsed.fileName}</p>
+                          <p className="break-all text-base text-gray-900">{parsed.fileName}</p>
                         )}
                       </div>
                     </div>
 
                     {audioInline ? (
                       <audio controls controlsList="nodownload" preload="metadata" className="mt-2 w-full">
-                        <source src={parsed.url} type={getAudioMimeType(parsed.fileName)} />
+                        <source src={fileUrl} type={getAudioMimeType(parsed.fileName)} />
                         Your browser does not support audio playback.
                       </audio>
                     ) : null}
 
                     {parsed.url && isImageFile(parsed.fileName) ? (
                       <a href={parsed.url} target="_blank" rel="noreferrer" className="mt-2 block">
-                        <img
+                        <Image
                           src={parsed.url}
                           alt={parsed.fileName}
+                          width={1200}
+                          height={800}
+                          unoptimized
                           className="max-h-56 w-full rounded-md border border-gray-200 object-cover"
                         />
                       </a>
@@ -225,7 +226,7 @@ export default async function AdminReportDetailsPage({ params }: PageProps) {
               })}
             </ul>
           ) : (
-            <p className="mt-1 text-sm text-gray-700">No evidence files were uploaded for this report.</p>
+            <p className="mt-1 text-base text-gray-700">No evidence files were uploaded for this report.</p>
           )}
         </section>
 
@@ -236,25 +237,25 @@ export default async function AdminReportDetailsPage({ params }: PageProps) {
           currentCounsellorId={currentCounsellorId}
         />
 
-        <section className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-          <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-gray-500">Update History</h3>
+        <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+          <h3 className="text-base font-semibold uppercase tracking-[0.08em] text-gray-700">Update History</h3>
           {updates.length > 0 ? (
             <ul className="mt-3 space-y-3">
               {updates.map((update) => (
-                <li key={update.id} className="rounded-xl bg-gray-50 p-3">
+                <li key={update.id} className="rounded-xl bg-gray-50 p-4">
                   <div className="flex items-center justify-between gap-2">
                     <StatusBadge status={update.status} />
-                    <span className="inline-flex items-center gap-1 text-xs text-gray-500">
+                    <span className="inline-flex items-center gap-1 text-sm text-gray-700">
                       <Clock3 size={12} /> {formatDate(update.at)}
                     </span>
                   </div>
-                  <p className="mt-2 text-xs font-semibold text-gray-600">By {update.by}</p>
-                  <p className="mt-1 text-sm text-gray-800">{update.message}</p>
+                  <p className="mt-2 text-sm font-semibold text-gray-700">By {update.by}</p>
+                  <p className="mt-1 text-base text-gray-900">{update.message}</p>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="mt-2 text-sm text-gray-600">No admin updates yet.</p>
+            <p className="mt-2 text-base text-gray-700">No admin updates yet.</p>
           )}
         </section>
       </div>

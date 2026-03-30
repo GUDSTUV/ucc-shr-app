@@ -2,33 +2,29 @@
 
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useState, useEffect } from 'react'
+import { Suspense, useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { FormLayout } from '@/src/components/templates/form-layout'
 import { FormField } from '@/src/components/molecules/form-field'
 import { Input } from '@/src/components/atoms/input'
 import { Button } from '@/src/components/atoms/button'
 import { AlertBox } from '@/src/components/molecules/alert-box'
+import { resolveSafeCallback } from '@/src/lib/auth/safe-redirect'
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [successMessage, setSuccessMessage] = useState('')
-
-  useEffect(() => {
-    if (searchParams.get('signup') === 'success') {
-      setSuccessMessage('Account created successfully! Please login.')
-    }
-  }, [searchParams])
+  const successMessage = searchParams.get('signup') === 'success'
+    ? 'Account created successfully! Please login.'
+    : ''
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setError('')
-    setSuccessMessage('')
     setIsLoading(true)
 
     // Client-side validation for institutional email
@@ -42,6 +38,7 @@ export default function LoginPage() {
       const result = await signIn('credentials', {
         email,
         password,
+        portal: 'user',
         redirect: false,
       })
 
@@ -53,12 +50,8 @@ export default function LoginPage() {
 
       // Respect callback target from middleware-protected routes.
       const callbackUrl = searchParams.get('callbackUrl')
-      if (callbackUrl && callbackUrl.startsWith('/')) {
-        router.push(callbackUrl)
-      } else {
-        router.push('/user/userDashboard')
-      }
-    } catch (err) {
+      router.push(resolveSafeCallback(callbackUrl, '/user/userDashboard'))
+    } catch {
       setError('An error occurred. Please try again.')
       setIsLoading(false)
     }
@@ -119,5 +112,13 @@ export default function LoginPage() {
         </Link>
       </div>
     </FormLayout>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginContent />
+    </Suspense>
   )
 }

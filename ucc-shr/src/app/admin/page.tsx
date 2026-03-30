@@ -1,24 +1,34 @@
 import { AdminLayout } from '@/src/components/templates/admin-layout'
 import { Badge } from '@/src/components/atoms/badge'
 import { Button } from '@/src/components/atoms/button'
-import { Input } from '@/src/components/atoms/input'
-import { Select } from '@/src/components/atoms/select'
 import Link from 'next/link'
-import { auth } from '@/src/lib/auth/auth'
 import { prisma } from '@/src/lib/prisma'
 import { parseReportNotes } from '@/src/lib/auth/report-access'
-import { redirect } from 'next/navigation'
+import { getNotificationReadIds, getNotificationState } from '@/src/lib/notification-state'
+import { requireSuperAdmin } from '@/src/lib/auth/guards'
+import { RecentReportFilters } from './recent-report-filters'
+import { RecentReportsTable } from './recent-reports-table'
 import {
+  ArrowRight,
   Bell,
   CheckCircle2,
   Clock3,
   ClipboardList,
   FileWarning,
-  Filter,
   Plus,
-  Search,
-  UserRound,
 } from 'lucide-react'
+
+type PageProps = {
+  searchParams?: Promise<{
+    recentQ?: string
+    recentStatus?: string
+    recentAssigned?: string
+    recentSort?: string
+  }>
+}
+
+const ALLOWED_RECENT_STATUSES = new Set(['RECEIVED', 'REVIEWING', 'RESOLVED', 'CLOSED'])
+const ALLOWED_RECENT_ASSIGNED = new Set(['assigned', 'unassigned'])
 
 function formatSubmittedAt(value: Date) {
   return new Intl.DateTimeFormat('en-US', {
@@ -37,37 +47,26 @@ function statusMeta(status: 'RECEIVED' | 'REVIEWING' | 'RESOLVED' | 'CLOSED') {
   return { label: 'Received', variant: 'navy' as const }
 }
 
-export default async function AdminDashboardPage() {
-  const session = await auth()
-  if (!session?.user) {
-    redirect('/admin/login')
-  }
-
-  if (session.user.role !== 'SUPER_ADMIN') {
-    redirect('/admin/login')
-  }
+export default async function AdminDashboardPage({ searchParams }: PageProps) {
+  const session = await requireSuperAdmin()
 
   const now = new Date()
   const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1)
-  const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000)
 
   const [
-    totalReports,
-    activeCases,
-    resolvedCases,
+    reportStatusCounts,
     recentReportsRaw,
-    allReportsForTypes,
+    reportTypeCounts,
     lastSixMonthsReports,
     resolvedForSla,
-    newReportsCount,
+    notificationState,
   ] = await Promise.all([
-    prisma.report.count(),
-    prisma.report.count({ where: { status: { in: ['RECEIVED', 'REVIEWING'] } } }),
-    prisma.report.count({ where: { status: { in: ['RESOLVED', 'CLOSED'] } } }),
+    prisma.report.groupBy({ by: ['status'], _count: { status: true } }),
     prisma.report.findMany({
       orderBy: { createdAt: 'desc' },
-      take: 6,
+      take: 24,
       select: {
+        id: true,
         code: true,
         createdAt: true,
         status: true,
@@ -75,7 +74,7 @@ export default async function AdminDashboardPage() {
         notes: true,
       },
     }),
-    prisma.report.findMany({ select: { type: true } }),
+    prisma.report.groupBy({ by: ['type'], _count: { type: true } }),
     prisma.report.findMany({
       where: { createdAt: { gte: sixMonthsAgo } },
       select: { createdAt: true },
@@ -84,10 +83,34 @@ export default async function AdminDashboardPage() {
       where: { status: { in: ['RESOLVED', 'CLOSED'] } },
       select: { createdAt: true, updatedAt: true },
     }),
-    prisma.report.count({
-      where: { createdAt: { gte: oneDayAgo } },
-    }),
+    getNotificationState(session.user.id, 'ADMIN'),
   ])
+
+  const statusCountMap = reportStatusCounts.reduce<Record<'RECEIVED' | 'REVIEWING' | 'RESOLVED' | 'CLOSED', number>>(
+    (acc, row) => {
+      acc[row.status] = row._count.status
+      return acc
+    },
+    {
+      RECEIVED: 0,
+      REVIEWING: 0,
+      RESOLVED: 0,
+      CLOSED: 0,
+    },
+  )
+
+  const totalReports = Object.values(statusCountMap).reduce((sum, count) => sum + count, 0)
+  const activeCases = statusCountMap.RECEIVED + statusCountMap.REVIEWING
+  const resolvedCases = statusCountMap.RESOLVED + statusCountMap.CLOSED
+
+  const adminNotificationCutoffMs = notificationState?.clearedAt?.getTime() ?? 0
+  const recentNotificationIds = recentReportsRaw.map((report) => `report:${report.id}`)
+  const recentReadIds = await getNotificationReadIds(session.user.id, 'ADMIN', recentNotificationIds)
+  const newReportsCount = recentReportsRaw.filter((report) => {
+    const isAfterCutoff = report.createdAt.getTime() > adminNotificationCutoffMs
+    const isRead = recentReadIds.has(`report:${report.id}`)
+    return isAfterCutoff && !isRead
+  }).length
 
   const avgResponseHours = resolvedForSla.length
     ? Math.round(
@@ -133,9 +156,9 @@ export default async function AdminDashboardPage() {
     height: Math.max(12, Math.round((item.count / maxBucketCount) * 100)),
   }))
 
-  const typeCounts = allReportsForTypes.reduce<Record<string, number>>((acc, report) => {
-    const key = report.type || 'Other'
-    acc[key] = (acc[key] || 0) + 1
+  const typeCounts = reportTypeCounts.reduce<Record<string, number>>((acc, row) => {
+    const key = row.type || 'Other'
+    acc[key] = (acc[key] || 0) + row._count.type
     return acc
   }, {})
 
@@ -190,6 +213,7 @@ export default async function AdminDashboardPage() {
     const counsellor = notes.counsellorName || notes.investigatorName || 'Pending Assignment'
     return {
       id: report.code,
+      status: report.status,
       submittedAt: formatSubmittedAt(report.createdAt),
       statusLabel: meta.label,
       statusVariant: meta.variant,
@@ -199,37 +223,135 @@ export default async function AdminDashboardPage() {
     }
   })
 
-  return (
-    <AdminLayout title="Reporting Dashboard">
-      <section className="space-y-6">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div className="relative w-full lg:max-w-[460px]">
-            <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <Input
-              placeholder="Search cases, IDs, or counsellor"
-              className="h-11 border-gray-200 bg-white pl-9 text-sm"
-            />
-          </div>
+  const unassignedCount = recentReports.filter((report) => !report.counsellorAssigned).length
+  const reviewingCount = recentReportsRaw.filter((report) => report.status === 'REVIEWING').length
+  const receivedCount = recentReportsRaw.filter((report) => report.status === 'RECEIVED').length
 
-          <div className="flex items-center justify-end gap-2">
-            <Link
-              href="/admin/notifications"
-              aria-label="Notifications"
-              className="relative inline-flex h-11 w-11 items-center justify-center rounded-[10px] border border-gray-200 bg-white text-navy hover:bg-navy-light"
-            >
-              <Bell size={18} />
-              {newReportsCount > 0 ? (
-                <span className="absolute -top-1 -right-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-red text-xs font-semibold text-white">
-                  {newReportsCount}
-                </span>
-              ) : null}
+  const params = (await searchParams) ?? {}
+  const recentQ = (params.recentQ ?? '').trim().slice(0, 80)
+  const recentStatusRaw = (params.recentStatus ?? '').trim().toUpperCase()
+  const recentAssignedRaw = (params.recentAssigned ?? '').trim().toLowerCase()
+  const recentSortRaw = (params.recentSort ?? '').trim().toLowerCase()
+
+  const recentStatusFilter = ALLOWED_RECENT_STATUSES.has(recentStatusRaw) ? recentStatusRaw : ''
+  const recentAssignedFilter = ALLOWED_RECENT_ASSIGNED.has(recentAssignedRaw) ? recentAssignedRaw : ''
+
+  const filteredRecentReports = recentReports.filter((report) => {
+    if (recentStatusFilter && report.status !== recentStatusFilter) return false
+    if (recentAssignedFilter === 'assigned' && !report.counsellorAssigned) return false
+    if (recentAssignedFilter === 'unassigned' && report.counsellorAssigned) return false
+
+    if (!recentQ) return true
+
+    const searchable = `${report.id} ${report.statusLabel} ${report.category} ${report.counsellor}`.toLowerCase()
+    return searchable.includes(recentQ.toLowerCase())
+  })
+
+  // Parse sort parameter
+  const sortedRecentReports = [...filteredRecentReports]
+  if (recentSortRaw) {
+    const [sortColumn, sortDirection] = recentSortRaw.split(':')
+    const isAsc = sortDirection === 'asc'
+
+    sortedRecentReports.sort((a, b) => {
+      let aVal: string | number = ''
+      let bVal: string | number = ''
+
+      if (sortColumn === 'id') {
+        aVal = a.id
+        bVal = b.id
+      } else if (sortColumn === 'status') {
+        aVal = a.statusLabel
+        bVal = b.statusLabel
+      } else if (sortColumn === 'category') {
+        aVal = a.category || ''
+        bVal = b.category || ''
+      } else if (sortColumn === 'counsellor') {
+        aVal = a.counsellor
+        bVal = b.counsellor
+      } else if (sortColumn === 'submittedat') {
+        aVal = a.submittedAt
+        bVal = b.submittedAt
+      }
+
+      if (typeof aVal === 'string' && typeof bVal === 'string') {
+        return isAsc ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal)
+      }
+      return 0
+    })
+  }
+
+  return (
+    <AdminLayout
+      title="Reporting Dashboard"
+      description="Monitor institutional case activity, triage urgent reports, and keep response timelines on track."
+      unreadNotificationsCount={newReportsCount}
+      actions={
+        <div className="flex items-center gap-2">
+          <Link href="/admin/notifications">
+            <Button variant="outline" size="sm" className="h-10 rounded-lg">
+              <Bell size={16} /> Notifications
+            </Button>
+          </Link>
+          <Link href="/admin/reports">
+            <Button size="sm" className="h-10 rounded-lg">
+              <Plus size={16} /> Open Cases
+            </Button>
+          </Link>
+        </div>
+      }
+    >
+      <section className="space-y-6">
+        <section className="rounded-2xl border border-navy/15 bg-linear-to-r from-navy to-navy-dark p-5 text-white shadow-sm">
+          <p className="text-sm font-semibold uppercase tracking-widest text-white/85">Case Operations</p>
+          <h2 className="mt-2 text-2xl font-semibold leading-tight">Welcome, CEGRAD</h2>
+          <p className="mt-2 max-w-3xl text-base text-white/90">
+            You have {activeCases} active case{activeCases === 1 ? '' : 's'} and {newReportsCount} new notification{newReportsCount === 1 ? '' : 's'} requiring review.
+          </p>
+
+
+          <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+            <Link href="/admin/notifications?tab=unread&page=1" className="rounded-xl border border-white/25 bg-white/10 p-4 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
+              <div className="flex items-start justify-between gap-2">
+                <p className="text-base font-semibold">Unread Reports and Alerts</p>
+                <span className="rounded border border-white/35 bg-navy/50 px-2.5 py-1 text-xs font-semibold text-white">{newReportsCount} unread</span>
+              </div>
+              <p className="mt-2 text-sm text-white/85">Review incoming items that have not been acknowledged.</p>
             </Link>
 
-            <Button size="sm" className="h-11 rounded-[10px] px-4">
-              <Plus size={16} /> New Report
-            </Button>
+            <Link href="/admin/reports?status=REVIEWING&sort=updated" className="rounded-xl border border-white/25 bg-white/10 p-4 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
+              <div className="flex items-start justify-between gap-2">
+                <p className="text-base font-semibold">Reviewing Queue</p>
+                <span className="rounded border border-white/35 bg-navy/50 px-2.5 py-1 text-xs font-semibold text-white">{reviewingCount} in review</span>
+              </div>
+              <p className="mt-2 text-sm text-white/85">Continue active investigations and update status quickly.</p>
+            </Link>
+
+            <Link href="/admin/reports?status=RECEIVED&sort=newest" className="rounded-xl border border-white/25 bg-white/10 p-4 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
+              <div className="flex items-start justify-between gap-2">
+                <p className="text-base font-semibold">Newly Received Cases</p>
+                <span className="rounded border border-white/35 bg-navy/50 px-2.5 py-1 text-xs font-semibold text-white">{receivedCount} received</span>
+              </div>
+              <p className="mt-2 text-sm text-white/85">Triage new submissions and assign first actions.</p>
+            </Link>
+
+            <Link href="/admin/reports?assigned=unassigned" className="rounded-xl border border-white/25 bg-white/10 p-4 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
+              <div className="flex items-start justify-between gap-2">
+                <p className="text-base font-semibold">Unassigned Reports</p>
+                <span className="rounded border border-white/35 bg-navy/50 px-2.5 py-1 text-xs font-semibold text-white">{unassignedCount} pending</span>
+              </div>
+              <p className="mt-2 text-sm text-white/85">Route reports to counsellors or investigators.</p>
+            </Link>
+
+            <Link href="/admin/reports?sort=updated" className="rounded-xl border border-white/25 bg-white/10 p-4 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white md:col-span-2 xl:col-span-1">
+              <div className="flex items-start justify-between gap-2">
+                <p className="text-base font-semibold">Recently Updated Cases</p>
+                <ArrowRight size={16} className="text-white/85" />
+              </div>
+              <p className="mt-2 text-sm text-white/85">Check latest activity and follow-up progress.</p>
+            </Link>
           </div>
-        </div>
+        </section>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {statCards.map((card) => (
@@ -241,28 +363,28 @@ export default async function AdminDashboardPage() {
                 <Badge variant={card.trendVariant}>{card.trend}</Badge>
               </div>
 
-              <p className="text-sm text-gray-600">{card.label}</p>
+              <p className="text-sm font-medium text-gray-700">{card.label}</p>
               <p className="mt-1 text-[30px] font-semibold leading-none text-gray-900">{card.value}</p>
             </article>
           ))}
         </div>
 
-        <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-          <section className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
+          <section className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm xl:col-span-2">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-gray-900">Monthly Reporting Trends</h2>
               <Badge variant="gray">Last 6 Months</Badge>
             </div>
 
-            <div className="flex h-[230px] items-end gap-3 rounded-xl bg-gray-50 p-4">
+            <div className="flex h-64 items-end gap-3 rounded-xl border border-gray-100 bg-gray-50 p-4" role="img" aria-label="Monthly report volume for the last six months">
               {trendBars.map((bar, index) => (
                 <div key={bar.key} className="flex flex-1 flex-col items-center gap-2">
                   <div
-                    className={`w-full rounded-t-xl ${index === trendBars.length - 1 ? 'bg-navy' : 'bg-navy/25'}`}
+                    className={`w-full rounded-t-xl ${index === trendBars.length - 1 ? 'bg-navy' : 'bg-navy/30'}`}
                     style={{ height: `${bar.height}%` }}
                     aria-hidden="true"
                   />
-                  <span className="text-[11px] font-semibold tracking-wide text-gray-400">
+                  <span className="text-xs font-semibold tracking-wide text-gray-700">
                     {bar.label}
                   </span>
                 </div>
@@ -270,27 +392,29 @@ export default async function AdminDashboardPage() {
             </div>
           </section>
 
-          <section className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">Category Distribution</h2>
-              <button type="button" className="text-sm font-semibold text-navy hover:text-navy-dark">
-                View Details
-              </button>
-            </div>
+          <section className="space-y-4">
+            <article className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+              <div className="mb-3 flex items-center justify-between">
+                <h2 className="text-base font-semibold text-gray-900">Category Distribution</h2>
+                <Link href="/admin/reports" className="text-sm font-semibold text-navy hover:text-navy-dark">
+                  View
+                </Link>
+              </div>
 
-            <div className="space-y-4">
-              {categoryData.map((item) => (
-                <div key={item.label}>
-                  <div className="mb-1 flex items-center justify-between text-sm">
-                    <span className="text-gray-700">{item.label}</span>
-                    <span className="font-semibold text-gray-900">{item.percent}%</span>
+              <div className="space-y-4">
+                {categoryData.map((item) => (
+                  <div key={item.label}>
+                    <div className="mb-1 flex items-center justify-between text-base">
+                      <span className="text-gray-800">{item.label}</span>
+                      <span className="font-semibold text-gray-900">{item.percent}%</span>
+                    </div>
+                    <div className="h-2 rounded-full bg-gray-100" aria-hidden="true">
+                      <div className="h-full rounded-full bg-navy" style={{ width: `${item.percent}%` }} />
+                    </div>
                   </div>
-                  <div className="h-2 rounded-full bg-gray-100">
-                    <div className="h-full rounded-full bg-navy" style={{ width: `${item.percent}%` }} aria-hidden="true" />
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            </article>
           </section>
         </div>
 
@@ -298,80 +422,18 @@ export default async function AdminDashboardPage() {
           <div className="flex flex-col gap-3 border-b border-gray-100 p-4 lg:flex-row lg:items-center lg:justify-between">
             <h2 className="text-lg font-semibold text-gray-900">Recent Incident Reports</h2>
 
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-              <button
-                type="button"
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-3 text-xs font-semibold text-gray-700 hover:bg-gray-100"
-              >
-                <Filter size={14} /> Filters
-              </button>
-
-              <Select className="h-10 min-w-[130px] rounded-full border-gray-200 bg-gray-50 px-3 text-xs font-semibold text-gray-700">
-                <option>Status: All</option>
-                <option>In Progress</option>
-                <option>Reviewing</option>
-                <option>Urgent</option>
-              </Select>
-
-              <Select className="h-10 min-w-[130px] rounded-full border-gray-200 bg-gray-50 px-3 text-xs font-semibold text-gray-700">
-                <option>Category: All</option>
-                <option>Verbal Harassment</option>
-                <option>Cyber Harassment</option>
-                <option>Physical Misconduct</option>
-              </Select>
+            <div className="flex flex-wrap items-center gap-2 text-sm text-gray-700">
+              <Badge variant="warning">{activeCases} active</Badge>
+              <Badge variant="gray">{sortedRecentReports.length} shown</Badge>
+              <Link href="/admin/reports" className="text-sm font-semibold text-navy hover:text-navy-dark">
+                View full registry
+              </Link>
             </div>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="min-w-[780px] w-full text-left">
-              <thead>
-                <tr className="bg-gray-50 text-[11px] uppercase tracking-[0.12em] text-gray-400">
-                  <th className="px-4 py-3 font-semibold">Report ID</th>
-                  <th className="px-4 py-3 font-semibold">Status</th>
-                  <th className="px-4 py-3 font-semibold">Category</th>
-                  <th className="px-4 py-3 font-semibold">Counsellor</th>
-                  <th className="px-4 py-3 font-semibold">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentReports.map((report) => (
-                  <tr key={report.id} className="border-t border-gray-100 align-top text-sm text-gray-700">
-                    <td className="px-4 py-4">
-                      <p className="font-semibold text-gray-900">{report.id}</p>
-                      <p className="text-xs text-gray-500">{report.submittedAt}</p>
-                    </td>
+          <RecentReportFilters />
 
-                    <td className="px-4 py-4">
-                      <Badge variant={report.statusVariant}>{report.statusLabel}</Badge>
-                    </td>
-
-                    <td className="px-4 py-4 text-gray-800">{report.category}</td>
-
-                    <td className="px-4 py-4">
-                      <div className="flex items-center gap-2">
-                        {report.counsellorAssigned ? (
-                          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-navy-light text-navy">
-                            <UserRound size={14} />
-                          </span>
-                        ) : null}
-                        <span className={report.counsellorAssigned ? 'text-gray-800' : 'italic text-gray-400'}>
-                          {report.counsellor}
-                        </span>
-                      </div>
-                    </td>
-
-                    <td className="px-4 py-4">
-                      <div className="flex gap-3 text-xs font-semibold">
-                        <Link href={`/admin/reports/${encodeURIComponent(report.id)}`} className="text-navy hover:text-navy-dark">
-                          View Details
-                        </Link>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <RecentReportsTable reports={sortedRecentReports} />
         </section>
       </section>
     </AdminLayout>

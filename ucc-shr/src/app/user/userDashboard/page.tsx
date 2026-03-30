@@ -1,4 +1,4 @@
-import UserDashbard from '@/src/app/user/userDashboard/userDashbard'
+import UserDashbard from './userDashbard'
 import { redirect } from 'next/navigation'
 import { auth } from '@/src/lib/auth/auth'
 
@@ -11,6 +11,7 @@ export default async function DashboardPage() {
 
   return (
     <UserDashbard
+      userId={session.user.id}
       name={session.user.name ?? undefined}
       email={session.user.email ?? undefined}
     />

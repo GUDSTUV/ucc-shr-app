@@ -1,27 +1,19 @@
 'use client'
-import { usePathname, useSearchParams } from 'next/navigation'
+import { usePathname } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { Home, CalendarClock, Flag, BookText, UserRound } from 'lucide-react'
 import { MobileNavItem } from '@/src/components/molecules/mobile-nav-item'
 import { ReportFab } from '@/src/components/atoms/report-fab'
 
 export function BottomNav() {
   const path = usePathname()
-  const searchParams = useSearchParams()
+  const { data: session } = useSession()
+  const isSignedInUser = Boolean(session?.user) && session?.user?.role !== 'SUPER_ADMIN'
+  const reportHref = isSignedInUser ? '/user/userDashboard' : '/report'
 
   if (path.startsWith('/admin')) {
     return null
   }
-
-  // Build profile href with user data if available
-  const profileHref = (() => {
-    const name = searchParams.get('name')
-    const email = searchParams.get('email')
-    
-    if (name && email) {
-      return `/user/profile?name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`
-    }
-    return '/user/profile'
-  })()
 
   return (
     <nav
@@ -44,10 +36,10 @@ export function BottomNav() {
         />
 
         <ReportFab
-          href="/report"
+          href={reportHref}
           label="Report"
           icon={<Flag size={24} strokeWidth={2.5} />}
-          active={path.startsWith('/report')}
+          active={path.startsWith('/report') || path.startsWith('/user/userDashboard')}
         />
 
         <MobileNavItem
@@ -58,7 +50,7 @@ export function BottomNav() {
         />
 
         <MobileNavItem
-          href={profileHref}
+          href="/user/profile"
           label="Profile"
           icon={<UserRound size={20} strokeWidth={2.3} />}
           active={path.startsWith('/user/profile')}

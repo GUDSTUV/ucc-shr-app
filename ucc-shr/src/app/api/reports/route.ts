@@ -13,6 +13,8 @@ type CreateReportPayload = {
   evidenceFiles?: string[]
 }
 
+const ALLOWED_REPORT_TYPES = new Set(['verbal', 'physical', 'online'])
+
 function buildTrackingCode() {
   const year = new Date().getFullYear()
   const token = randomBytes(2).toString('hex').toUpperCase()
@@ -41,12 +43,26 @@ export async function POST(request: NextRequest) {
     const session = await auth()
     const payload = (await request.json()) as CreateReportPayload
 
-    const type = payload.type?.trim()
+    const type = payload.type?.trim().toLowerCase()
     const description = payload.description?.trim()
 
     if (!type || !description) {
       return NextResponse.json(
         { ok: false, error: 'Type and description are required.' },
+        { status: 400 }
+      )
+    }
+
+    if (!ALLOWED_REPORT_TYPES.has(type)) {
+      return NextResponse.json(
+        { ok: false, error: 'Invalid report type.' },
+        { status: 400 }
+      )
+    }
+
+    if (description.length > 4000) {
+      return NextResponse.json(
+        { ok: false, error: 'Description is too long.' },
         { status: 400 }
       )
     }
@@ -70,7 +86,7 @@ export async function POST(request: NextRequest) {
         code,
         type,
         description,
-        location: payload.location?.trim() || null,
+        location: payload.location?.trim().slice(0, 180) || null,
         date: new Date(),
         isAnonymous: payload.isAnonymous ?? true,
         files,
@@ -80,7 +96,7 @@ export async function POST(request: NextRequest) {
                 reporterId,
                 reporterEmail,
                 contact: normalizedContact,
-                witnesses,
+                witnesses: witnesses.slice(0, 10),
               })
             : null,
       },

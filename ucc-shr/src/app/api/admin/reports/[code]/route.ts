@@ -9,8 +9,10 @@ type UpdatePayload = {
   message?: string
   counsellorId?: string | null
 }
-
+ 
 const ALLOWED_STATUSES = new Set(['RECEIVED', 'REVIEWING', 'RESOLVED', 'CLOSED'])
+const MAX_UPDATE_MESSAGE_LENGTH = 1000
+const MAX_ADMIN_UPDATES = 100
 
 export async function PATCH(request: NextRequest, context: { params: Promise<{ code: string }> }) {
   const session = await auth()
@@ -35,6 +37,13 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ c
 
     if (status && !ALLOWED_STATUSES.has(status)) {
       return NextResponse.json({ ok: false, error: 'Valid status is required.' }, { status: 400 })
+    }
+
+    if (message && message.length > MAX_UPDATE_MESSAGE_LENGTH) {
+      return NextResponse.json(
+        { ok: false, error: `Update note is too long. Keep it under ${MAX_UPDATE_MESSAGE_LENGTH} characters.` },
+        { status: 400 }
+      )
     }
 
     const report = await prisma.report.findUnique({
@@ -105,7 +114,7 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ c
       counsellorName: nextCounsellorName,
       investigatorId: undefined,
       investigatorName: undefined,
-      adminUpdates: [updateEntry, ...adminUpdates],
+      adminUpdates: [updateEntry, ...adminUpdates].slice(0, MAX_ADMIN_UPDATES),
     }
 
     await prisma.report.update({

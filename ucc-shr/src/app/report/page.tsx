@@ -1,9 +1,19 @@
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { ShieldCheck, UserRound, UserPlus } from 'lucide-react'
 import { FormLayout } from '@/src/components/templates/form-layout'
 import { AlertBox } from '@/src/components/molecules/alert-box'
+import { auth } from '@/src/lib/auth/auth'
 
-export default function ReportAccessPage() {
+export default async function ReportAccessPage() {
+  const session = await auth()
+  if (session?.user) {
+    if (session.user.role === 'SUPER_ADMIN') {
+      redirect('/login')
+    }
+    redirect('/user/userDashboard')
+  }
+
   return (
     <FormLayout title="Report Incident">
       <AlertBox variant="info" title="Choose how to continue">

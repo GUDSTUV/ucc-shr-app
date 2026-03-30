@@ -1,17 +1,33 @@
 import Link from 'next/link'
-import { ArrowLeft, Bell, BellRing, CheckCircle2, Clock3 } from 'lucide-react'
+import { ArrowLeft, Bell, CheckCircle2, Clock3 } from 'lucide-react'
 import { redirect } from 'next/navigation'
+import { revalidatePath } from 'next/cache'
 import { auth } from '@/src/lib/auth/auth'
 import { prisma } from '@/src/lib/prisma'
 import { belongsToUser, parseReportNotes } from '@/src/lib/auth/report-access'
+import { Button } from '@/src/components/atoms/button'
+import {
+  clearNotificationDismissed,
+  clearNotificationReads,
+  dismissNotification,
+  getNotificationDismissedIds,
+  getNotificationReadIds,
+  getNotificationState,
+  upsertNotificationState,
+} from '@/src/lib/notification-state'
 
 type NotificationItem = {
   id: string
+  notificationId: string
   title: string
   message: string
   time: string
   unread: boolean
   atMs: number
+}
+
+type PageProps = {
+  searchParams: Promise<Record<string, string | undefined>>
 }
 
 function formatRelativeTime(value: string) {
@@ -27,12 +43,24 @@ function formatRelativeTime(value: string) {
   return `${deltaDays} days ago`
 }
 
-export default async function UserNotificationsPage() {
+export default async function UserNotificationsPage({ searchParams }: PageProps) {
   const session = await auth()
 
   if (!session?.user) {
     redirect('/login')
   }
+
+  await searchParams
+
+  const notificationState = await getNotificationState(session.user.id, 'USER')
+  const openedAt = new Date()
+  await upsertNotificationState(session.user.id, 'USER', { lastSeenAt: openedAt })
+
+  const cutoffMs = Math.max(
+    notificationState?.lastSeenAt?.getTime() ?? 0,
+    notificationState?.clearedAt?.getTime() ?? 0,
+    openedAt.getTime(),
+  )
 
   const reports = await prisma.report.findMany({
     select: {
@@ -56,18 +84,80 @@ export default async function UserNotificationsPage() {
 
       notifications.push({
         id: update.id,
+        notificationId: update.id,
         title: `Report ${report.code} updated`,
         message: update.message,
         time: formatRelativeTime(update.at),
-        unread: Date.now() - atMs < 1000 * 60 * 60 * 24,
+        unread: false,
         atMs,
       })
     }
   }
 
+  const readIds = await getNotificationReadIds(
+    session.user.id,
+    'USER',
+    notifications.map((item) => item.notificationId),
+  )
+  const dismissedIds = await getNotificationDismissedIds(
+    session.user.id,
+    'USER',
+    notifications.map((item) => item.notificationId),
+  )
+
+  for (const item of notifications) {
+    item.unread = item.atMs > cutoffMs && !readIds.has(item.notificationId)
+  }
+
   notifications.sort((a, b) => b.atMs - a.atMs)
 
-  const unreadCount = notifications.filter((item) => item.unread).length
+  const visibleNotifications = notifications.filter(
+    (item) => item.atMs > (notificationState?.clearedAt?.getTime() ?? 0) && !dismissedIds.has(item.notificationId),
+  )
+
+  const unreadCount = visibleNotifications.filter((item) => item.unread).length
+
+  const filteredNotifications = visibleNotifications
+
+  async function clearAllNotifications() {
+    'use server'
+
+    const actionSession = await auth()
+    if (!actionSession?.user) {
+      redirect('/login')
+    }
+
+    const now = new Date()
+    await clearNotificationReads(actionSession.user.id, 'USER')
+    await clearNotificationDismissed(actionSession.user.id, 'USER')
+    await upsertNotificationState(actionSession.user.id, 'USER', {
+      lastSeenAt: now,
+      clearedAt: now,
+    })
+
+    revalidatePath('/user/notifications')
+    revalidatePath('/user/userDashboard')
+  }
+
+  async function clearSingleNotification(formData: FormData) {
+    'use server'
+
+    const actionSession = await auth()
+    if (!actionSession?.user) {
+      redirect('/login')
+    }
+
+    const notificationId = String(formData.get('notificationId') ?? '').trim()
+    if (!notificationId) {
+      return
+    }
+
+    await dismissNotification(actionSession.user.id, 'USER', notificationId)
+    await upsertNotificationState(actionSession.user.id, 'USER', { lastSeenAt: new Date() })
+
+    revalidatePath('/user/notifications')
+    revalidatePath('/user/userDashboard')
+  }
 
   return (
     <div className="mx-auto min-h-screen max-w-md bg-gray-50 pb-8 font-sans text-gray-900">
@@ -89,20 +179,13 @@ export default async function UserNotificationsPage() {
       </header>
 
       <main className="space-y-4 px-4 pt-5">
-        <section className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-navy">
-              <BellRing size={18} />
-              <p className="text-sm font-semibold">Unread Alerts</p>
-            </div>
-            <span className="rounded-full bg-navy-light px-3 py-1 text-xs font-semibold text-navy">
-              {unreadCount}
-            </span>
-          </div>
-        </section>
-
+        <div className="flex justify-end">
+          <form action={clearAllNotifications}>
+            <Button type="submit" variant="outline" size="sm">Clear All</Button>
+          </form>
+        </div>
         <section className="space-y-3">
-          {notifications.map((item) => (
+          {filteredNotifications.map((item) => (
             <article
               key={item.id}
               className={`rounded-2xl border bg-white p-4 shadow-sm ${
@@ -124,12 +207,16 @@ export default async function UserNotificationsPage() {
                     <Clock3 size={13} />
                     <span>{item.time}</span>
                   </div>
+                  <form action={clearSingleNotification} className="mt-3">
+                    <input type="hidden" name="notificationId" value={item.notificationId} />
+                    <Button type="submit" size="sm" variant="outline">Clear</Button>
+                  </form>
                 </div>
               </div>
             </article>
           ))}
 
-          {notifications.length === 0 ? (
+          {filteredNotifications.length === 0 ? (
             <article className="rounded-2xl border border-gray-100 bg-white p-4 text-center text-sm text-gray-600 shadow-sm">
               No notifications yet. You will see updates here when admin updates your reports.
             </article>

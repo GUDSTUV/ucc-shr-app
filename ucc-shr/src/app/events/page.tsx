@@ -1,38 +1,32 @@
 import { PublicLayout } from '@/src/components/templates/public-layout'
 import { EventCard } from '@/src/components/organisms/event-card'
+import { prisma } from '@/src/lib/prisma'
 
-const events = [
-	{
-		title: 'Consent & Respect Dialogue Circle',
-		dateLabel: '26 Mar 2026, 3:00 PM',
-		venue: 'CEGRAD Resource Room',
-		description:
-			'Interactive session on consent, boundaries, and bystander responsibility for students and staff.',
-	},
-	{
-		title: 'Understanding Sexual Harassment Policy at UCC',
-		dateLabel: '02 Apr 2026, 10:00 AM',
-		venue: 'Science Auditorium',
-		description:
-			'Learn reporting pathways, confidentiality, investigation stages, and available survivor support.',
-	},
-	{
-		title: 'Bystander Intervention Skills Workshop',
-		dateLabel: '09 Apr 2026, 1:30 PM',
-		venue: 'Main Library Conference Hall',
-		description:
-			'Practical scenarios and response techniques to safely intervene when harassment happens on campus.',
-	},
-	{
-		title: 'Trauma-Informed Support for Peer Leaders',
-		dateLabel: '16 Apr 2026, 9:00 AM',
-		venue: 'Valco Hall Seminar Room',
-		description:
-			'Training for SRC reps, hall executives, and peer mentors on survivor-centered response and referrals.',
-	},
-]
+function formatEventDate(value: Date) {
+	return new Intl.DateTimeFormat('en-US', {
+		month: 'short',
+		day: '2-digit',
+		year: 'numeric',
+		hour: '2-digit',
+		minute: '2-digit',
+	}).format(value)
+}
 
-export default function EventsPage() {
+export default async function EventsPage() {
+	const events = await prisma.event.findMany({
+		where: { published: true },
+		orderBy: { startDate: 'asc' },
+		take: 30,
+		select: {
+			id: true,
+			title: true,
+			image: true,
+			startDate: true,
+			venue: true,
+			description: true,
+		},
+	})
+
 	return (
 		<PublicLayout>
 			<section className="space-y-3">
@@ -45,13 +39,21 @@ export default function EventsPage() {
 			<section className="mt-5 space-y-3">
 				{events.map((event) => (
 					<EventCard
-						key={event.title}
+						key={event.id}
+						href={`/events/${event.id}`}
+						imageUrl={event.image || '/icons/default-event.svg'}
 						title={event.title}
-						dateLabel={event.dateLabel}
+						dateLabel={formatEventDate(event.startDate)}
 						venue={event.venue}
 						description={event.description}
 					/>
 				))}
+
+				{events.length === 0 ? (
+					<article className="rounded-xl border border-gray-100 bg-white p-4 text-sm text-gray-600 shadow-sm">
+						No published events right now.
+					</article>
+				) : null}
 			</section>
 		</PublicLayout>
 	)

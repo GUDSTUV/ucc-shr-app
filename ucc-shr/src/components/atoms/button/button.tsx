@@ -27,7 +27,7 @@ export function Button({
         `inline-flex items-center justify-center gap-2
          rounded-[10px] font-semibold font-sans
          transition-all active:scale-[0.97]
-         disabled:opacity-50 min-h-[44px]
+        disabled:opacity-50 min-h-11
          ${variants[variant]} ${sizes[size]}
          ${fullWidth ? 'w-full' : ''}
          ${className ?? ''}`

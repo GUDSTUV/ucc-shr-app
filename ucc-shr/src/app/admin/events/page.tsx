@@ -1,9 +1,16 @@
+import Link from 'next/link'
 import { AdminLayout } from '@/src/components/templates/admin-layout'
 import { Badge } from '@/src/components/atoms/badge'
 import { Button } from '@/src/components/atoms/button'
-import { auth } from '@/src/lib/auth/auth'
+import { requireSuperAdmin } from '@/src/lib/auth/guards'
 import { prisma } from '@/src/lib/prisma'
-import { redirect } from 'next/navigation'
+import { EventActions } from './event-actions'
+
+type PageProps = {
+  searchParams?: Promise<{
+    success?: string | string[]
+  }>
+}
 
 function formatEventDate(value: Date) {
   return new Intl.DateTimeFormat('en-US', {
@@ -15,15 +22,8 @@ function formatEventDate(value: Date) {
   }).format(value)
 }
 
-export default async function AdminEventsPage() {
-  const session = await auth()
-  if (!session?.user) {
-    redirect('/admin/login')
-  }
-
-  if (session.user.role !== 'SUPER_ADMIN') {
-    redirect('/admin/login')
-  }
+export default async function AdminEventsPage({ searchParams }: PageProps) {
+  await requireSuperAdmin()
 
   const events = await prisma.event.findMany({
     orderBy: {
@@ -39,12 +39,28 @@ export default async function AdminEventsPage() {
   })
 
   const now = new Date()
+  const resolvedSearchParams = searchParams ? await searchParams : undefined
+  const successParamRaw = resolvedSearchParams?.success
+  const successParam = Array.isArray(successParamRaw) ? successParamRaw[0] : successParamRaw
+  const successMessageByKey: Record<string, string> = {
+    'event-created-published': 'Event created and published successfully.',
+    'event-created-draft': 'Event created as a draft successfully.',
+    'event-updated': 'Event updated successfully.',
+  }
+  const successMessage = successParam ? successMessageByKey[successParam] : null
 
   return (
     <AdminLayout title="Events">
+      {successMessage ? (
+        <div className="mb-4 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-800">
+          {successMessage}
+        </div>
+      ) : null}
       <div className="mb-4 flex items-center justify-between">
         <p className="text-sm text-gray-600">Coordinate prevention workshops and awareness campaigns.</p>
-        <Button size="sm">Create Event</Button>
+        <Link href="/admin/events/new">
+          <Button size="sm">Create Event</Button>
+        </Link>
       </div>
 
       <section className="grid grid-cols-1 gap-3 xl:grid-cols-2">
@@ -68,14 +84,7 @@ export default async function AdminEventsPage() {
                 {!event.published ? 'Draft' : event.startDate > now ? 'Scheduled' : 'Open'}
               </Badge>
             </div>
-            <div className="mt-4 flex gap-3 text-sm font-semibold">
-              <button type="button" className="text-navy hover:text-navy-dark">
-                Edit
-              </button>
-              <button type="button" className="text-navy hover:text-navy-dark">
-                Publish
-              </button>
-            </div>
+            <EventActions eventId={event.id} currentPublished={event.published} />
           </article>
         ))}
 

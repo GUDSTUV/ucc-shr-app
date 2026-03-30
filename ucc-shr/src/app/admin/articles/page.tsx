@@ -2,9 +2,14 @@ import Link from 'next/link'
 import { AdminLayout } from '@/src/components/templates/admin-layout'
 import { Badge } from '@/src/components/atoms/badge'
 import { Button } from '@/src/components/atoms/button'
-import { auth } from '@/src/lib/auth/auth'
+import { requireSuperAdmin } from '@/src/lib/auth/guards'
 import { prisma } from '@/src/lib/prisma'
-import { redirect } from 'next/navigation'
+
+type PageProps = {
+  searchParams?: Promise<{
+    success?: string | string[]
+  }>
+}
 
 function formatUpdatedAt(value: Date) {
   return `Updated ${new Intl.DateTimeFormat('en-US', {
@@ -14,15 +19,8 @@ function formatUpdatedAt(value: Date) {
   }).format(value)}`
 }
 
-export default async function AdminArticlesPage() {
-  const session = await auth()
-  if (!session?.user) {
-    redirect('/admin/login')
-  }
-
-  if (session.user.role !== 'SUPER_ADMIN') {
-    redirect('/admin/login')
-  }
+export default async function AdminArticlesPage({ searchParams }: PageProps) {
+  await requireSuperAdmin()
 
   const articles = await prisma.article.findMany({
     orderBy: {
@@ -36,8 +34,23 @@ export default async function AdminArticlesPage() {
     },
   })
 
+  const resolvedSearchParams = searchParams ? await searchParams : undefined
+  const successParamRaw = resolvedSearchParams?.success
+  const successParam = Array.isArray(successParamRaw) ? successParamRaw[0] : successParamRaw
+  const successMessageByKey: Record<string, string> = {
+    'article-published': 'Article published successfully.',
+    'article-draft-saved': 'Article draft saved successfully.',
+    'article-updated': 'Article updated successfully.',
+  }
+  const successMessage = successParam ? successMessageByKey[successParam] : null
+
   return (
     <AdminLayout title="Articles">
+      {successMessage ? (
+        <div className="mb-4 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-800">
+          {successMessage}
+        </div>
+      ) : null}
       <div className="mb-4 flex items-center justify-between">
         <p className="text-sm text-gray-600">Manage awareness and policy-related publications.</p>
         <Link href="/admin/articles/new">
@@ -57,9 +70,9 @@ export default async function AdminArticlesPage() {
                 <Badge variant={article.published ? 'success' : 'gray'}>
                   {article.published ? 'Published' : 'Draft'}
                 </Badge>
-                <button type="button" className="text-sm font-semibold text-navy hover:text-navy-dark">
+                <Link href={`/admin/articles/${article.id}/edit`} className="text-sm font-semibold text-navy hover:text-navy-dark">
                   Edit
-                </button>
+                </Link>
               </div>
             </div>
           </article>

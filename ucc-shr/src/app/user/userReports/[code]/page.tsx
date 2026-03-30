@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { notFound, redirect } from 'next/navigation'
 import { ArrowLeft, CalendarDays, FileText, MapPin, Mic, RefreshCw, Shield } from 'lucide-react'
 import { auth } from '@/src/lib/auth/auth'
@@ -222,6 +223,7 @@ export default async function ReportDetailsPage({ params }: ReportDetailsPagePro
               {evidenceFiles.map((item, index) => {
                 const parsed = parseEvidenceItem(item)
                 const audioInline = parsed.url && (parsed.kindLabel === 'Audio' || isAudioFile(parsed.fileName))
+                const fileUrl = parsed.url ?? undefined
 
                 return (
                   <li key={`${item}-${index}`} className="rounded-lg bg-gray-50 px-3 py-2">
@@ -246,16 +248,19 @@ export default async function ReportDetailsPage({ params }: ReportDetailsPagePro
 
                     {audioInline ? (
                       <audio controls controlsList="nodownload" preload="metadata" className="mt-2 w-full">
-                        <source src={parsed.url} type={getAudioMimeType(parsed.fileName)} />
+                        <source src={fileUrl} type={getAudioMimeType(parsed.fileName)} />
                         Your browser does not support audio playback.
                       </audio>
                     ) : null}
 
                     {parsed.url && isImageFile(parsed.fileName) ? (
                       <a href={parsed.url} target="_blank" rel="noreferrer" className="mt-2 block">
-                        <img
+                        <Image
                           src={parsed.url}
                           alt={parsed.fileName}
+                          width={1200}
+                          height={800}
+                          unoptimized
                           className="max-h-56 w-full rounded-md border border-gray-200 object-cover"
                         />
                       </a>
