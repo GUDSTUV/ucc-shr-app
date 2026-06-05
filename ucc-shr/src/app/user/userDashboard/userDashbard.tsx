@@ -147,87 +147,88 @@ export default async function UserDashbard({
   return (
     <PublicLayout>
       <div className="font-sans">
-      <section className="-mx-4 -mt-6 bg-navy px-6 py-8 mb-5 rounded-bl-xl rounded-br-xl text-white">
-        {/* <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/70">Dashboard</p> */}
-        <div className="mt-3 flex items-start justify-between gap-3">
-          <div className="flex items-start gap-3">
-            <UserCircle2 className="h-10 w-10 shrink-0 text-white/90" />
-            <div>
-              <h1 className="text-xl font-bold leading-tight">Welcome, {name}</h1>
-              <p className="text-sm text-white/80">{email}</p>
+        {/* Hero header — now a proper full-bleed section within PublicLayout */}
+        <section className="-mx-4 -mt-6 bg-navy px-6 py-8 mb-5 rounded-bl-xl rounded-br-xl text-white md:-mx-6 lg:-mx-8 lg:px-10 lg:py-10">
+          <div className="mt-3 flex items-start justify-between gap-3">
+            <div className="flex items-start gap-3">
+              <UserCircle2 className="h-10 w-10 shrink-0 text-white/90" />
+              <div>
+                <h1 className="text-xl font-bold leading-tight lg:text-2xl">Welcome, {name}</h1>
+                <p className="text-sm text-white/80">{email}</p>
+              </div>
             </div>
+            <Link
+              href="/user/notifications"
+              aria-label="Notifications"
+              className="relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20"
+            >
+              <Bell size={18} />
+              {unreadNotificationCount > 0 ? (
+                <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-cyan-300 ring-2 ring-navy" />
+              ) : null}
+            </Link>
           </div>
-          <Link
-            href="/user/notifications"
-            aria-label="Notifications"
-            className="relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20"
-          >
-            <Bell size={18} />
-            {unreadNotificationCount > 0 ? (
-              <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-cyan-300 ring-2 ring-navy" />
-            ) : null}
-          </Link>
-        </div>
+        </section>
 
-        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-     
+        {/* Stats grid — 1 col mobile, 3 col tablet+, 3 col desktop */}
+        <section className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <StatCard
+            title="Submitted"
+            value={stats.submittedReports.toString()}
+            hint="Reports created"
+          />
+          <StatCard
+            title="In Review"
+            value={stats.inReviewReports.toString()}
+            hint="Pending feedback"
+          />
+          <StatCard
+            title="Resolved"
+            value={stats.resolvedReports.toString()}
+            hint="Closed cases"
+          />
+        </section>
 
-        </div>
-      </section>
-
-      <section className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <StatCard
-          title="Submitted"
-          value={stats.submittedReports.toString()}
-          hint="Reports created"
-        />
-        <StatCard
-          title="In Review"
-          value={stats.inReviewReports.toString()}
-          hint="Pending feedback"
-        />
-        <StatCard
-          title="Resolved"
-          value={stats.resolvedReports.toString()}
-          hint="Closed cases"
-        />
-      </section>
-
-      <section className="mt-5 space-y-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-400">Quick Access</h2>
-        <QuickLink
-          href="/track"
-          icon={<UserCircle2 size={18} />}
-          title="Case Tracking"
-          subtitle="Check report progress"
-        />
-        <QuickLink
-          href="/user/userReports"
-          icon={<FileText size={18} />}
-          title="Reports"
-          subtitle="View and manage submissions"
-        />
-        <QuickLink
-          href="/user/saved"
-          icon={<Bookmark size={18} />}
-          title="Resources"
-          subtitle="Your saved posts and events"
-        />
-             <Link
+        {/* Quick access — 1 col mobile, 2 col tablet+, 2 col desktop */}
+        <section className="mt-5">
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-gray-400">Quick Access</h2>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <QuickLink
+              href="/track"
+              icon={<UserCircle2 size={18} />}
+              title="Case Tracking"
+              subtitle="Check report progress"
+            />
+            <QuickLink
+              href="/user/userReports"
+              icon={<FileText size={18} />}
+              title="Reports"
+              subtitle="View and manage submissions"
+            />
+            <QuickLink
+              href="/user/saved"
+              icon={<Bookmark size={18} />}
+              title="Resources"
+              subtitle="Your saved posts and events"
+            />
+          </div>
+          <div className="mt-4">
+            <Link
               href={`/report/new?name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`}
               className="block"
             >
-            <Button variant="report" className="w-full">
-              <Plus size={18} /> New Report
-            </Button>
-          </Link>
-      </section>
+              <Button variant="report" className="w-full">
+                <Plus size={18} /> New Report
+              </Button>
+            </Link>
+          </div>
+        </section>
 
-      <div className="mt-5">
-        <AlertBox variant="info" title="Your data is protected">
-          Your dashboard is private and only visible to your signed-in account.
-        </AlertBox>
-      </div>
+        <div className="mt-5">
+          <AlertBox variant="info" title="Your data is protected">
+            Your dashboard is private and only visible to your signed-in account.
+          </AlertBox>
+        </div>
       </div>
     </PublicLayout>
   )

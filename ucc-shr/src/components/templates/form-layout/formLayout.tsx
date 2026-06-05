@@ -10,7 +10,7 @@ export function FormLayout({ title, children }: FormLayoutProps) {
   return (
     <div className="min-h-dvh bg-gray-50">
       <TopBar title={title} showBack />
-      <div className="max-w-xl mx-auto px-4 py-6 flex flex-col gap-5">
+      <div className="mx-auto max-w-xl px-4 py-6 flex flex-col gap-5 md:max-w-2xl md:px-6 lg:max-w-3xl">
         {children}
       </div>
     </div>

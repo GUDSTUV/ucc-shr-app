@@ -38,7 +38,7 @@ export function HubFeedCard({
   return (
     <article className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
       <div
-        className={`relative h-52 ${imageUrl ? 'bg-cover bg-center bg-no-repeat' : `bg-linear-to-br ${imageTheme}`}`}
+        className={`relative h-48 md:h-56 lg:h-52 ${imageUrl ? 'bg-cover bg-center bg-no-repeat' : `bg-linear-to-br ${imageTheme}`}`}
         style={
           imageUrl
             ? {

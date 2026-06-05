@@ -12,9 +12,9 @@ export interface EventCardProps {
 
 export function EventCard({ href, imageUrl, title, venue, dateLabel, description }: EventCardProps) {
   return (
-    <article className="rounded-[12px] border border-gray-100 bg-white p-4 shadow-sm">
+    <article className="rounded-[12px] border border-gray-100 bg-white p-4 shadow-sm hover:shadow-md transition-shadow h-full flex flex-col">
       <div
-        className="mb-3 h-36 rounded-[10px] bg-cover bg-center bg-no-repeat"
+        className="mb-3 h-36 md:h-44 rounded-[10px] bg-cover bg-center bg-no-repeat"
         style={{
           backgroundImage: `linear-gradient(to bottom right, rgb(15 23 42 / 0.12), rgb(15 23 42 / 0.3)), url(${imageUrl || '/icons/default-event.svg'})`,
         }}

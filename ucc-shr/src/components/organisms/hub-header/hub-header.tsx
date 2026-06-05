@@ -19,7 +19,7 @@ export function HubHeader({ search, onSearchChange }: HubHeaderProps) {
           <UserRound size={20} />
         </Link>
 
-        <h1 className="text-xl font-semibold text-navy">Posts &amp; Events</h1>
+        <h1 className="text-xl font-semibold text-navy md:text-2xl">Posts &amp; Events</h1>
 
         <Link
           href="/user/notifications"

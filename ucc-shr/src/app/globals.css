@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 
@@ -6,6 +7,9 @@
   --navy:        #263875;
   --navy-dark:   #1a2754;
   --navy-light:  #EEF1FA;
+  --teal:        #2A9D8F;
+  --teal-dark:   #1F7A6F;
+  --teal-light:  #E8F7F4;
   --red:         #E63946;
   --red-dark:    #C0202E;
   --red-light:   #FDECEA;
@@ -22,10 +26,13 @@
   --color-navy: var(--navy);
   --color-navy-dark: var(--navy-dark);
   --color-navy-light: var(--navy-light);
+  --color-teal: var(--teal);
+  --color-teal-dark: var(--teal-dark);
+  --color-teal-light: var(--teal-light);
   --color-red: var(--red);
   --color-red-dark: var(--red-dark);
   --color-red-light: var(--red-light);
-  --font-sans: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-sans: "Poppins", sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {

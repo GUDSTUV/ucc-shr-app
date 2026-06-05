@@ -51,7 +51,7 @@ export async function HomeEventsPreview() {
           const badge = getDateBadge(formatEventDate(event.startDate))
 
           return (
-          <article key={event.id} className="rounded-2xl border border-gray-200 bg-gray-100 px-3 py-3.5 shadow-sm">
+          <article key={event.id} className="rounded-2xl border border-gray-200 bg-gray-100 px-3 py-3.5 shadow-sm hover:border-navy/20 transition-colors">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 shrink-0 flex-col items-center justify-center rounded-lg bg-gray-200 text-navy">
                 <span className="text-[15px] font-bold leading-none">{badge.day}</span>

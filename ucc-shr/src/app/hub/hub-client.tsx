@@ -127,7 +127,7 @@ export function HubClient({ items, isAuthenticated }: HubClientProps) {
         </div>
       ) : null}
 
-      <section className="mt-6 space-y-5">
+      <section className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {filteredItems.map((item) => (
           <HubFeedCard
             key={item.id}

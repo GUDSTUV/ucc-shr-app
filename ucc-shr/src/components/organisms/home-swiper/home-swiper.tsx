@@ -97,12 +97,12 @@ export function HomeSwiper({ autoSlideMs }: { autoSlideMs?: number }) {
           style={{ transform: `translateX(-${index * 100}%)` }}
         >
           {slides.map((slide) => (
-            <article key={slide.title} className="w-full shrink-0 p-6">
-              <p className="text-xs font-semibold tracking-widest uppercase opacity-70 mb-2">
+            <article key={slide.title} className="w-full shrink-0 p-6 md:p-8 lg:p-10">
+              <p className="text-xs font-semibold tracking-widest uppercase opacity-70 mb-2 md:text-sm">
                 CEGRAD UCC
               </p>
-              <h2 className="text-xl font-bold leading-tight mb-2">{slide.title}</h2>
-              <p className="text-sm font-light opacity-90">{slide.message}</p>
+              <h2 className="text-xl font-bold leading-tight mb-2 md:text-2xl lg:text-3xl">{slide.title}</h2>
+              <p className="text-sm font-light opacity-90 md:text-base leading-relaxed">{slide.message}</p>
             </article>
           ))}
         </div>
