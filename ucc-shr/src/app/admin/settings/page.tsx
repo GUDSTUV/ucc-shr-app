@@ -136,6 +136,10 @@ export default async function AdminSettingsPage({ searchParams }: PageProps) {
       redirect('/admin/login')
     }
 
+    if (!account.password) {
+      redirect('/admin/settings?status=password-current')
+    }
+
     const validCurrentPassword = await bcrypt.compare(currentPassword, account.password)
     if (!validCurrentPassword) {
       redirect('/admin/settings?status=password-current')

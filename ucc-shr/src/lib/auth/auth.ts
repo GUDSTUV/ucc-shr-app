@@ -1,4 +1,5 @@
 import NextAuth from "next-auth"
+import Google from "next-auth/providers/google"
 import Credentials from "next-auth/providers/credentials"
 import { prisma } from "@/src/lib/prisma"
 import bcrypt from "bcryptjs"
@@ -6,6 +7,10 @@ import bcrypt from "bcryptjs"
 export const { handlers, signIn, signOut, auth } = NextAuth({
   secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
   providers: [
+    Google({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    }),
     Credentials({
       credentials: {
         email: { label: "Email", type: "email" },
@@ -29,12 +34,22 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return null
         }
 
+        // Google-only accounts have no password
+        if (!user.password) {
+          return null
+        }
+
         const passwordMatch = await bcrypt.compare(
           credentials.password as string,
           user.password
         )
 
         if (!passwordMatch) {
+          return null
+        }
+
+        // Block unverified email users
+        if (!user.emailVerified) {
           return null
         }
 
@@ -58,8 +73,46 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     })
   ],
   callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
+    async signIn({ user, account }) {
+      if (account?.provider === 'google') {
+        if (!user.email) return false
+        const email = user.email.toLowerCase()
+
+        const existing = await prisma.user.findUnique({
+          where: { email },
+          select: { id: true, role: true },
+        })
+
+        // Block SUPER_ADMIN from signing in via Google on the user portal
+        if (existing?.role === 'SUPER_ADMIN') return '/login?error=AccessDenied'
+
+        if (!existing) {
+          await prisma.user.create({
+            data: {
+              email,
+              name: user.name ?? email.split('@')[0],
+              image: user.image ?? null,
+              role: 'STAFF',
+            },
+          })
+        }
+      }
+      return true
+    },
+    async jwt({ token, user, account }) {
+      // Google sign-in: look up the DB user to get our id and role
+      if (account?.provider === 'google' && token.email) {
+        const dbUser = await prisma.user.findUnique({
+          where: { email: token.email },
+          select: { id: true, role: true, image: true },
+        })
+        if (dbUser) {
+          token.id = dbUser.id
+          token.role = dbUser.role
+          token.picture = dbUser.image ?? token.picture
+        }
+      } else if (user) {
+        // Credentials sign-in
         token.id = user.id
         token.role = user.role
         token.picture = user.image

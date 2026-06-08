@@ -214,7 +214,7 @@ export default async function UserDashbard({
           </div>
           <div className="mt-4">
             <Link
-              href={`/report/new?name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`}
+              href="/report/new"
               className="block"
             >
               <Button variant="report" className="w-full">

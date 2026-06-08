@@ -27,7 +27,7 @@ type PageProps = {
   }>
 }
 
-const ALLOWED_RECENT_STATUSES = new Set(['RECEIVED', 'REVIEWING', 'RESOLVED', 'CLOSED'])
+const ALLOWED_RECENT_STATUSES = new Set(['RECEIVED', 'REVIEWING', 'REFERRED', 'RESOLVED', 'CLOSED'])
 const ALLOWED_RECENT_ASSIGNED = new Set(['assigned', 'unassigned'])
 
 function formatSubmittedAt(value: Date) {
@@ -40,8 +40,9 @@ function formatSubmittedAt(value: Date) {
   }).format(value)
 }
 
-function statusMeta(status: 'RECEIVED' | 'REVIEWING' | 'RESOLVED' | 'CLOSED') {
+function statusMeta(status: 'RECEIVED' | 'REVIEWING' | 'REFERRED' | 'RESOLVED' | 'CLOSED') {
   if (status === 'REVIEWING') return { label: 'Reviewing', variant: 'warning' as const }
+  if (status === 'REFERRED') return { label: 'Referred', variant: 'navy' as const }
   if (status === 'RESOLVED') return { label: 'Resolved', variant: 'success' as const }
   if (status === 'CLOSED') return { label: 'Closed', variant: 'gray' as const }
   return { label: 'Received', variant: 'navy' as const }
@@ -86,7 +87,7 @@ export default async function AdminDashboardPage({ searchParams }: PageProps) {
     getNotificationState(session.user.id, 'ADMIN'),
   ])
 
-  const statusCountMap = reportStatusCounts.reduce<Record<'RECEIVED' | 'REVIEWING' | 'RESOLVED' | 'CLOSED', number>>(
+  const statusCountMap = reportStatusCounts.reduce<Record<'RECEIVED' | 'REVIEWING' | 'REFERRED' | 'RESOLVED' | 'CLOSED', number>>(
     (acc, row) => {
       acc[row.status] = row._count.status
       return acc
@@ -94,13 +95,14 @@ export default async function AdminDashboardPage({ searchParams }: PageProps) {
     {
       RECEIVED: 0,
       REVIEWING: 0,
+      REFERRED: 0,
       RESOLVED: 0,
       CLOSED: 0,
     },
   )
 
   const totalReports = Object.values(statusCountMap).reduce((sum, count) => sum + count, 0)
-  const activeCases = statusCountMap.RECEIVED + statusCountMap.REVIEWING
+  const activeCases = statusCountMap.RECEIVED + statusCountMap.REVIEWING + statusCountMap.REFERRED
   const resolvedCases = statusCountMap.RESOLVED + statusCountMap.CLOSED
 
   const adminNotificationCutoffMs = notificationState?.clearedAt?.getTime() ?? 0

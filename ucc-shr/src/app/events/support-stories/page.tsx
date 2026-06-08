@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
 import type { Metadata } from 'next'
-import { PublicLayout } from '@/components/templates/public-layout'
-import { SurvivorSupportStories } from '@/components/organisms/survivor-support-stories/survivor-support-stories'
+import { PublicLayout } from '@/src/components/templates/public-layout'
+import { SurvivorSupportStories } from '@/src/components/organisms/survivor-support-stories/survivor-support-stories'
 
 export const metadata: Metadata = {
   title: 'Survivor Support Stories | CEGRAD',

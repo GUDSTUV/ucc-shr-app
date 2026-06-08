@@ -1,15 +1,12 @@
 'use client'
 import { usePathname } from 'next/navigation'
-import { useSession } from 'next-auth/react'
 import { Home, CalendarClock, Flag, BookText, UserRound } from 'lucide-react'
 import { MobileNavItem } from '@/src/components/molecules/mobile-nav-item'
 import { ReportFab } from '@/src/components/atoms/report-fab'
 
 export function BottomNav() {
   const path = usePathname()
-  const { data: session } = useSession()
-  const isSignedInUser = Boolean(session?.user) && session?.user?.role !== 'SUPER_ADMIN'
-  const reportHref = isSignedInUser ? '/user/userDashboard' : '/report'
+  const reportHref = '/report'
 
   if (path.startsWith('/admin')) {
     return null

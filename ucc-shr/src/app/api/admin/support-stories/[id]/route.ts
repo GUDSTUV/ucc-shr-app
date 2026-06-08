@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { prisma } from '@/lib/prisma'
-import { authOptions } from '@/lib/auth/auth-options'
+import { prisma } from '@/src/lib/prisma'
+import { auth } from '@/src/lib/auth/auth'
 
 /**
  * PATCH /api/admin/support-stories/[id]
@@ -10,7 +9,7 @@ import { authOptions } from '@/lib/auth/auth-options'
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     // Check admin authorization
-    const session = await getServerSession(authOptions)
+    const session = await auth()
     if (!session || session.user?.role !== 'SUPER_ADMIN') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
     }
@@ -43,7 +42,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     // Check admin authorization
-    const session = await getServerSession(authOptions)
+    const session = await auth()
     if (!session || session.user?.role !== 'SUPER_ADMIN') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
     }

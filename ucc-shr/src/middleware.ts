@@ -13,7 +13,8 @@ export async function middleware(req: NextRequest) {
 
   const isProtectedRoute =
     pathname.startsWith('/user') ||
-    pathname.startsWith('/admin')
+    pathname.startsWith('/admin') ||
+    pathname.startsWith('/report')
 
   if (!isProtectedRoute) {
     return NextResponse.next()
@@ -47,5 +48,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/user/:path*', '/admin/:path*'],
+  matcher: ['/user/:path*', '/admin/:path*', '/report/:path*'],
 }

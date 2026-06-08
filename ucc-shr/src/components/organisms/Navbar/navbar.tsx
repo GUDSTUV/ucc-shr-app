@@ -3,7 +3,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useSession } from 'next-auth/react'
 import { Flag, LogIn } from 'lucide-react'
 import { Text } from '@/src/components/atoms/text'
 
@@ -16,7 +15,6 @@ const navLinks = [
 
 export function Navbar() {
   const path = usePathname()
-  const { data: session } = useSession()
 
   // Hide navbar on routes that have their own navigation
   if (
@@ -30,11 +28,10 @@ export function Navbar() {
     return null
   }
 
-  const isSignedInUser = Boolean(session?.user) && session?.user?.role !== 'SUPER_ADMIN'
-  const reportHref = isSignedInUser ? '/user/userDashboard' : '/report'
-  const accountHref = isSignedInUser ? '/user/profile' : '/login'
-  const accountLabel = isSignedInUser ? 'My Account' : 'Sign In'
-  const isAccountActive = path.startsWith('/user/profile') || path === '/login'
+  const reportHref = '/report'
+  const accountHref = '/login'
+  const accountLabel = 'Sign In'
+  const isAccountActive = path === '/login'
 
   return (
     <nav

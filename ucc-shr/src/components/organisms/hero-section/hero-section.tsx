@@ -4,11 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { BookOpen, Flag, ShieldCheck } from 'lucide-react'
-
-interface HeroSectionProps {
-  reportHref: string
-}
+import { BookOpen, Flag } from 'lucide-react'
 
 const slides = [
   {
@@ -43,8 +39,9 @@ const itemVariants = {
   },
 }
 
-export function HeroSection({ reportHref }: HeroSectionProps) {
+export function HeroSection() {
   const [active, setActive] = useState(0)
+  const reportHref = '/report'
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -96,7 +93,7 @@ export function HeroSection({ reportHref }: HeroSectionProps) {
         >
           <Link
             href={reportHref}
-            className="inline-flex items-center gap-2 rounded-xl bg-navy-dark px-6 py-3.5 text-base font-semibold text-white shadow-lg shadow-navy/30 transition-all hover:bg-navy-dark hover:shadow-navy/40 active:scale-[0.98]"
+            className="inline-flex items-center gap-2 rounded-xl bg-navy-dark px-6 py-3.5 text-base font-semibold text-white shadow-lg shadow-navy/30 transition-all border border-transparent hover:border-white hover:bg-navy-dark hover:shadow-navy/40 active:scale-[0.98]"
           >
             <Flag size={18}/>
             Report an Incident
@@ -150,7 +147,7 @@ export function HeroSection({ reportHref }: HeroSectionProps) {
 
         {/* Dark gradient for caption readability */}
         <div
-          className="absolute inset-x-0 bottom-0 z-20 h-56 bg-linear-to-t from-black/100 via-black/60 to-transparent"
+          className="absolute inset-x-0 bottom-0 z-20 h-56 bg-linear-to-t from-black via-black/60 to-transparent"
           aria-hidden="true"
         />
 

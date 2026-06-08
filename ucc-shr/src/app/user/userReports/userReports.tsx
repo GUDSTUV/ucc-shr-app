@@ -12,7 +12,7 @@ import {
 	Search,
 } from 'lucide-react'
 
-type UserReportStatus = 'RECEIVED' | 'REVIEWING' | 'RESOLVED' | 'CLOSED'
+type UserReportStatus = 'RECEIVED' | 'REVIEWING' | 'REFERRED' | 'RESOLVED' | 'CLOSED'
 
 type UserReport = {
 	code: string

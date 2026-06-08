@@ -5,12 +5,12 @@ import { prisma } from '@/src/lib/prisma'
 import { parseReportNotes, type ReportAdminUpdate } from '@/src/lib/auth/report-access'
 
 type UpdatePayload = {
-  status?: 'RECEIVED' | 'REVIEWING' | 'RESOLVED' | 'CLOSED'
+  status?: 'RECEIVED' | 'REVIEWING' | 'REFERRED' | 'RESOLVED' | 'CLOSED'
   message?: string
   counsellorId?: string | null
 }
  
-const ALLOWED_STATUSES = new Set(['RECEIVED', 'REVIEWING', 'RESOLVED', 'CLOSED'])
+const ALLOWED_STATUSES = new Set(['RECEIVED', 'REVIEWING', 'REFERRED', 'RESOLVED', 'CLOSED'])
 const MAX_UPDATE_MESSAGE_LENGTH = 1000
 const MAX_ADMIN_UPDATES = 100
 

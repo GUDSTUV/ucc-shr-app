@@ -2,6 +2,8 @@
 
 import { motion } from 'framer-motion'
 import { Mail, MessageCircle, Phone } from 'lucide-react'
+import { useState } from 'react'
+import { EmailModal } from '@/src/components/molecules/email-modal/email-modal'
 
 const contacts = [
   {
@@ -13,11 +15,11 @@ const contacts = [
     isExternal: false,
   },
   {
-    href: 'tel:+233332132000',
+    href: 'tel:+233244766862',
     Icon: Phone,
     iconClass: 'bg-white/15',
     label: 'Emergency Line',
-    sub: '0332 132 000',
+    sub: '0244 766 862',
     isExternal: false,
   },
   {
@@ -31,6 +33,8 @@ const contacts = [
 ]
 
 export function ContactSection() {
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false)
+
   return (
     <section id="contact" className="bg-navy py-16 text-white lg:py-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -63,21 +67,39 @@ export function ContactSection() {
           className="mx-auto mt-10 grid max-w-3xl gap-4 sm:grid-cols-3"
         >
           {contacts.map(({ href, Icon, iconClass, label, sub }) => (
-            <a
-              key={label}
-              href={href}
-              className="flex items-center gap-4 rounded-2xl border border-white/15 bg-white/10 p-5 backdrop-blur-sm transition hover:bg-white/15"
-            >
-              <div
-                className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${iconClass}`}
+            label === 'Email CEGRAD' ? (
+              <button
+                key={label}
+                onClick={() => setIsEmailModalOpen(true)}
+                className="flex items-center gap-4 rounded-2xl border border-white/15 bg-white/10 p-5 text-left backdrop-blur-sm transition hover:bg-white/15"
               >
-                <Icon size={20} />
-              </div>
-              <div className="min-w-0">
-                <p className="text-sm font-semibold">{label}</p>
-                <p className="truncate text-xs text-white/60">{sub}</p>
-              </div>
-            </a>
+                <div
+                  className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${iconClass}`}
+                >
+                  <Icon size={20} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold">{label}</p>
+                  <p className="truncate text-xs text-white/60">{sub}</p>
+                </div>
+              </button>
+            ) : (
+              <a
+                key={label}
+                href={href}
+                className="flex items-center gap-4 rounded-2xl border border-white/15 bg-white/10 p-5 backdrop-blur-sm transition hover:bg-white/15"
+              >
+                <div
+                  className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${iconClass}`}
+                >
+                  <Icon size={20} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold">{label}</p>
+                  <p className="truncate text-xs text-white/60">{sub}</p>
+                </div>
+              </a>
+            )
           ))}
         </motion.div>
 
@@ -92,6 +114,8 @@ export function ContactSection() {
           You may also report without contacting us first
         </motion.p>
       </div>
+
+      <EmailModal isOpen={isEmailModalOpen} onClose={() => setIsEmailModalOpen(false)} />
     </section>
   )
 }

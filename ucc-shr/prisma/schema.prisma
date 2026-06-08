@@ -57,6 +57,7 @@ model Report {
   notes       String?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
+  Message     Message[]
 
   @@index([status, createdAt])
   @@index([status, updatedAt])
@@ -79,8 +80,11 @@ model User {
   email                 String                  @unique
   name                  String
   image                 String?
-  password              String
+  password              String?
   role                  Role                    @default(STAFF)
+  emailVerified         Boolean                 @default(false)
+  verifyToken           String?                 @unique
+  verifyTokenExpiry     DateTime?
   createdAt             DateTime                @default(now())
   Article               Article[]
   Event                 Event[]
@@ -88,6 +92,7 @@ model User {
   NotificationState     NotificationState[]
   NotificationRead      NotificationRead[]
   NotificationDismissed NotificationDismissed[]
+  Message               Message[]
 }
 
 model NotificationState {
@@ -138,6 +143,18 @@ model SavedResource {
   @@index([userId, createdAt])
 }
 
+model Message {
+  id        String   @id @default(cuid())
+  reportId  String
+  senderId  String
+  content   String
+  createdAt DateTime @default(now())
+  Report    Report   @relation(fields: [reportId], references: [id])
+  User      User     @relation(fields: [senderId], references: [id])
+
+  @@index([reportId, createdAt])
+}
+
 /// Anonymous support story submitted after case closure.
 /// Only approved stories (approved = true) are shown publicly.
 /// No identifying information is stored — no name, no case code.
@@ -153,6 +170,7 @@ model SupportStory {
 enum ReportStatus {
   RECEIVED
   REVIEWING
+  REFERRED
   RESOLVED
   CLOSED
 }

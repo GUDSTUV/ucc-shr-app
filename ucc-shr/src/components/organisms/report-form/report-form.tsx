@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { Camera, FileText, Mic, UserPlus, EyeOff } from 'lucide-react'
+import { UserPlus, Phone, Shield } from 'lucide-react'
 import { Button } from '@/src/components/atoms/button'
 import { Input } from '@/src/components/atoms/input'
 import { Textarea } from '@/src/components/atoms/textarea'
@@ -10,41 +10,35 @@ import { StepIndicator } from '@/src/components/molecules/step-indicator'
 import { AlertBox } from '@/src/components/molecules/alert-box'
 
 type ReportFormProps = {
-  canToggleAnonymous?: boolean
   initialContact?: string
 }
 
-type EvidenceKind = 'photo' | 'doc' | 'audio'
+const HARASSMENT_TYPES = [
+  { value: 'verbal', label: 'Verbal Sexual Harassment — Unwelcome sexual comments, jokes, or remarks' },
+  { value: 'physical', label: 'Unwanted Touching / Physical Sexual Harassment' },
+  { value: 'online', label: 'Cyber/Digital Sexual Harassment — Unsolicited sexual messages or image sharing' },
+  { value: 'quid_pro_quo', label: 'Quid Pro Quo — Grades, favours, or benefits demanded in exchange for sexual acts' },
+  { value: 'other', label: 'Other — Any other form of sexual or gender-based harassment' },
+] as const
 
-type EvidenceUploadItem = {
-  kind: EvidenceKind
-  file: File
-}
-
-export function ReportForm({ canToggleAnonymous = false, initialContact = '' }: ReportFormProps) {
+export function ReportForm({ initialContact = '' }: ReportFormProps) {
   const totalSteps = 3
   const [step, setStep] = useState(1)
   const [submitting, setSubmitting] = useState(false)
   const [typeValue, setTypeValue] = useState('')
   const [locationValue, setLocationValue] = useState('')
-  const [contactValue, setContactValue] = useState(initialContact)
+  const [phoneValue, setPhoneValue] = useState('')
   const [descriptionValue, setDescriptionValue] = useState('')
+  const [incidentDate, setIncidentDate] = useState('')
   const [witness, setWitness] = useState('')
   const [witnesses, setWitnesses] = useState<string[]>([])
-  const [anonymous, setAnonymous] = useState(true)
-  const [evidenceFiles, setEvidenceFiles] = useState<EvidenceUploadItem[]>([])
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [submittedCode, setSubmittedCode] = useState<string | null>(null)
   const [stepError, setStepError] = useState<string | null>(null)
 
+  // Keep contact in sync with session email
   useEffect(() => {
-    if (!canToggleAnonymous) {
-      setAnonymous(true)
-    }
-  }, [canToggleAnonymous])
-
-  useEffect(() => {
-    setContactValue(initialContact)
+    // initialContact is just the email from the session — we don't need a separate field for it
   }, [initialContact])
 
   const addWitness = () => {
@@ -55,54 +49,8 @@ export function ReportForm({ canToggleAnonymous = false, initialContact = '' }: 
     setWitness('')
   }
 
-  const captureEvidence = (kind: EvidenceKind) =>
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const files = event.target.files
-      if (!files || files.length === 0) return
-
-      const nextItems = Array.from(files).map((file) => ({ kind, file }))
-      setEvidenceFiles((prev) => [...prev, ...nextItems])
-    }
-
-  const uploadEvidenceFiles = async () => {
-    if (evidenceFiles.length === 0) return [] as string[]
-
-    const formData = new FormData()
-
-    evidenceFiles.forEach((item) => {
-      formData.append('files', item.file)
-      formData.append('kinds', item.kind)
-    })
-
-    const response = await fetch('/api/uploads', {
-      method: 'POST',
-      body: formData,
-    })
-
-    let result: {
-      ok?: boolean
-      files?: string[]
-      error?: string
-    }
-
-    try {
-      result = (await response.json()) as {
-        ok?: boolean
-        files?: string[]
-        error?: string
-      }
-    } catch {
-      result = {
-        ok: false,
-        error: 'Unexpected upload response. Please try again.',
-      }
-    }
-
-    if (!response.ok || !result.ok || !result.files) {
-      throw new Error(result.error ?? 'Unable to upload evidence files.')
-    }
-
-    return result.files
+  const removeWitness = (index: number) => {
+    setWitnesses((prev) => prev.filter((_, i) => i !== index))
   }
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -112,16 +60,15 @@ export function ReportForm({ canToggleAnonymous = false, initialContact = '' }: 
     setSubmittedCode(null)
 
     try {
-      const uploadedEvidenceFiles = await uploadEvidenceFiles()
-
       const payload = {
         type: typeValue,
         location: locationValue,
-        contact: contactValue,
+        contact: initialContact, // Always use the session email
+        phone: phoneValue.trim() || undefined,
         description: descriptionValue,
-        isAnonymous: canToggleAnonymous ? anonymous : true,
+        isAnonymous: false,
         witnesses,
-        evidenceFiles: uploadedEvidenceFiles,
+        incidentDate: incidentDate || undefined,
       }
 
       const response = await fetch('/api/reports', {
@@ -157,15 +104,14 @@ export function ReportForm({ canToggleAnonymous = false, initialContact = '' }: 
       }
 
       setSubmittedCode(result.code ?? null)
-  setStep(1)
-  setTypeValue('')
-  setLocationValue('')
-  setContactValue(initialContact)
-  setDescriptionValue('')
+      setStep(1)
+      setTypeValue('')
+      setLocationValue('')
+      setPhoneValue('')
+      setDescriptionValue('')
+      setIncidentDate('')
       setWitness('')
       setWitnesses([])
-      setEvidenceFiles([])
-      setAnonymous(true)
     } catch (error) {
       setSubmitError(
         error instanceof Error ? error.message : 'Network error while submitting report. Please try again.'
@@ -179,7 +125,7 @@ export function ReportForm({ canToggleAnonymous = false, initialContact = '' }: 
     setStepError(null)
 
     if (step === 1 && (!typeValue || !descriptionValue.trim())) {
-      setStepError('Choose harassment type and provide a description before continuing.')
+      setStepError('Please select a harassment type and describe what happened before continuing.')
       return
     }
 
@@ -191,195 +137,269 @@ export function ReportForm({ canToggleAnonymous = false, initialContact = '' }: 
     setStep((prev) => Math.max(1, prev - 1))
   }
 
+  if (submittedCode) {
+    return (
+      <div className="space-y-5 rounded-2xl border border-gray-100 bg-white p-6">
+        <div className="flex flex-col items-center text-center">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-green-50">
+            <Shield className="h-7 w-7 text-green-600" />
+          </div>
+          <h3 className="mt-4 text-lg font-bold text-navy">Report Submitted Successfully</h3>
+          <p className="mt-2 text-sm leading-relaxed text-gray-600">
+            Your report has been securely received by CEGRAD. A member of the team will review it and
+            reach out to you. You can check the status of your report or message your assigned counsellor directly from your Dashboard.
+          </p>
+        </div>
+
+        <div className="flex gap-3">
+          <Button
+            type="button"
+            variant="outline"
+            className="flex-1"
+            onClick={() => setSubmittedCode(null)}
+          >
+            Submit Another
+          </Button>
+          <a
+            href="/user/userDashboard"
+            className="flex flex-1 items-center justify-center rounded-xl bg-navy px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-navy-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2"
+          >
+            Go to Dashboard
+          </a>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 rounded-xl border border-gray-100 bg-white p-4">
+    <form onSubmit={handleSubmit} className="space-y-5 rounded-2xl border border-gray-100 bg-white p-5 md:p-6">
       <StepIndicator step={step} total={totalSteps} />
 
-      {submittedCode ? (
-        <AlertBox variant="success" title="Report submitted successfully">
-          Your tracking code is {submittedCode}. Save it to follow updates.
-        </AlertBox>
-      ) : null}
-
-      {submitError ? (
+      {submitError && (
         <AlertBox variant="danger" title="Submission failed">
           {submitError}
         </AlertBox>
-      ) : null}
+      )}
 
-      {stepError ? (
+      {stepError && (
         <AlertBox variant="danger" title="Complete required fields">
           {stepError}
         </AlertBox>
-      ) : null}
+      )}
 
-      <AlertBox variant="info" title="Safety note">
-        Do not include identifying details if you want to remain anonymous.
-      </AlertBox>
-
-      {step === 1 ? (
+      {/* ─── Step 1: What happened ─── */}
+      {step === 1 && (
         <>
-          <FormField label="Sexual harassment type" required>
-            <Select name="type" value={typeValue} onChange={(event) => setTypeValue(event.target.value)}>
-              <option value="" disabled>Select sexual harassment type</option>
-              <option value="verbal">Verbal harassment</option>
-              <option value="physical">Physical harassment</option>
-              <option value="online">Online harassment</option>
+          <FormField label="Type of harassment" required>
+            <Select
+              name="type"
+              value={typeValue}
+              onChange={(event) => setTypeValue(event.target.value)}
+              aria-label="Select the type of harassment"
+            >
+              <option value="" disabled>Select the type of harassment</option>
+              {HARASSMENT_TYPES.map((type) => (
+                <option key={type.value} value={type.value}>
+                  {type.label}
+                </option>
+              ))}
             </Select>
           </FormField>
 
-          <FormField label="Location">
-            <Input
-              name="location"
-              value={locationValue}
-              onChange={(event) => setLocationValue(event.target.value)}
-              placeholder="Where did this happen?"
-            />
-          </FormField>
-
-          <FormField label="Contact (phone or email)">
-            <Input
-              name="contact"
-              value={contactValue}
-              onChange={(event) => setContactValue(event.target.value)}
-              placeholder="How can we reach you for follow-up?"
-            />
-          </FormField>
-
-          <FormField label="Description" required>
+          <FormField label="Describe what happened" required>
             <Textarea
               name="description"
               value={descriptionValue}
               onChange={(event) => setDescriptionValue(event.target.value)}
-              placeholder="Describe what happened"
+              placeholder="Please describe the incident in as much detail as you feel comfortable sharing. Include what was said or done, and by whom if known."
               rows={6}
+              aria-label="Description of the incident"
             />
           </FormField>
-        </>
-      ) : null}
 
-      {step === 2 ? (
-        <>
-          <div className="space-y-3">
-            <p className="text-[13px] font-semibold text-gray-700">Upload Evidence (Optional)</p>
-            <div className="grid grid-cols-3 gap-2">
-              <label className="flex h-14 cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-gray-300 bg-gray-50 text-gray-500 transition-colors hover:border-navy/40 hover:text-navy">
-                <Camera size={15} />
-                <span className="mt-1 text-[10px] font-semibold uppercase">Photo</span>
-                <input type="file" accept="image/*" className="hidden" onChange={captureEvidence('photo')} />
-              </label>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <FormField label="Where did it happen?" hint="Campus location, hall, department, etc.">
+              <Input
+                name="location"
+                value={locationValue}
+                onChange={(event) => setLocationValue(event.target.value)}
+                placeholder="e.g. Science Faculty, Casely Hayford Hall"
+                aria-label="Location of the incident"
+              />
+            </FormField>
 
-              <label className="flex h-14 cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-gray-300 bg-gray-50 text-gray-500 transition-colors hover:border-navy/40 hover:text-navy">
-                <FileText size={15} />
-                <span className="mt-1 text-[10px] font-semibold uppercase">Doc</span>
-                <input type="file" accept=".pdf,.doc,.docx,.txt" className="hidden" onChange={captureEvidence('doc')} />
-              </label>
-
-              <label className="flex h-14 cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-gray-300 bg-gray-50 text-gray-500 transition-colors hover:border-navy/40 hover:text-navy">
-                <Mic size={15} />
-                <span className="mt-1 text-[10px] font-semibold uppercase">Audio</span>
-                <input type="file" accept="audio/*" className="hidden" onChange={captureEvidence('audio')} />
-              </label>
-            </div>
-
-            {evidenceFiles.length > 0 ? (
-              <p className="text-[11px] text-gray-500">{evidenceFiles.length} evidence file(s) selected</p>
-            ) : null}
-
-            {evidenceFiles.length > 0 ? (
-              <div className="space-y-1">
-                {evidenceFiles.map((item, index) => (
-                  <p key={`${item.file.name}-${index}`} className="truncate text-[11px] text-gray-500">
-                    {item.kind.toUpperCase()}: {item.file.name}
-                  </p>
-                ))}
-              </div>
-            ) : null}
+            <FormField label="When did it happen?" hint="Approximate date if unsure">
+              <Input
+                type="date"
+                name="incidentDate"
+                value={incidentDate}
+                onChange={(event) => setIncidentDate(event.target.value)}
+                aria-label="Date of the incident"
+              />
+            </FormField>
           </div>
+        </>
+      )}
+
+      {/* ─── Step 2: Additional details ─── */}
+      {step === 2 && (
+        <>
+          <FormField
+            label="Phone number"
+            hint="Optional — an additional way for CEGRAD to reach you for follow-up."
+          >
+            <div className="relative">
+              <Phone size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <Input
+                type="tel"
+                name="phone"
+                value={phoneValue}
+                onChange={(event) => setPhoneValue(event.target.value)}
+                placeholder="e.g. 024 123 4567"
+                className="pl-9"
+                aria-label="Phone number for follow-up"
+              />
+            </div>
+          </FormField>
 
           <div className="space-y-2">
-            <p className="text-[13px] font-semibold text-gray-700">Add Witnesses</p>
+            <p className="text-[13px] font-semibold text-gray-700">Witnesses (Optional)</p>
+            <p className="text-xs text-gray-500">
+              If anyone else was present or is aware of the situation, you can add their name or contact below.
+            </p>
             <div className="flex items-center gap-2">
               <Input
                 value={witness}
                 onChange={(event) => setWitness(event.target.value)}
-                placeholder="Name or email"
+                placeholder="Name, email, or phone"
+                aria-label="Add a witness"
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') {
+                    event.preventDefault()
+                    addWitness()
+                  }
+                }}
               />
               <button
                 type="button"
                 onClick={addWitness}
-                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-navy-light text-navy transition-transform active:scale-95"
+                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-navy-light text-navy transition-transform hover:bg-navy hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2 active:scale-95"
                 aria-label="Add witness"
               >
                 <UserPlus size={17} />
               </button>
             </div>
 
-            {witnesses.length > 0 ? (
+            {witnesses.length > 0 && (
               <div className="flex flex-wrap gap-2 pt-1">
                 {witnesses.map((item, index) => (
-                  <span key={`${item}-${index}`} className="rounded-full bg-gray-100 px-3 py-1 text-[11px] text-gray-700">
+                  <button
+                    key={`${item}-${index}`}
+                    type="button"
+                    onClick={() => removeWitness(index)}
+                    className="group inline-flex items-center gap-1 rounded-full bg-gray-100 px-3 py-1.5 text-[11px] text-gray-700 transition hover:bg-red/10 hover:text-red focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy"
+                    aria-label={`Remove witness ${item}`}
+                  >
                     {item}
-                  </span>
+                    <span className="text-gray-400 group-hover:text-red">&times;</span>
+                  </button>
                 ))}
               </div>
-            ) : null}
+            )}
+          </div>
+        </>
+      )}
+
+      {/* ─── Step 3: Review ─── */}
+      {step === 3 && (
+        <div className="space-y-4">
+          <div className="rounded-xl bg-navy-light p-4">
+            <h3 className="text-sm font-bold text-navy">Review Your Report</h3>
+            <p className="mt-1 text-xs text-gray-500">
+              Please review the details below before submitting. You can go back to make changes.
+            </p>
           </div>
 
-          {canToggleAnonymous ? (
-            <>
-              <div className="flex items-center justify-between rounded-xl bg-gray-50 px-3 py-2">
-                <div className="flex items-start gap-2">
-                  <EyeOff size={15} className="mt-0.5 text-navy" />
-                  <div>
-                    <p className="text-[12px] font-semibold text-gray-800">Report Anonymously</p>
-                    <p className="text-[11px] text-gray-500">
-                      {anonymous ? 'Identity will not be revealed' : 'Identity may be shared for follow-up'}
-                    </p>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={anonymous}
-                  onClick={() => setAnonymous((prev) => !prev)}
-                  className={`relative h-7 w-12 rounded-full transition-colors ${anonymous ? 'bg-navy' : 'bg-gray-300'}`}
-                >
-                  <span
-                    className={`absolute top-1 h-5 w-5 rounded-full bg-white transition-transform ${anonymous ? 'translate-x-6' : 'translate-x-1'}`}
-                  />
-                </button>
-              </div>
-
-              <p className="text-right text-[11px] font-semibold text-gray-500">
-                Anonymous: {anonymous ? 'ON' : 'OFF'}
+          <div className="space-y-3 rounded-xl border border-gray-200 bg-gray-50 p-4">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Harassment Type</p>
+              <p className="mt-0.5 text-sm text-gray-800">
+                {HARASSMENT_TYPES.find((t) => t.value === typeValue)?.label ?? typeValue}
               </p>
-            </>
-          ) : null}
-        </>
-      ) : null}
+            </div>
 
-      {step === 3 ? (
-        <div className="space-y-3 rounded-xl border border-gray-200 bg-gray-50 p-3">
-          <h3 className="text-sm font-semibold text-navy">Review Before Submit</h3>
-          <p className="text-xs text-gray-700"><span className="font-semibold">Type:</span> {typeValue || '-'}</p>
-          <p className="text-xs text-gray-700"><span className="font-semibold">Location:</span> {locationValue || '-'}</p>
-          <p className="text-xs text-gray-700"><span className="font-semibold">Contact:</span> {contactValue || '-'}</p>
-          <p className="text-xs text-gray-700"><span className="font-semibold">Description:</span> {descriptionValue || '-'}</p>
-          <p className="text-xs text-gray-700"><span className="font-semibold">Witnesses:</span> {witnesses.length}</p>
-          <p className="text-xs text-gray-700"><span className="font-semibold">Evidence files:</span> {evidenceFiles.length}</p>
-          <p className="text-xs text-gray-700"><span className="font-semibold">Anonymous:</span> {anonymous ? 'Yes' : 'No'}</p>
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Description</p>
+              <p className="mt-0.5 text-sm leading-relaxed text-gray-800">{descriptionValue}</p>
+            </div>
+
+            {locationValue && (
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Location</p>
+                <p className="mt-0.5 text-sm text-gray-800">{locationValue}</p>
+              </div>
+            )}
+
+            {incidentDate && (
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Date of Incident</p>
+                <p className="mt-0.5 text-sm text-gray-800">
+                  {new Date(incidentDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+                </p>
+              </div>
+            )}
+
+            {phoneValue && (
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Phone</p>
+                <p className="mt-0.5 text-sm text-gray-800">{phoneValue}</p>
+              </div>
+            )}
+
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Email (from your account)</p>
+              <p className="mt-0.5 text-sm text-gray-800">{initialContact || 'N/A'}</p>
+            </div>
+
+            {witnesses.length > 0 && (
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Witnesses</p>
+                <div className="mt-1 flex flex-wrap gap-1.5">
+                  {witnesses.map((w, i) => (
+                    <span key={`review-${w}-${i}`} className="rounded-full bg-white px-2.5 py-0.5 text-xs text-gray-700 ring-1 ring-gray-200">
+                      {w}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <p className="text-xs leading-relaxed text-gray-500">
+            By submitting this report, you confirm that the information provided is truthful to the best of your knowledge.
+            CEGRAD will treat your report with strict confidentiality.
+          </p>
         </div>
-      ) : null}
+      )}
 
-      <div className="grid grid-cols-2 gap-2">
-        <Button type="button" variant="outline" disabled={step === 1 || submitting} onClick={prevStep}>
+      {/* ─── Navigation buttons ─── */}
+      <div className="grid grid-cols-2 gap-3">
+        <Button
+          type="button"
+          variant="outline"
+          disabled={step === 1 || submitting}
+          onClick={prevStep}
+          className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2"
+        >
           Previous
         </Button>
 
         {step < totalSteps ? (
-          <Button type="button" onClick={nextStep}>
+          <Button
+            type="button"
+            onClick={nextStep}
+            className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2"
+          >
             Next
           </Button>
         ) : (
@@ -387,8 +407,9 @@ export function ReportForm({ canToggleAnonymous = false, initialContact = '' }: 
             type="submit"
             variant="report"
             loading={submitting}
+            className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2"
           >
-            Submit report
+            Submit Report
           </Button>
         )}
       </div>

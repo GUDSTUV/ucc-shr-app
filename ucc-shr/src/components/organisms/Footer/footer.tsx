@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { Facebook, Instagram, Linkedin, Mail, MapPin, Phone, Twitter } from 'lucide-react'
+import { Facebook, Instagram, Linkedin, Mail, MapPin, Phone, Twitter, Clock } from 'lucide-react'
 
 const partners = [
   {
@@ -45,7 +45,6 @@ const resources = [
   { href: '/hub', label: 'Support Services' },
   { href: '/hub', label: 'Campus Policy' },
   { href: '/events', label: 'Events & Workshops' },
-  { href: '/login', label: 'Staff Login' },
 ]
 
 const socials = [
@@ -148,26 +147,22 @@ export function Footer() {
               <li className="flex items-start gap-2 text-sm text-white/60">
                 <MapPin size={15} className="mt-0.5 shrink-0 text-red" />
                 <span>
-                  CEGRAD Office, University of Cape Coast, Cape Coast, Ghana
+                  Second Floor, C.A Ackah lecture Theatre Complex, UCC Campus
                 </span>
               </li>
-              <li>
-                <a
-                  href="mailto:cegrad@ucc.edu.gh"
-                  className="flex items-center gap-2 text-sm text-white/60 transition hover:text-white"
-                >
-                  <Mail size={15} className="shrink-0 text-red" />
-                  cegrad@ucc.edu.gh
-                </a>
+              <li className="flex items-start gap-2 text-sm text-white/60">
+                <Clock size={15} className="mt-0.5 shrink-0 text-red" />
+                <span>
+                  Mon - Fri: 8:00 AM - 5:00 PM
+                </span>
               </li>
-              <li>
-                <a
-                  href="tel:+233332132000"
-                  className="flex items-center gap-2 text-sm text-white/60 transition hover:text-white"
-                >
-                  <Phone size={15} className="shrink-0 text-red" />
-                  +233 332 132 000
-                </a>
+              <li className="flex items-start gap-2 text-sm text-white/60">
+                <Phone size={15} className="mt-0.5 shrink-0 text-red" />
+                <div className="flex flex-col gap-1">
+                  <a href="tel:+233235383415" className="transition hover:text-white">+233 235 383 415</a>
+                  <a href="tel:+233205383415" className="transition hover:text-white">+233 205 383 415</a>
+                  <a href="tel:+233575383415" className="transition hover:text-white">+233 575 383 415</a>
+                </div>
               </li>
             </ul>
           </div>
@@ -202,10 +197,10 @@ export function Footer() {
               © {new Date().getFullYear()} CEGRAD-UCC. All rights reserved.
             </p>
             <div className="flex flex-wrap justify-center gap-4 text-xs text-white/40 sm:justify-end">
-              <Link href="/help" className="transition hover:text-white/70">
+              <Link href="/privacy" className="transition hover:text-white/70">
                 Privacy Policy
               </Link>
-              <Link href="/help" className="transition hover:text-white/70">
+              <Link href="/terms" className="transition hover:text-white/70">
                 Terms of Service
               </Link>
             </div>

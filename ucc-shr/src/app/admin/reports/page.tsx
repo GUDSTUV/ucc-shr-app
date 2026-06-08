@@ -17,7 +17,7 @@ type PageProps = {
   }>
 }
 
-const ALLOWED_STATUSES = new Set(['RECEIVED', 'REVIEWING', 'RESOLVED', 'CLOSED'])
+const ALLOWED_STATUSES = new Set(['RECEIVED', 'REVIEWING', 'REFERRED', 'RESOLVED', 'CLOSED'])
 const ALLOWED_ASSIGNED = new Set(['assigned', 'unassigned'])
 const ALLOWED_SORT = new Set(['newest', 'oldest', 'updated', 'status'])
 
@@ -31,8 +31,9 @@ function formatSubmittedAt(value: Date) {
   }).format(value)
 }
 
-function statusMeta(status: 'RECEIVED' | 'REVIEWING' | 'RESOLVED' | 'CLOSED') {
+function statusMeta(status: 'RECEIVED' | 'REVIEWING' | 'REFERRED' | 'RESOLVED' | 'CLOSED') {
   if (status === 'REVIEWING') return { label: 'Reviewing', variant: 'warning' as const }
+  if (status === 'REFERRED') return { label: 'Referred', variant: 'navy' as const }
   if (status === 'RESOLVED') return { label: 'Resolved', variant: 'success' as const }
   if (status === 'CLOSED') return { label: 'Closed', variant: 'gray' as const }
   return { label: 'Received', variant: 'navy' as const }
@@ -43,7 +44,7 @@ function sortReports(
     code: string
     createdAt: Date
     updatedAt: Date
-    status: 'RECEIVED' | 'REVIEWING' | 'RESOLVED' | 'CLOSED'
+    status: 'RECEIVED' | 'REVIEWING' | 'REFERRED' | 'RESOLVED' | 'CLOSED'
     type: string
     counsellorName: string | null
   }>,
@@ -60,11 +61,12 @@ function sortReports(
   }
 
   if (sort === 'status') {
-    const rank: Record<'RECEIVED' | 'REVIEWING' | 'RESOLVED' | 'CLOSED', number> = {
-      REVIEWING: 0,
+    const rank: Record<'RECEIVED' | 'REVIEWING' | 'REFERRED' | 'RESOLVED' | 'CLOSED', number> = {
       RECEIVED: 1,
-      RESOLVED: 2,
-      CLOSED: 3,
+      REVIEWING: 2,
+      REFERRED: 3,
+      RESOLVED: 4,
+      CLOSED: 5,
     }
 
     return [...reports].sort((a, b) => {
@@ -96,7 +98,7 @@ export default async function AdminReportsPage({ searchParams }: PageProps) {
 
   const reportsRaw = await prisma.report.findMany({
     where: {
-      ...(statusFilter ? { status: statusFilter as 'RECEIVED' | 'REVIEWING' | 'RESOLVED' | 'CLOSED' } : {}),
+      ...(statusFilter ? { status: statusFilter as 'RECEIVED' | 'REVIEWING' | 'REFERRED' | 'RESOLVED' | 'CLOSED' } : {}),
       ...(typeFilter ? { type: typeFilter } : {}),
       ...(rawQuery
         ? {

@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { CalendarDays, MapPin } from 'lucide-react'
+import { Button } from '@/src/components/atoms/button'
 
 export interface EventCardProps {
   href: string
@@ -12,7 +13,7 @@ export interface EventCardProps {
 
 export function EventCard({ href, imageUrl, title, venue, dateLabel, description }: EventCardProps) {
   return (
-    <article className="rounded-[12px] border border-gray-100 bg-white p-4 shadow-sm hover:shadow-md transition-shadow h-full flex flex-col">
+    <article className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm hover:shadow-md transition-shadow h-full flex flex-col">
       <div
         className="mb-3 h-36 md:h-44 rounded-[10px] bg-cover bg-center bg-no-repeat"
         style={{
@@ -30,11 +31,10 @@ export function EventCard({ href, imageUrl, title, venue, dateLabel, description
       </div>
       {description ? <p className="mt-2 text-[13px] text-gray-600 line-clamp-3">{description}</p> : null}
       <div className="mt-3">
-        <Link
-          href={href}
-          className="inline-flex h-10 items-center justify-center rounded-[10px] bg-navy px-4 text-sm font-semibold text-white transition-colors hover:bg-navy-dark"
-        >
-          Register Now
+        <Link href={href}>
+          <Button variant="primary" size="sm" fullWidth>
+            Register Now
+          </Button>
         </Link>
       </div>
     </article>

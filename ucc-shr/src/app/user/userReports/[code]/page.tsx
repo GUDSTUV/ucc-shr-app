@@ -6,6 +6,7 @@ import { auth } from '@/src/lib/auth/auth'
 import { prisma } from '@/src/lib/prisma'
 import { belongsToUser } from '@/src/lib/auth/report-access'
 import { StatusBadge } from '@/src/components/molecules/status-badge'
+import { ReportChat } from '@/src/components/organisms/report-chat'
 
 type ReportDetailsPageProps = {
   params: Promise<{
@@ -20,7 +21,7 @@ type ReportNotes = {
     id: string
     at: string
     by: string
-    status: 'RECEIVED' | 'REVIEWING' | 'RESOLVED' | 'CLOSED'
+    status: 'RECEIVED' | 'REVIEWING' | 'REFERRED' | 'RESOLVED' | 'CLOSED'
     message: string
   }>
 }
@@ -292,6 +293,11 @@ export default async function ReportDetailsPage({ params }: ReportDetailsPagePro
           ) : (
             <p className="mt-1 text-sm text-gray-700">No updates from admin yet.</p>
           )}
+        </section>
+
+        {/* Messaging Interface */}
+        <section className="mt-8">
+          <ReportChat reportCode={report.code} />
         </section>
       </main>
     </div>

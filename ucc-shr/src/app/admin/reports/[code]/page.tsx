@@ -8,6 +8,7 @@ import { prisma } from '@/src/lib/prisma'
 import { parseReportNotes } from '@/src/lib/auth/report-access'
 import { StatusBadge } from '@/src/components/molecules/status-badge'
 import { AdminReportUpdateForm } from './admin-report-update-form'
+import { ReportChat } from '@/src/components/organisms/report-chat'
 
 type PageProps = {
   params: Promise<{ code: string }>
@@ -148,6 +149,10 @@ export default async function AdminReportDetailsPage({ params }: PageProps) {
               <p className="mt-1 text-base text-gray-900">{notes.reporterEmail || 'Not available'}</p>
             </div>
             <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.08em] text-gray-700">Phone Number</p>
+              <p className="mt-1 text-base text-gray-900">{notes.phone || 'Not provided'}</p>
+            </div>
+            <div>
               <p className="text-sm font-semibold uppercase tracking-[0.08em] text-gray-700">Assigned Counsellor</p>
               <p className="mt-1 text-base text-gray-900">{assignedCounsellor || 'Unassigned'}</p>
             </div>
@@ -226,7 +231,7 @@ export default async function AdminReportDetailsPage({ params }: PageProps) {
               })}
             </ul>
           ) : (
-            <p className="mt-1 text-base text-gray-700">No evidence files were uploaded for this report.</p>
+            <p className="mt-1 text-base text-gray-700">Evidence will be collected in person during the investigation, per CEGRAD policy.</p>
           )}
         </section>
 
@@ -257,6 +262,11 @@ export default async function AdminReportDetailsPage({ params }: PageProps) {
           ) : (
             <p className="mt-2 text-base text-gray-700">No admin updates yet.</p>
           )}
+        </section>
+
+        {/* Messaging Interface */}
+        <section className="mt-5">
+          <ReportChat reportCode={report.code} isAssignedCounsellor={true} />
         </section>
       </div>
     </AdminLayout>

@@ -61,7 +61,7 @@ export default async function AdminAnalyticsPage() {
     prisma.event.count({ where: { startDate: { gte: now }, published: true } }),
   ])
 
-  const statusCountMap = reportStatusCounts.reduce<Record<'RECEIVED' | 'REVIEWING' | 'RESOLVED' | 'CLOSED', number>>(
+  const statusCountMap = reportStatusCounts.reduce<Record<'RECEIVED' | 'REVIEWING' | 'REFERRED' | 'RESOLVED' | 'CLOSED', number>>(
     (acc, row) => {
       acc[row.status] = row._count.status
       return acc

@@ -85,7 +85,7 @@ export function HubFeedCard({
 
         {isRegistration ? (
           <Link href={href}>
-            <Button variant="report" fullWidth className="h-12 rounded-xl">
+            <Button variant="primary" fullWidth className="h-12 rounded-xl">
               Register Now
             </Button>
           </Link>

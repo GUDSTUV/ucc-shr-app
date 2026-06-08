@@ -10,7 +10,7 @@ const steps = [
     step: '01',
     title: 'Submit Your Report',
     description:
-      'Fill in the secure form. Choose anonymous or identified. Your information is encrypted and confidential.',
+      'Fill in the secure form and provide a contact for follow-up. Your information is encrypted and treated as confidential.',
   },
   {
     Icon: Hash,

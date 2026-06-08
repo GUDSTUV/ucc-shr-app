@@ -7,13 +7,20 @@ type CreateReportPayload = {
   type?: string
   location?: string
   contact?: string
+  phone?: string
   description?: string
   isAnonymous?: boolean
   witnesses?: string[]
-  evidenceFiles?: string[]
+  incidentDate?: string
 }
 
-const ALLOWED_REPORT_TYPES = new Set(['verbal', 'physical', 'online'])
+const ALLOWED_REPORT_TYPES = new Set([
+  'verbal',
+  'physical',
+  'online',
+  'quid_pro_quo',
+  'other',
+])
 
 function buildTrackingCode() {
   const year = new Date().getFullYear()
@@ -53,6 +60,18 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const contact = payload.contact?.trim()
+    const phone = payload.phone?.trim() || null
+    const reporterId = session?.user?.id ?? null
+    const reporterEmail = session?.user?.email?.toLowerCase() ?? null
+
+    if (!contact && !reporterEmail) {
+      return NextResponse.json(
+        { ok: false, error: 'A contact (email or phone) is required.' },
+        { status: 400 }
+      )
+    }
+
     if (!ALLOWED_REPORT_TYPES.has(type)) {
       return NextResponse.json(
         { ok: false, error: 'Invalid report type.' },
@@ -69,17 +88,17 @@ export async function POST(request: NextRequest) {
 
     const code = await generateUniqueTrackingCode()
 
-    const contact = payload.contact?.trim()
-    const reporterId = session?.user?.id ?? null
-    const reporterEmail = session?.user?.email?.toLowerCase() ?? null
     const normalizedContact = contact?.toLowerCase() ?? null
     const witnesses = Array.isArray(payload.witnesses)
       ? payload.witnesses.map((item) => item.trim()).filter(Boolean)
       : []
 
-    const files = Array.isArray(payload.evidenceFiles)
-      ? payload.evidenceFiles.map((item) => item.trim()).filter(Boolean)
-      : []
+    // Parse incident date if provided
+    const incidentDate = payload.incidentDate
+      ? new Date(payload.incidentDate)
+      : null
+
+    const files: string[] = []
 
     const report = await prisma.report.create({
       data: {
@@ -87,15 +106,16 @@ export async function POST(request: NextRequest) {
         type,
         description,
         location: payload.location?.trim().slice(0, 180) || null,
-        date: new Date(),
+        date: incidentDate ?? new Date(),
         isAnonymous: payload.isAnonymous ?? true,
         files,
         notes:
-          normalizedContact || witnesses.length || reporterId || reporterEmail
+          normalizedContact || witnesses.length || reporterId || reporterEmail || phone
             ? JSON.stringify({
                 reporterId,
                 reporterEmail,
                 contact: normalizedContact,
+                phone,
                 witnesses: witnesses.slice(0, 10),
               })
             : null,

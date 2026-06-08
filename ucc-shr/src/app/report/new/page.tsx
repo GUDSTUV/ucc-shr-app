@@ -1,21 +1,19 @@
+import { redirect } from 'next/navigation'
 import { FormLayout } from '@/src/components/templates/form-layout'
 import { ReportForm } from '@/src/components/organisms/report-form'
+import { auth } from '@/src/lib/auth/auth'
 
-type NewReportPageProps = {
-  searchParams?: Promise<{
-    name?: string
-    email?: string
-  }>
-}
+export default async function NewReportPage() {
+  const session = await auth()
+  if (!session?.user) {
+    redirect('/report')
+  }
 
-export default async function NewReportPage({ searchParams }: NewReportPageProps) {
-  const params = (await searchParams) ?? {}
-  const hasAccount = Boolean(params.name && params.email)
-  const initialContact = params.email?.trim() ?? ''
+  const initialContact = session.user.email?.trim() ?? ''
 
   return (
-    <FormLayout title={hasAccount ? 'New Report' : 'Anonymous Report'}>
-      <ReportForm canToggleAnonymous={hasAccount} initialContact={initialContact} />
+    <FormLayout title="New Report">
+      <ReportForm initialContact={initialContact} />
     </FormLayout>
   )
 }
