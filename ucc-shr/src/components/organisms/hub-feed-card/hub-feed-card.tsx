@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import { Bookmark, CalendarClock } from 'lucide-react'
 import { Button } from '@/src/components/atoms/button'
+import { Heading } from '@/src/components/atoms/heading/heading'
+import { Text } from '@/src/components/atoms/text/text'
 
 interface HubFeedCardProps {
   href: string
@@ -53,17 +55,18 @@ export function HubFeedCard({
           </div>
         ) : null}
 
-        <button
+        <Button
           type="button"
+          variant="ghost"
           aria-label={isSaved ? 'Remove from saved items' : 'Save item'}
           onClick={onToggleSave}
           disabled={isSaving}
-          className={`absolute right-4 top-4 inline-flex h-11 w-11 items-center justify-center rounded-full transition ${
-            isSaved ? 'bg-navy text-white' : 'bg-white text-navy'
-          } ${isSaving ? 'cursor-not-allowed opacity-70' : ''}`}
+          className={`absolute right-4 top-4 !p-0 !h-11 !w-11 inline-flex items-center justify-center !rounded-full transition ${
+            isSaved ? '!bg-navy !text-white' : '!bg-white !text-navy'
+          }`}
         >
           <Bookmark size={18} />
-        </button>
+        </Button>
 
         <div className={`absolute bottom-4 left-4 rounded-full px-3 py-1 text-xs font-semibold tracking-wide ${categoryBadgeClass}`}>
           {category.toUpperCase()}
@@ -80,8 +83,8 @@ export function HubFeedCard({
           ) : null}
         </div>
 
-        <h2 className="text-xl leading-tight font-semibold text-gray-900">{title}</h2>
-        <p className="text-sm text-gray-600">{excerpt}</p>
+        <Heading as="h2" size="xl" weight="semibold" className="leading-tight text-gray-900">{title}</Heading>
+        <Text size="sm" tone="muted">{excerpt}</Text>
 
         {isRegistration ? (
           <Link href={href}>
@@ -94,7 +97,7 @@ export function HubFeedCard({
             <Link href={href} className="text-sm font-semibold text-navy hover:text-navy-dark">
               Read More
             </Link>
-            <span className="text-sm text-gray-600">{readTime}</span>
+            <Text as="span" size="sm" tone="muted">{readTime}</Text>
           </div>
         )}
       </div>

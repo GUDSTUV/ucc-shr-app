@@ -3,6 +3,9 @@
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ChevronLeft, ChevronRight } from "lucide-react"
+import { Heading } from "../../atoms/heading/heading"
+import { Text } from "../../atoms/text/text"
+import { Button } from "../../atoms/button/button"
 
 const images = [
   {
@@ -42,12 +45,12 @@ export function AboutHero() {
     <section className="bg-white py-16 lg:py-20">
       <div className="mx-auto max-w-7xl px-6 lg:px-8 space-y-12">
         <div className="text-center">
-          <h1 className="mt-2 text-4xl font-bold tracking-tight text-navy sm:text-5xl lg:text-4xl">
+          <Heading as="h1" size={{ base: '4xl', sm: '5xl', lg: '4xl' }} tone="navy" weight="bold" className="mt-2 tracking-tight">
             About CEGRAD
-          </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-base text-gray-600 lg:text-lg">
+          </Heading>
+          <Text size={{ base: 'base', lg: 'lg' }} tone="muted" className="mx-auto mt-4 max-w-2xl">
             The Centre for Gender Research, Advocacy and Documentation (CEGRAD) at the University of Cape Coast is dedicated to promoting gender equality and women&apos;s rights through research, advocacy, and action.
-          </p>
+          </Text>
         </div>
 
         <div className="relative overflow-hidden rounded-3xl bg-gray-900 shadow-xl sm:h-[500px]">
@@ -68,34 +71,39 @@ export function AboutHero() {
 
           <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8">
             <AnimatePresence mode="wait">
-              <motion.p
+              <Heading
+                as={motion.p}
                 key={currentIndex}
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: -20, opacity: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className="text-xl font-semibold text-white sm:text-2xl"
+                size={{ base: 'xl', sm: '2xl' }}
+                weight="semibold"
+                tone="white"
               >
                 {images[currentIndex].caption}
-              </motion.p>
+              </Heading>
             </AnimatePresence>
           </div>
 
           <div className="absolute bottom-6 right-6 flex gap-3 sm:bottom-8 sm:right-8">
-            <button
+            <Button
+              variant="unstyled"
               onClick={handlePrev}
               className="grid h-10 w-10 place-content-center rounded-full bg-white/20 text-white backdrop-blur-md transition hover:bg-white/40"
               aria-label="Previous image"
             >
               <ChevronLeft className="h-6 w-6" />
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="unstyled"
               onClick={handleNext}
               className="grid h-10 w-10 place-content-center rounded-full bg-white/20 text-white backdrop-blur-md transition hover:bg-white/40"
               aria-label="Next image"
             >
               <ChevronRight className="h-6 w-6" />
-            </button>
+            </Button>
           </div>
         </div>
       </div>

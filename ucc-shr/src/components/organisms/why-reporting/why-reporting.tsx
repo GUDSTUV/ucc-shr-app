@@ -2,6 +2,8 @@
 
 import { motion } from 'framer-motion'
 import { Heart, Scale, ShieldCheck } from 'lucide-react'
+import { Heading } from '@/src/components/atoms/heading/heading'
+import { Text } from '@/src/components/atoms/text/text'
 
 const cards = [
   {
@@ -53,16 +55,16 @@ export function WhyReportingSection() {
           transition={{ duration: 0.5 }}
           className="text-center"
         >
-          <span className="text-xs font-semibold uppercase tracking-widest text-navy">
+          <Text as="span" size="xs" weight="semibold" tone="navy" className="uppercase tracking-widest">
             Why It Matters
-          </span>
-          <h2 className="mt-2 text-3xl font-bold text-navy lg:text-4xl">
+          </Text>
+          <Heading as="h2" size={{ base: '3xl', lg: '4xl' }} tone="navy" weight="bold" className="mt-2">
             Reporting Makes a Difference
-          </h2>
-          <p className="mx-auto mt-3 max-w-2xl text-base text-gray-600">
+          </Heading>
+          <Text size="base" tone="muted" className="mx-auto mt-3 max-w-2xl">
             Every report contributes to a safer campus. Here is what happens
             when you speak up.
-          </p>
+          </Text>
         </motion.div>
 
         {/* Cards */}
@@ -84,12 +86,12 @@ export function WhyReportingSection() {
               >
                 <card.Icon size={22} />
               </div>
-              <h3 className="mt-4 text-lg font-semibold text-gray-900">
+              <Text as="h3" size="lg" weight="semibold" className="mt-4 text-gray-900">
                 {card.title}
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-gray-600">
+              </Text>
+              <Text size="sm" tone="muted" className="mt-2 leading-relaxed">
                 {card.description}
-              </p>
+              </Text>
             </motion.div>
           ))}
         </motion.div>

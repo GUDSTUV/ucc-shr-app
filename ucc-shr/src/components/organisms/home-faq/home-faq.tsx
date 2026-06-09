@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { FaqItem } from '@/src/components/molecules/faq-item'
+import { Text } from '@/src/components/atoms/text/text'
 
 const faqs = [
   {
@@ -35,7 +36,7 @@ export function HomeFaq() {
   return (
     <section className="mt-6 space-y-3">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-base font-bold text-navy">Frequently Asked Questions</h2>
+        <Text as="h2" size="base" weight="bold" tone="navy">Frequently Asked Questions</Text>
         <Link href="/about#faq" className="text-xs font-semibold text-navy hover:underline">
           See all FAQ
         </Link>

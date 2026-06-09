@@ -8,6 +8,8 @@ import { Select } from '@/src/components/atoms/select'
 import { FormField } from '@/src/components/molecules/form-field'
 import { StepIndicator } from '@/src/components/molecules/step-indicator'
 import { AlertBox } from '@/src/components/molecules/alert-box'
+import { Heading } from '@/src/components/atoms/heading/heading'
+import { Text } from '@/src/components/atoms/text/text'
 
 type ReportFormProps = {
   initialContact?: string
@@ -144,11 +146,11 @@ export function ReportForm({ initialContact = '' }: ReportFormProps) {
           <div className="flex h-14 w-14 items-center justify-center rounded-full bg-green-50">
             <Shield className="h-7 w-7 text-green-600" />
           </div>
-          <h3 className="mt-4 text-lg font-bold text-navy">Report Submitted Successfully</h3>
-          <p className="mt-2 text-sm leading-relaxed text-gray-600">
+          <Heading as="h3" size="lg" weight="bold" tone="navy" className="mt-4">Report Submitted Successfully</Heading>
+          <Text size="sm" tone="muted" className="mt-2 leading-relaxed">
             Your report has been securely received by CEGRAD. A member of the team will review it and
             reach out to you. You can check the status of your report or message your assigned counsellor directly from your Dashboard.
-          </p>
+          </Text>
         </div>
 
         <div className="flex gap-3">
@@ -263,10 +265,10 @@ export function ReportForm({ initialContact = '' }: ReportFormProps) {
           </FormField>
 
           <div className="space-y-2">
-            <p className="text-[13px] font-semibold text-gray-700">Witnesses (Optional)</p>
-            <p className="text-xs text-gray-500">
+            <Text as="p" size="sm" weight="semibold" className="text-[13px] text-gray-700">Witnesses (Optional)</Text>
+            <Text as="p" size="xs" tone="muted">
               If anyone else was present or is aware of the situation, you can add their name or contact below.
-            </p>
+            </Text>
             <div className="flex items-center gap-2">
               <Input
                 value={witness}
@@ -280,20 +282,22 @@ export function ReportForm({ initialContact = '' }: ReportFormProps) {
                   }
                 }}
               />
-              <button
+              <Button
+                variant="unstyled"
                 type="button"
                 onClick={addWitness}
                 className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-navy-light text-navy transition-transform hover:bg-navy hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2 active:scale-95"
                 aria-label="Add witness"
               >
                 <UserPlus size={17} />
-              </button>
+              </Button>
             </div>
 
             {witnesses.length > 0 && (
               <div className="flex flex-wrap gap-2 pt-1">
                 {witnesses.map((item, index) => (
-                  <button
+                  <Button
+                    variant="unstyled"
                     key={`${item}-${index}`}
                     type="button"
                     onClick={() => removeWitness(index)}
@@ -302,7 +306,7 @@ export function ReportForm({ initialContact = '' }: ReportFormProps) {
                   >
                     {item}
                     <span className="text-gray-400 group-hover:text-red">&times;</span>
-                  </button>
+                  </Button>
                 ))}
               </div>
             )}
@@ -314,56 +318,56 @@ export function ReportForm({ initialContact = '' }: ReportFormProps) {
       {step === 3 && (
         <div className="space-y-4">
           <div className="rounded-xl bg-navy-light p-4">
-            <h3 className="text-sm font-bold text-navy">Review Your Report</h3>
-            <p className="mt-1 text-xs text-gray-500">
+            <Text as="h3" size="sm" weight="bold" tone="navy">Review Your Report</Text>
+            <Text size="xs" tone="muted" className="mt-1">
               Please review the details below before submitting. You can go back to make changes.
-            </p>
+            </Text>
           </div>
 
           <div className="space-y-3 rounded-xl border border-gray-200 bg-gray-50 p-4">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Harassment Type</p>
-              <p className="mt-0.5 text-sm text-gray-800">
+              <Text as="p" size="xs" weight="semibold" tone="muted" className="text-[11px] uppercase tracking-wider text-gray-400">Harassment Type</Text>
+              <Text as="p" size="sm" className="mt-0.5 text-gray-800">
                 {HARASSMENT_TYPES.find((t) => t.value === typeValue)?.label ?? typeValue}
-              </p>
+              </Text>
             </div>
 
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Description</p>
-              <p className="mt-0.5 text-sm leading-relaxed text-gray-800">{descriptionValue}</p>
+              <Text as="p" size="xs" weight="semibold" tone="muted" className="text-[11px] uppercase tracking-wider text-gray-400">Description</Text>
+              <Text as="p" size="sm" className="mt-0.5 leading-relaxed text-gray-800">{descriptionValue}</Text>
             </div>
 
             {locationValue && (
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Location</p>
-                <p className="mt-0.5 text-sm text-gray-800">{locationValue}</p>
+                <Text as="p" size="xs" weight="semibold" tone="muted" className="text-[11px] uppercase tracking-wider text-gray-400">Location</Text>
+                <Text as="p" size="sm" className="mt-0.5 text-gray-800">{locationValue}</Text>
               </div>
             )}
 
             {incidentDate && (
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Date of Incident</p>
-                <p className="mt-0.5 text-sm text-gray-800">
+                <Text as="p" size="xs" weight="semibold" tone="muted" className="text-[11px] uppercase tracking-wider text-gray-400">Date of Incident</Text>
+                <Text as="p" size="sm" className="mt-0.5 text-gray-800">
                   {new Date(incidentDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
-                </p>
+                </Text>
               </div>
             )}
 
             {phoneValue && (
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Phone</p>
-                <p className="mt-0.5 text-sm text-gray-800">{phoneValue}</p>
+                <Text as="p" size="xs" weight="semibold" tone="muted" className="text-[11px] uppercase tracking-wider text-gray-400">Phone</Text>
+                <Text as="p" size="sm" className="mt-0.5 text-gray-800">{phoneValue}</Text>
               </div>
             )}
 
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Email (from your account)</p>
-              <p className="mt-0.5 text-sm text-gray-800">{initialContact || 'N/A'}</p>
+              <Text as="p" size="xs" weight="semibold" tone="muted" className="text-[11px] uppercase tracking-wider text-gray-400">Email (from your account)</Text>
+              <Text as="p" size="sm" className="mt-0.5 text-gray-800">{initialContact || 'N/A'}</Text>
             </div>
 
             {witnesses.length > 0 && (
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Witnesses</p>
+                <Text as="p" size="xs" weight="semibold" tone="muted" className="text-[11px] uppercase tracking-wider text-gray-400">Witnesses</Text>
                 <div className="mt-1 flex flex-wrap gap-1.5">
                   {witnesses.map((w, i) => (
                     <span key={`review-${w}-${i}`} className="rounded-full bg-white px-2.5 py-0.5 text-xs text-gray-700 ring-1 ring-gray-200">
@@ -375,10 +379,10 @@ export function ReportForm({ initialContact = '' }: ReportFormProps) {
             )}
           </div>
 
-          <p className="text-xs leading-relaxed text-gray-500">
+          <Text as="p" size="xs" tone="muted" className="leading-relaxed">
             By submitting this report, you confirm that the information provided is truthful to the best of your knowledge.
             CEGRAD will treat your report with strict confidentiality.
-          </p>
+          </Text>
         </div>
       )}
 

@@ -3,6 +3,8 @@
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { ArrowRight, BookOpen, Scale, Shield } from 'lucide-react'
+import { Heading } from '@/src/components/atoms/heading/heading'
+import { Text } from '@/src/components/atoms/text/text'
 
 const previews = [
   {
@@ -58,12 +60,12 @@ export function AwarenessPreviewSection() {
           className="flex flex-col items-center gap-3 text-center sm:flex-row sm:items-end sm:justify-between sm:text-left"
         >
           <div>
-            <span className="text-xs font-semibold uppercase tracking-widest text-navy">
+            <Text as="span" size="xs" weight="semibold" tone="navy" className="uppercase tracking-widest">
               Resources
-            </span>
-            <h2 className="mt-2 text-3xl font-bold text-navy lg:text-4xl">
+            </Text>
+            <Heading as="h2" size={{ base: '3xl', lg: '4xl' }} tone="navy" weight="bold" className="mt-2">
               Awareness & Education
-            </h2>
+            </Heading>
           </div>
           <Link
             href="/hub"
@@ -92,15 +94,15 @@ export function AwarenessPreviewSection() {
                 >
                   <preview.Icon size={22} />
                 </div>
-                <h3 className="mt-4 text-base font-semibold text-gray-900 transition-colors group-hover:text-navy">
+                <Text as="h3" size="base" weight="semibold" className="mt-4 transition-colors group-hover:text-navy text-gray-900">
                   {preview.title}
-                </h3>
-                <p className="mt-2 flex-1 text-sm leading-relaxed text-gray-600">
+                </Text>
+                <Text size="sm" tone="muted" className="mt-2 flex-1 leading-relaxed">
                   {preview.description}
-                </p>
-                <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-navy transition-all group-hover:gap-2">
+                </Text>
+                <Text as="span" size="sm" weight="semibold" tone="navy" className="mt-4 inline-flex items-center gap-1 transition-all group-hover:gap-2">
                   Read more <ArrowRight size={14} />
-                </span>
+                </Text>
               </Link>
             </motion.div>
           ))}

@@ -1,4 +1,5 @@
 import { Info, AlertTriangle, CheckCircle } from 'lucide-react'
+import { Text } from '../../atoms/text/text'
 
 export type AlertVariant = 'info' | 'danger' | 'success'
 
@@ -45,8 +46,8 @@ export function AlertBox({
     <div className={rootClasses}>
       <Icon size={17} className={`shrink-0 mt-0.5 ${icon}`} />
       <div>
-        {title && <p className="text-[13px] font-semibold mb-0.5">{title}</p>}
-        <div className="text-[12px] font-light text-gray-600">{children}</div>
+        {title && <Text size="sm" weight="semibold" className="mb-0.5">{title}</Text>}
+        <Text size="xs" tone="muted" className="font-light">{children}</Text>
       </div>
     </div>
   )

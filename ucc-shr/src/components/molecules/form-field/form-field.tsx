@@ -1,15 +1,16 @@
 import type { FormFieldProps } from './form-field.types'
+import { Text } from '../../atoms/text/text'
 
 export function FormField({ label, hint, error, required, children }: FormFieldProps) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="text-[13px] font-medium text-gray-900">
+      <Text as="label" size="sm" weight="medium" className="text-gray-900">
         {label}
         {required && <span className="text-red ml-0.5">*</span>}
-      </label>
-      {hint && <p className="text-[11px] font-light text-gray-400">{hint}</p>}
+      </Text>
+      {hint && <Text size="xs" tone="muted" className="font-light">{hint}</Text>}
       {children}
-      {error && <p className="text-[11px] text-red font-medium">{error}</p>}
+      {error && <Text size="xs" weight="medium" className="text-red">{error}</Text>}
     </div>
   )
 }

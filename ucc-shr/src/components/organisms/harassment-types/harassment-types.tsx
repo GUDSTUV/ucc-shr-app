@@ -3,6 +3,8 @@
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { Eye, Hand, MessageSquare, Smartphone } from 'lucide-react'
+import { Heading } from '@/src/components/atoms/heading/heading'
+import { Text } from '@/src/components/atoms/text/text'
 
 const types = [
   {
@@ -61,16 +63,16 @@ export function HarassmentTypesSection() {
           transition={{ duration: 0.5 }}
           className="text-center"
         >
-          <span className="text-xs font-semibold uppercase tracking-widest text-navy">
+          <Text as="span" size="xs" weight="semibold" tone="navy" className="uppercase tracking-widest">
             Know the Signs
-          </span>
-          <h2 className="mt-2 text-3xl font-bold text-navy lg:text-4xl">
+          </Text>
+          <Heading as="h2" size={{ base: '3xl', lg: '4xl' }} tone="navy" weight="bold" className="mt-2">
             Understanding Sexual Harassment
-          </h2>
-          <p className="mx-auto mt-3 max-w-2xl text-base text-gray-600">
+          </Heading>
+          <Text size="base" tone="muted" className="mx-auto mt-3 max-w-2xl">
             Sexual harassment takes many forms. Recognising it is the first step
             toward ending it.
-          </p>
+          </Text>
         </motion.div>
 
         {/* Type cards */}
@@ -90,12 +92,12 @@ export function HarassmentTypesSection() {
               <div className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-navy-light text-navy">
                 <type.Icon size={20} />
               </div>
-              <h3 className="mt-4 text-base font-semibold text-gray-900">
+              <Text as="h3" size="base" weight="semibold" className="mt-4 text-gray-900">
                 {type.title}
-              </h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-gray-600">
+              </Text>
+              <Text size="sm" tone="muted" className="mt-1.5 leading-relaxed">
                 {type.description}
-              </p>
+              </Text>
               <ul className="mt-3 space-y-1">
                 {type.examples.map((ex) => (
                   <li key={ex} className="flex items-center gap-2 text-xs text-gray-500">

@@ -1,4 +1,6 @@
 import { Globe, MapPin, Building2 } from "lucide-react"
+import { Heading } from "../../atoms/heading/heading"
+import { Text } from "../../atoms/text/text"
 
 const partners = {
   international: [
@@ -24,10 +26,10 @@ export function AboutPartners() {
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto">
           <div className="mb-12 text-center">
-            <h2 className="mt-2 text-3xl font-bold text-navy lg:text-4xl">Our Partners</h2>
-            <p className="mx-auto mt-3 max-w-2xl text-base text-gray-600">
+            <Heading as="h2" size={{ base: '3xl', lg: '4xl' }} tone="navy" weight="bold" className="mt-2">Our Partners</Heading>
+            <Text size="base" tone="muted" className="mx-auto mt-3 max-w-2xl">
               Collaborating at every level to ensure a safe and equitable environment.
-            </p>
+            </Text>
           </div>
 
           <div className="grid gap-12 md:grid-cols-3">
@@ -35,7 +37,7 @@ export function AboutPartners() {
             <div className="space-y-6">
               <div className="flex items-center gap-3">
                 <Globe className="h-6 w-6 text-red" />
-                <h3 className="text-xl font-bold text-navy">International</h3>
+                <Heading as="h3" size="xl" weight="bold" tone="navy">International</Heading>
               </div>
               <div className="flex flex-col gap-4">
                 {partners.international.map((partner, i) => (
@@ -46,7 +48,7 @@ export function AboutPartners() {
                     <div className="grid h-12 w-12 shrink-0 place-content-center rounded-lg bg-gray-50 font-bold text-gray-400">
                       {partner.logo}
                     </div>
-                    <span className="font-semibold text-gray-700">{partner.name}</span>
+                    <Text as="span" weight="semibold" className="text-gray-700">{partner.name}</Text>
                   </div>
                 ))}
               </div>
@@ -56,7 +58,7 @@ export function AboutPartners() {
             <div className="space-y-6">
               <div className="flex items-center gap-3">
                 <Building2 className="h-6 w-6 text-red" />
-                <h3 className="text-xl font-bold text-navy">National</h3>
+                <Heading as="h3" size="xl" weight="bold" tone="navy">National</Heading>
               </div>
               <div className="flex flex-col gap-4">
                 {partners.national.map((partner, i) => (
@@ -67,7 +69,7 @@ export function AboutPartners() {
                     <div className="grid h-12 w-12 shrink-0 place-content-center rounded-lg bg-gray-50 font-bold text-gray-400">
                       {partner.logo}
                     </div>
-                    <span className="font-semibold text-gray-700">{partner.name}</span>
+                    <Text as="span" weight="semibold" className="text-gray-700">{partner.name}</Text>
                   </div>
                 ))}
               </div>
@@ -77,7 +79,7 @@ export function AboutPartners() {
             <div className="space-y-6">
               <div className="flex items-center gap-3">
                 <MapPin className="h-6 w-6 text-red" />
-                <h3 className="text-xl font-bold text-navy">Area / Local</h3>
+                <Heading as="h3" size="xl" weight="bold" tone="navy">Area / Local</Heading>
               </div>
               <div className="flex flex-col gap-4">
                 {partners.area.map((partner, i) => (
@@ -88,7 +90,7 @@ export function AboutPartners() {
                     <div className="grid h-12 w-12 shrink-0 place-content-center rounded-lg bg-gray-50 font-bold text-gray-400">
                       {partner.logo}
                     </div>
-                    <span className="font-semibold text-gray-700">{partner.name}</span>
+                    <Text as="span" weight="semibold" className="text-gray-700">{partner.name}</Text>
                   </div>
                 ))}
               </div>

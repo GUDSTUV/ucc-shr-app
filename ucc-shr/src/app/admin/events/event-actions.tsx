@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { Button } from '@/src/components/atoms/button'
 
 type Props = {
   eventId: string
@@ -41,14 +42,15 @@ export function EventActions({ eventId, currentPublished }: Props) {
       <Link href={`/admin/events/${eventId}/edit`} className="text-navy hover:text-navy-dark">
         Edit
       </Link>
-      <button
+      <Button
+        variant="unstyled"
         type="button"
         onClick={() => void togglePublish()}
         disabled={publishing}
         className="text-navy hover:text-navy-dark disabled:cursor-not-allowed disabled:opacity-60"
       >
         {publishing ? 'Saving...' : currentPublished ? 'Unpublish' : 'Publish'}
-      </button>
+      </Button>
     </div>
   )
 }

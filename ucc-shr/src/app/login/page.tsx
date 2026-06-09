@@ -93,7 +93,8 @@ function LoginContent() {
       )}
 
       {/* Google */}
-      <button
+      <Button
+        variant="unstyled"
         type="button"
         onClick={handleGoogleSignIn}
         disabled={googleLoading || isLoading}
@@ -101,7 +102,7 @@ function LoginContent() {
       >
         <GoogleLogo />
         {googleLoading ? 'Redirecting…' : 'Continue with Google'}
-      </button>
+      </Button>
 
       <Divider label="or sign in with email" />
 
@@ -131,7 +132,8 @@ function LoginContent() {
               autoComplete="current-password"
               className="pr-11"
             />
-            <button
+            <Button
+              variant="unstyled"
               type="button"
               tabIndex={-1}
               onClick={() => setShowPassword((p) => !p)}
@@ -139,7 +141,7 @@ function LoginContent() {
               aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
               {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-            </button>
+            </Button>
           </div>
           <div className="mt-1 flex justify-end">
             <Link href="/forgot-password" className="text-xs font-semibold text-navy hover:underline">

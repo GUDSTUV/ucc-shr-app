@@ -69,6 +69,7 @@ export default async function AdminAnalyticsPage() {
     {
       RECEIVED: 0,
       REVIEWING: 0,
+      REFERRED: 0,
       RESOLVED: 0,
       CLOSED: 0,
     },

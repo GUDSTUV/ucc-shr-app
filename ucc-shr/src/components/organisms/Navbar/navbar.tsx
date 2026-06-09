@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Flag, LogIn, Bell, UserCircle2, ChevronDown, LogOut, LayoutDashboard, FileText, Bookmark, Lock, Menu, X, BookText, HelpCircle } from 'lucide-react'
 import { Text } from '@/src/components/atoms/text'
+import { Button } from '@/src/components/atoms/button'
 import { signOut } from 'next-auth/react'
 
 type UserInfo = {
@@ -19,8 +20,8 @@ interface NavbarProps {
 
 const navLinks = [
   { href: '/', label: 'Home', exact: true },
-  { href: '/hub', label: 'Awareness', exact: false },
   { href: '/about', label: 'About', exact: false },
+  { href: '/hub', label: 'Awareness', exact: false },
   { href: '/help', label: 'Help', exact: false },
 ]
 
@@ -66,7 +67,7 @@ export function Navbar({ user }: NavbarProps) {
       aria-label="Primary navigation"
     >
       <div className="mx-auto flex h-16 md:h-18 max-w-7xl items-center justify-between px-4 md:px-6 lg:px-8">
-        
+
         {/* Brand */}
         <Link href={user ? '/user/userDashboard' : '/'} className="flex shrink-0 items-center gap-2 md:gap-3 text-navy">
           <span className="grid h-9 w-9 md:h-11 md:w-11 place-items-center rounded-xl bg-navy/10">
@@ -79,15 +80,15 @@ export function Navbar({ user }: NavbarProps) {
             />
           </span>
           <div className="flex flex-col justify-center">
-            <span className="text-sm font-bold tracking-tight text-navy md:text-base leading-none">
+            <Text as="span" size={{ base: 'sm', md: 'base' }} weight="bold" tone="navy" className="tracking-tight leading-none">
               CEGRAD-UCC
-            </span>
-            <span className="mt-1 text-[10px] font-semibold uppercase tracking-wider text-navy/70 leading-none hidden sm:block">
+            </Text>
+            <Text as="span" size="xs" weight="semibold" tone="navy" className="mt-1 text-[10px] uppercase tracking-wider opacity-70 leading-none hidden sm:block">
               Sexual Harassment Reporting
-            </span>
-            <span className="mt-1 text-[10px] font-semibold uppercase tracking-wider text-navy/70 leading-none sm:hidden">
+            </Text>
+            <Text as="span" size="xs" weight="semibold" tone="navy" className="mt-1 text-[10px] uppercase tracking-wider opacity-70 leading-none sm:hidden">
               SHR System
-            </span>
+            </Text>
           </div>
         </Link>
 
@@ -125,7 +126,8 @@ export function Navbar({ user }: NavbarProps) {
               </Link>
 
               <div className="relative" ref={dropdownRef}>
-                <button
+                <Button
+                  variant="unstyled"
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                   className="flex items-center gap-2 rounded-full border border-gray-200 bg-white p-1 pr-3 hover:border-navy/30 hover:bg-gray-50 transition"
                   aria-expanded={dropdownOpen}
@@ -133,16 +135,16 @@ export function Navbar({ user }: NavbarProps) {
                   <div className="grid h-8 w-8 place-items-center rounded-full bg-navy text-white">
                     <UserCircle2 size={16} />
                   </div>
-                  <span className="text-sm font-medium text-gray-700 max-w-[100px] truncate">
+                  <Text as="span" size="sm" weight="medium" className="text-gray-700 max-w-[100px] truncate">
                     {user.name || 'User'}
-                  </span>
+                  </Text>
                   <ChevronDown size={14} className="text-gray-400" />
-                </button>
+                </Button>
 
                 {dropdownOpen && (
                   <div className="absolute right-0 mt-2 w-56 origin-top-right rounded-xl border border-gray-100 bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                     <div className="p-2 border-b border-gray-100">
-                      <p className="px-3 py-1 text-xs font-medium text-gray-500 uppercase tracking-wider">Navigation</p>
+                      <Text as="p" size="xs" weight="medium" tone="muted" className="px-3 py-1 uppercase tracking-wider">Navigation</Text>
                       <Link href="/user/userDashboard" className="group flex items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-navy">
                         <LayoutDashboard size={16} className="text-gray-400 group-hover:text-navy" /> Dashboard
                       </Link>
@@ -154,18 +156,19 @@ export function Navbar({ user }: NavbarProps) {
                       </Link>
                     </div>
                     <div className="p-2 border-b border-gray-100">
-                      <p className="px-3 py-1 text-xs font-medium text-gray-500 uppercase tracking-wider">Account</p>
+                      <Text as="p" size="xs" weight="medium" tone="muted" className="px-3 py-1 uppercase tracking-wider">Account</Text>
                       <Link href="/user/change-password" className="group flex items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-navy">
                         <Lock size={16} className="text-gray-400 group-hover:text-navy" /> Password Change
                       </Link>
                     </div>
                     <div className="p-2">
-                      <button
+                      <Button
+                        variant="unstyled"
                         onClick={() => signOut({ callbackUrl: '/', redirect: true })}
                         className="group flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-red-600 hover:bg-red-50"
                       >
                         <LogOut size={16} className="text-red-500" /> Sign Out
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 )}
@@ -202,13 +205,14 @@ export function Navbar({ user }: NavbarProps) {
               <Bell size={20} />
             </Link>
           )}
-          <button
+          <Button
+            variant="unstyled"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="inline-flex h-10 w-10 items-center justify-center rounded-md text-gray-700 hover:bg-gray-100"
             aria-label="Toggle menu"
           >
             {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -224,13 +228,13 @@ export function Navbar({ user }: NavbarProps) {
                     <UserCircle2 size={20} />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-navy">{user.name}</p>
-                    <p className="text-xs text-gray-500">Authenticated User</p>
+                    <Text size="sm" weight="semibold" tone="navy">{user.name}</Text>
+                    <Text size="xs" tone="muted">Authenticated User</Text>
                   </div>
                 </div>
 
                 {/* Dashboard links — not on bottom nav */}
-                <p className="px-3 py-1 text-xs font-semibold uppercase tracking-wider text-gray-500">Quick Access</p>
+                <Text as="p" size="xs" weight="semibold" tone="muted" className="px-3 py-1 uppercase tracking-wider">Quick Access</Text>
                 <Link href="/user/userReports" className="flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-50">
                   <FileText size={18} className="text-gray-400" /> My Reports
                 </Link>
@@ -245,16 +249,17 @@ export function Navbar({ user }: NavbarProps) {
                 </Link>
 
                 <div className="my-2 h-px bg-gray-100" />
-                <p className="px-3 py-1 text-xs font-semibold uppercase tracking-wider text-gray-500">Account</p>
+                <Text as="p" size="xs" weight="semibold" tone="muted" className="px-3 py-1 uppercase tracking-wider">Account</Text>
                 <Link href="/user/change-password" className="flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-50">
                   <Lock size={18} className="text-gray-400" /> Password Change
                 </Link>
-                <button
+                <Button
+                  variant="unstyled"
                   onClick={() => signOut({ callbackUrl: '/', redirect: true })}
                   className="mt-2 flex w-full items-center gap-2 rounded-md px-3 py-2 text-base font-medium text-red-600 hover:bg-red-50"
                 >
                   <LogOut size={18} /> Sign Out
-                </button>
+                </Button>
               </>
             ) : (
               <>

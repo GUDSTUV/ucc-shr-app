@@ -119,14 +119,15 @@ export default function ResetPasswordForm() {
               className="pr-11"
               minLength={8}
             />
-            <button
+            <Button
+              variant="unstyled"
               type="button"
               tabIndex={-1}
               onClick={() => setShowPasswords((p) => !p)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
             >
               {showPasswords ? <EyeOff size={16} /> : <Eye size={16} />}
-            </button>
+            </Button>
           </div>
         </FormField>
 
@@ -142,14 +143,15 @@ export default function ResetPasswordForm() {
               className="pr-11"
               minLength={8}
             />
-            <button
+            <Button
+              variant="unstyled"
               type="button"
               tabIndex={-1}
               onClick={() => setShowPasswords((p) => !p)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
             >
               {showPasswords ? <EyeOff size={16} /> : <Eye size={16} />}
-            </button>
+            </Button>
           </div>
         </FormField>
 

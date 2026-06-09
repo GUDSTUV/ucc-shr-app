@@ -2,6 +2,7 @@ export type ReportNotes = {
   reporterId?: string | null
   reporterEmail?: string | null
   contact?: string | null
+  phone?: string | null
   witnesses?: string[]
   counsellorId?: string | null
   counsellorName?: string | null

@@ -3,6 +3,8 @@
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { CheckCircle, FileText, Hash, Search } from 'lucide-react'
+import { Heading } from '@/src/components/atoms/heading/heading'
+import { Text } from '@/src/components/atoms/text/text'
 
 const steps = [
   {
@@ -61,16 +63,16 @@ export function ReportingProcessSection() {
           transition={{ duration: 0.5 }}
           className="text-center"
         >
-          <span className="text-xs font-semibold uppercase tracking-widest text-navy">
+          <Text as="span" size="xs" weight="semibold" tone="navy" className="uppercase tracking-widest">
             Transparent Process
-          </span>
-          <h2 className="mt-2 text-3xl font-bold text-navy lg:text-4xl">
+          </Text>
+          <Heading as="h2" size={{ base: '3xl', lg: '4xl' }} tone="navy" weight="bold" className="mt-2">
             How Reporting Works
-          </h2>
-          <p className="mx-auto mt-3 max-w-2xl text-base text-gray-600">
+          </Heading>
+          <Text size="base" tone="muted" className="mx-auto mt-3 max-w-2xl">
             We have made the reporting process simple, safe, and transparent.
             Here is exactly what to expect.
-          </p>
+          </Text>
         </motion.div>
 
         {/* Steps grid */}
@@ -96,16 +98,16 @@ export function ReportingProcessSection() {
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-navy text-white">
                     <step.Icon size={20} />
                   </div>
-                  <span className="text-3xl font-bold text-gray-100">
+                  <Text as="span" size="3xl" weight="bold" className="text-gray-100">
                     {step.step}
-                  </span>
+                  </Text>
                 </div>
-                <h3 className="text-base font-semibold text-gray-900">
+                <Text as="h3" size="base" weight="semibold" className="text-gray-900">
                   {step.title}
-                </h3>
-                <p className="mt-1.5 text-sm leading-relaxed text-gray-600">
+                </Text>
+                <Text size="sm" tone="muted" className="mt-1.5 leading-relaxed">
                   {step.description}
-                </p>
+                </Text>
               </div>
             </motion.div>
           ))}

@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
+import { Text } from '@/src/components/atoms/text/text'
 
 interface AuthLayoutProps {
   children: React.ReactNode
@@ -26,9 +27,9 @@ export function AuthLayout({ children }: AuthLayoutProps) {
       </main>
 
       {/* Footer */}
-      <div className="absolute bottom-6 text-center text-[11px] text-gray-400">
+      <Text className="absolute bottom-6 text-center text-[11px] text-gray-400">
         &copy; {new Date().getFullYear()} University of Cape Coast — CEGRAD.
-      </div>
+      </Text>
     </div>
   )
 }

@@ -4,6 +4,7 @@ import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { Badge } from '@/src/components/atoms/badge'
 import Link from 'next/link'
 import { UserRound, ChevronUp, ChevronDown } from 'lucide-react'
+import { Button } from '@/src/components/atoms/button'
 
 interface RecentReport {
   id: string
@@ -73,7 +74,8 @@ function SortHeader({
   }
 
   return (
-    <button
+    <Button
+      variant="unstyled"
       type="button"
       onClick={handleSort}
       className="flex items-center gap-1 rounded px-1 py-1.5 text-sm font-semibold text-gray-700 hover:bg-gray-200/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
@@ -81,7 +83,7 @@ function SortHeader({
     >
       {label}
       {getSortIcon() && <span className="text-gray-600">{getSortIcon()}</span>}
-    </button>
+    </Button>
   )
 }
 

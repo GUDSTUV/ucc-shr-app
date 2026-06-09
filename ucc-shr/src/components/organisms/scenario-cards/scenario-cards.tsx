@@ -3,6 +3,9 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown, AlertTriangle, HelpCircle, CheckCircle2 } from 'lucide-react'
+import { Heading } from '@/src/components/atoms/heading/heading'
+import { Text } from '@/src/components/atoms/text/text'
+import { Button } from '@/src/components/atoms/button'
 
 const scenarios = [
   {
@@ -81,15 +84,16 @@ function ScenarioCard({
           <span className="flex h-7 w-7 items-center justify-center rounded-full bg-navy text-xs font-bold text-white">
             {index + 1}
           </span>
-          <span className="text-xs font-semibold uppercase tracking-wider text-navy/60">Scenario</span>
+          <Text as="span" size="xs" weight="semibold" tone="navy" className="uppercase tracking-wider opacity-60">Scenario</Text>
         </div>
-        <p className="text-sm leading-relaxed text-gray-700">
+        <Text as="p" size="sm" className="leading-relaxed text-gray-700">
           {scenario.situation}
-        </p>
+        </Text>
       </div>
 
       {/* Question / CTA */}
-      <button
+      <Button
+        variant="unstyled"
         onClick={() => setIsOpen((prev) => !prev)}
         aria-expanded={isOpen}
         aria-controls={`scenario-answer-${index}`}
@@ -97,13 +101,13 @@ function ScenarioCard({
       >
         <div className="flex items-center gap-2">
           <HelpCircle size={16} className="text-navy" />
-          <span className="text-sm font-semibold text-navy">{scenario.question}</span>
+          <Text as="span" size="sm" weight="semibold" tone="navy">{scenario.question}</Text>
         </div>
         <ChevronDown
           size={16}
           className={`shrink-0 text-navy transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
         />
-      </button>
+      </Button>
 
       {/* Answer Panel */}
       <AnimatePresence initial={false}>
@@ -135,15 +139,15 @@ function ScenarioCard({
               </div>
 
               {/* Explanation */}
-              <p className="text-sm leading-relaxed text-gray-600">
+              <Text size="sm" tone="muted" className="leading-relaxed">
                 {scenario.explanation}
-              </p>
+              </Text>
 
               {/* What to do */}
               <div className="mt-4">
-                <h4 className="mb-2 text-xs font-bold uppercase tracking-wider text-navy">
+                <Text as="h4" size="xs" weight="bold" tone="navy" className="mb-2 uppercase tracking-wider">
                   What should you do?
-                </h4>
+                </Text>
                 <ul className="space-y-2">
                   {scenario.whatToDo.map((step, i) => (
                     <li key={i} className="flex items-start gap-2 text-sm text-gray-600">
@@ -168,15 +172,15 @@ export function ScenarioCards() {
     <section className="bg-gray-50 py-16 lg:py-20">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="text-center">
-          <span className="text-xs font-semibold uppercase tracking-widest text-navy">
+          <Text as="span" size="xs" weight="semibold" tone="navy" className="uppercase tracking-widest">
             Real-Life Situations
-          </span>
-          <h2 className="mt-2 text-3xl font-bold text-navy lg:text-4xl">
+          </Text>
+          <Heading as="h2" size={{ base: '3xl', lg: '4xl' }} tone="navy" weight="bold" className="mt-2">
             What Would You Do?
-          </h2>
-          <p className="mx-auto mt-3 max-w-2xl text-base text-gray-600">
+          </Heading>
+          <Text size="base" tone="muted" className="mx-auto mt-3 max-w-2xl">
             Read through these campus scenarios and test your understanding. Click each question to see the answer and learn how to respond.
-          </p>
+          </Text>
         </div>
 
         <div className="mx-auto mt-10 grid max-w-4xl items-start gap-5 md:grid-cols-2">

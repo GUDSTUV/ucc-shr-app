@@ -1,3 +1,5 @@
+import { Button } from '@/src/components/atoms/button'
+
 interface HubFilterChipsProps<TCategory extends string> {
   categories: TCategory[]
   categoryLabels?: Record<TCategory, string>
@@ -19,7 +21,8 @@ export function HubFilterChips<TCategory extends string>({
           const label = categoryLabels?.[category] ?? category
 
           return (
-            <button
+            <Button
+              variant="unstyled"
               key={category}
               type="button"
               onClick={() => onCategoryChange(category)}
@@ -30,7 +33,7 @@ export function HubFilterChips<TCategory extends string>({
               }`}
             >
               {label}
-            </button>
+            </Button>
           )
         })}
       </div>

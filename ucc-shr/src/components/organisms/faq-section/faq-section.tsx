@@ -4,6 +4,9 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown } from 'lucide-react'
 import Link from 'next/link'
+import { Heading } from '@/src/components/atoms/heading/heading'
+import { Text } from '@/src/components/atoms/text/text'
+import { Button } from '@/src/components/atoms/button'
 
 const faqs = [
   {
@@ -65,17 +68,18 @@ function FaqAccordionItem({
 
   return (
     <motion.div variants={itemVariants}>
-      <button
+      <Button
+        variant="unstyled"
         onClick={() => setOpen((prev) => !prev)}
         aria-expanded={open}
         className="flex w-full items-center justify-between gap-4 rounded-2xl border border-gray-100 bg-white px-5 py-4 text-left shadow-sm transition-colors hover:border-navy/20 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy/40"
       >
-        <span className="text-base font-semibold text-gray-900">{question}</span>
+        <Text as="span" size="base" weight="semibold" className="text-gray-900">{question}</Text>
         <ChevronDown
           size={18}
           className={`shrink-0 text-navy transition-transform duration-300 ${open ? 'rotate-180' : ''}`}
         />
-      </button>
+      </Button>
       <AnimatePresence initial={false}>
         {open && (
           <motion.div
@@ -86,9 +90,9 @@ function FaqAccordionItem({
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
             className="overflow-hidden"
           >
-            <p className="rounded-b-2xl border border-t-0 border-gray-100 bg-white px-5 pb-4 pt-3 text-sm leading-relaxed text-gray-600">
+            <Text size="sm" tone="muted" className="rounded-b-2xl border border-t-0 border-gray-100 bg-white px-5 pb-4 pt-3 leading-relaxed">
               {answer}
-            </p>
+            </Text>
           </motion.div>
         )}
       </AnimatePresence>
@@ -108,16 +112,16 @@ export function FaqSection({ showHelpLink = true, featuredOnly = false }: { show
           transition={{ duration: 0.5 }}
           className="text-center"
         >
-          <span className="text-xs font-semibold uppercase tracking-widest text-navy">
+          <Text as="span" size="xs" weight="semibold" tone="navy" className="uppercase tracking-widest">
             Got Questions?
-          </span>
-          <h2 className="mt-2 text-3xl font-bold text-navy lg:text-4xl">
+          </Text>
+          <Heading as="h2" size={{ base: '3xl', lg: '4xl' }} tone="navy" weight="bold" className="mt-2">
             Frequently Asked Questions
-          </h2>
-          <p className="mx-auto mt-3 max-w-2xl text-base text-gray-600">
+          </Heading>
+          <Text size="base" tone="muted" className="mx-auto mt-3 max-w-2xl">
             Answers to the most common concerns about reporting, privacy, and
             the support process.
-          </p>
+          </Text>
         </motion.div>
 
         {/* Accordion grid */}
@@ -149,7 +153,7 @@ export function FaqSection({ showHelpLink = true, featuredOnly = false }: { show
             transition={{ duration: 0.5, delay: 0.2 }}
             className="mt-10 text-center"
           >
-            <p className="text-sm text-gray-500">
+            <Text size="sm" tone="muted" className="text-gray-500">
               Still have questions?{' '}
               <Link
                 href="/help"
@@ -157,7 +161,7 @@ export function FaqSection({ showHelpLink = true, featuredOnly = false }: { show
               >
                 Visit the Help Centre
               </Link>
-            </p>
+            </Text>
           </motion.div>
         )}
       </div>

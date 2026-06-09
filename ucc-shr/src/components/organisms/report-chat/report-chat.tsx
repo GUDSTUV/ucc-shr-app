@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Send, User as UserIcon, Shield, RefreshCw } from 'lucide-react'
 import { Button } from '@/src/components/atoms/button'
 import { Textarea } from '@/src/components/atoms/textarea'
+import { Text } from '@/src/components/atoms/text/text'
 
 type Message = {
   id: string
@@ -95,14 +96,15 @@ export function ReportChat({ reportCode, isAssignedCounsellor = false }: ReportC
   return (
     <div className="flex flex-col rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden h-[500px]">
       <div className="flex items-center justify-between border-b border-gray-100 bg-gray-50 px-4 py-3">
-        <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-gray-700">Messages</h3>
-        <button 
+        <Text as="h3" size="sm" weight="semibold" tone="muted" className="uppercase tracking-[0.12em] text-gray-700">Messages</Text>
+        <Button 
+          variant="unstyled"
           onClick={fetchMessages}
           className="text-gray-400 hover:text-navy transition-colors"
           title="Refresh messages"
         >
           <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
-        </button>
+        </Button>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-white">
@@ -115,10 +117,10 @@ export function ReportChat({ reportCode, isAssignedCounsellor = false }: ReportC
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-50 mb-3">
               <Shield className="h-6 w-6 text-gray-400" />
             </div>
-            <p className="text-sm font-medium text-gray-700">No messages yet</p>
-            <p className="mt-1 text-xs text-gray-500 max-w-[200px]">
+            <Text as="p" size="sm" weight="medium" className="text-gray-700">No messages yet</Text>
+            <Text as="p" size="xs" tone="muted" className="mt-1 max-w-[200px]">
               This is a secure channel between the reporter and the assigned counsellor.
-            </p>
+            </Text>
           </div>
         ) : (
           messages.map((msg) => (
@@ -129,13 +131,13 @@ export function ReportChat({ reportCode, isAssignedCounsellor = false }: ReportC
               <div className={`flex max-w-[85%] flex-col ${msg.isMe ? 'items-end' : 'items-start'}`}>
                 <div className="mb-1 flex items-center gap-1.5 px-1">
                   {!msg.isMe && (
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">
+                    <Text as="span" size="xs" weight="semibold" tone="muted" className="text-[10px] uppercase tracking-wider">
                       {msg.senderRole === 'SUPER_ADMIN' || msg.senderRole === 'STAFF' ? 'CEGRAD Staff' : 'Reporter'}
-                    </span>
+                    </Text>
                   )}
-                  <span className="text-[10px] text-gray-400">
+                  <Text as="span" size="xs" tone="muted" className="text-[10px] text-gray-400">
                     {new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit' }).format(new Date(msg.createdAt))}
-                  </span>
+                  </Text>
                 </div>
                 <div
                   className={`rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${

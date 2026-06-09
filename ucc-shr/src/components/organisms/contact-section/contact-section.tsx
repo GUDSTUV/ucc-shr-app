@@ -4,6 +4,9 @@ import { motion } from 'framer-motion'
 import { Mail, MessageCircle, Phone } from 'lucide-react'
 import { useState } from 'react'
 import { EmailModal } from '@/src/components/molecules/email-modal/email-modal'
+import { Heading } from '@/src/components/atoms/heading/heading'
+import { Text } from '@/src/components/atoms/text/text'
+import { Button } from '@/src/components/atoms/button'
 
 const contacts = [
   {
@@ -46,16 +49,16 @@ export function ContactSection() {
           transition={{ duration: 0.5 }}
           className="text-center"
         >
-          <span className="text-xs font-semibold uppercase tracking-widest">
+          <Text as="span" size="xs" weight="semibold" tone="white" className="uppercase tracking-widest opacity-80">
             Support
-          </span>
-          <h2 className="mt-2 text-3xl font-bold lg:text-4xl">
+          </Text>
+          <Heading as="h2" size={{ base: '3xl', lg: '4xl' }} weight="bold" tone="white" className="mt-2">
             We Are Here to Help
-          </h2>
-          <p className="mx-auto mt-3 max-w-xl text-base text-white/70">
+          </Heading>
+          <Text size="base" tone="white" className="mx-auto mt-3 max-w-xl opacity-70">
             If you need guidance before reporting, or just want to talk to
             someone, reach out to CEGRAD directly.
-          </p>
+          </Text>
         </motion.div>
 
         {/* Contact cards */}
@@ -68,7 +71,8 @@ export function ContactSection() {
         >
           {contacts.map(({ href, Icon, iconClass, label, sub }) => (
             label === 'Email CEGRAD' ? (
-              <button
+              <Button
+                variant="unstyled"
                 key={label}
                 onClick={() => setIsEmailModalOpen(true)}
                 className="flex items-center gap-4 rounded-2xl border border-white/15 bg-white/10 p-5 text-left backdrop-blur-sm transition hover:bg-white/15"
@@ -79,10 +83,10 @@ export function ContactSection() {
                   <Icon size={20} />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold">{label}</p>
-                  <p className="truncate text-xs text-white/60">{sub}</p>
+                  <Text size="sm" weight="semibold" tone="white">{label}</Text>
+                  <Text size="xs" tone="white" className="truncate opacity-60">{sub}</Text>
                 </div>
-              </button>
+              </Button>
             ) : (
               <a
                 key={label}
@@ -95,8 +99,8 @@ export function ContactSection() {
                   <Icon size={20} />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold">{label}</p>
-                  <p className="truncate text-xs text-white/60">{sub}</p>
+                  <Text size="sm" weight="semibold" tone="white">{label}</Text>
+                  <Text size="xs" tone="white" className="truncate opacity-60">{sub}</Text>
                 </div>
               </a>
             )
@@ -104,15 +108,18 @@ export function ContactSection() {
         </motion.div>
 
         {/* Footnote */}
-        <motion.p
+        <Text
+          as={motion.p}
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.3 }}
-          className="mt-8 text-center text-xs text-white/40"
+          size="xs"
+          tone="white"
+          className="mt-8 text-center opacity-40"
         >
           You may also report without contacting us first
-        </motion.p>
+        </Text>
       </div>
 
       <EmailModal isOpen={isEmailModalOpen} onClose={() => setIsEmailModalOpen(false)} />

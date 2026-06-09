@@ -3,6 +3,11 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { CheckCircle2, X } from 'lucide-react'
+import { Heading } from '../../atoms/heading/heading'
+import { Text } from '../../atoms/text/text'
+import { Button } from '../../atoms/button/button'
+import { Input } from '../../atoms/input/input'
+import { Textarea } from '../../atoms/textarea/textarea'
 
 interface EmailModalProps {
   isOpen: boolean
@@ -43,13 +48,14 @@ export function EmailModal({ isOpen, onClose }: EmailModalProps) {
             className="relative w-full max-w-lg overflow-hidden rounded-3xl bg-white shadow-2xl"
           >
             <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
-              <h2 className="text-xl font-bold text-navy">Send a Message</h2>
-              <button
+              <Heading size="xl" weight="bold" tone="navy">Send a Message</Heading>
+              <Button
+                variant="unstyled"
                 onClick={onClose}
                 className="rounded-full p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
               >
                 <X size={20} />
-              </button>
+              </Button>
             </div>
 
             <div className="p-6">
@@ -58,50 +64,47 @@ export function EmailModal({ isOpen, onClose }: EmailModalProps) {
                   <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-green-600">
                     <CheckCircle2 size={32} />
                   </div>
-                  <h3 className="mt-4 text-xl font-bold text-navy">Message Sent</h3>
-                  <p className="mt-2 text-gray-600">
+                  <Heading as="h3" size="xl" weight="bold" tone="navy" className="mt-4">Message Sent</Heading>
+                  <Text tone="muted" className="mt-2 text-center">
                     Thank you for reaching out. A CEGRAD representative will review your message and get back to you shortly.
-                  </p>
+                  </Text>
                 </div>
               ) : (
                 <form onSubmit={handleEmailSubmit} className="space-y-4">
                   <div>
-                    <label htmlFor="name" className="mb-1 block text-sm font-medium text-gray-700">Name (Optional)</label>
-                    <input
+                    <Text as="label" htmlFor="name" size="sm" weight="medium" className="mb-1 block text-gray-700">Name (Optional)</Text>
+                    <Input
                       type="text"
                       id="name"
-                      className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-navy focus:outline-none focus:ring-1 focus:ring-navy"
                       placeholder="How should we call you?"
                     />
                   </div>
                   <div>
-                    <label htmlFor="email" className="mb-1 block text-sm font-medium text-gray-700">Email Address <span className="text-red">*</span></label>
-                    <input
+                    <Text as="label" htmlFor="email" size="sm" weight="medium" className="mb-1 block text-gray-700">Email Address <span className="text-red">*</span></Text>
+                    <Input
                       type="email"
                       id="email"
                       required
-                      className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-navy focus:outline-none focus:ring-1 focus:ring-navy"
                       placeholder="you@example.com"
                     />
                   </div>
                   <div>
-                    <label htmlFor="message" className="mb-1 block text-sm font-medium text-gray-700">Message <span className="text-red">*</span></label>
-                    <textarea
+                    <Text as="label" htmlFor="message" size="sm" weight="medium" className="mb-1 block text-gray-700">Message <span className="text-red">*</span></Text>
+                    <Textarea
                       id="message"
                       required
                       rows={5}
-                      className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-navy focus:outline-none focus:ring-1 focus:ring-navy"
                       placeholder="How can we help you?"
                     />
                   </div>
                   <div className="pt-2">
-                    <button
+                    <Button
                       type="submit"
-                      disabled={emailStatus === "sending"}
-                      className="w-full rounded-xl bg-navy py-3 text-center font-semibold text-white transition hover:bg-navy-dark disabled:opacity-70"
+                      fullWidth
+                      loading={emailStatus === "sending"}
                     >
                       {emailStatus === "sending" ? "Sending..." : "Send Message"}
-                    </button>
+                    </Button>
                   </div>
                 </form>
               )}

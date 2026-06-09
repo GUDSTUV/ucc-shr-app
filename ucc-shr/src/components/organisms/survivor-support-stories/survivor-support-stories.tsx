@@ -3,6 +3,9 @@
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowLeft, ArrowRight, CheckCircle2, ShieldCheck } from 'lucide-react'
+import { Heading } from '@/src/components/atoms/heading/heading'
+import { Text } from '@/src/components/atoms/text/text'
+import { Button } from '@/src/components/atoms/button'
 
 type Story = {
   id: string
@@ -95,13 +98,13 @@ export function SurvivorSupportStories({ showSubmissionForm = true }: SurvivorSu
           transition={{ duration: 0.5 }}
         >
     
-          <h2 className="mt-2 text-3xl font-bold text-navy lg:text-4xl">
+          <Heading as="h2" size={{ base: '3xl', lg: '4xl' }} tone="navy" weight="bold" className="mt-2">
             Survivor Support Stories
-          </h2>
-          <p className="mt-3 max-w-xl text-sm leading-7 text-gray-600">
+          </Heading>
+          <Text size="sm" tone="muted" className="mt-3 max-w-xl leading-7">
             People who have gone through the reporting process share their experience
             voluntarily.
-          </p>
+          </Text>
         </motion.div>
 
         {/* ── Carousel ── */}
@@ -125,14 +128,14 @@ export function SurvivorSupportStories({ showSubmissionForm = true }: SurvivorSu
                 className="flex flex-col gap-4"
               >
                 <span className="select-none font-serif text-7xl leading-none text-navy/15">&ldquo;</span>
-                <p className="text-lg leading-8 text-gray-700 italic lg:text-xl">
+                <Text as="p" size={{ base: 'lg', lg: 'xl' }} className="leading-8 text-gray-700 italic">
                   {stories[index].message}
-                </p>
+                </Text>
                 <div className="mt-2 flex items-center gap-2">
                   <ShieldCheck size={14} className="text-navy" />
-                  <span className="text-xs font-medium text-gray-400">
+                  <Text as="span" size="xs" weight="medium" tone="muted" className="text-gray-400">
                     Anonymous &middot; Verified by CEGRAD staff
-                  </span>
+                  </Text>
                 </div>
               </motion.blockquote>
             </AnimatePresence>
@@ -143,7 +146,8 @@ export function SurvivorSupportStories({ showSubmissionForm = true }: SurvivorSu
             {/* Dot indicators */}
             <div className="flex items-center gap-2">
               {stories.map((_, i) => (
-                <button
+                <Button
+                  variant="unstyled"
                   key={i}
                   onClick={() => { setDirection(i > index ? 1 : -1); setIndex(i) }}
                   aria-label={`Go to story ${i + 1}`}
@@ -156,20 +160,22 @@ export function SurvivorSupportStories({ showSubmissionForm = true }: SurvivorSu
 
             {/* Arrow buttons */}
             <div className="flex items-center gap-2">
-              <button
+              <Button
+                variant="unstyled"
                 onClick={() => go(-1)}
                 aria-label="Previous story"
                 className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-navy/20 bg-white text-navy transition hover:border-navy hover:bg-navy hover:text-white"
               >
                 <ArrowLeft size={16} />
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="unstyled"
                 onClick={() => go(1)}
                 aria-label="Next story"
                 className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-navy/20 bg-white text-navy transition hover:border-navy hover:bg-navy hover:text-white"
               >
                 <ArrowRight size={16} />
-              </button>
+              </Button>
             </div>
           </div>
         </motion.div>
@@ -183,14 +189,14 @@ export function SurvivorSupportStories({ showSubmissionForm = true }: SurvivorSu
             transition={{ duration: 0.5, delay: 0.15 }}
             className="mt-10 rounded-2xl border border-navy/10 bg-white p-6 shadow-sm lg:p-8"
           >
-            <h3 className="text-lg font-semibold text-navy">Share your story</h3>
-            <p className="mt-1 text-sm text-gray-600">
+            <Text as="h3" size="lg" weight="semibold" tone="navy">Share your story</Text>
+            <Text size="sm" tone="muted" className="mt-1">
               Optional — only if your case has been completed or closed. Your name is never stored or shown.
-            </p>
+            </Text>
 
             <form onSubmit={handleSubmit} className="mt-5 space-y-4">
               <label className="block space-y-2">
-                <span className="text-xs font-medium uppercase tracking-wider text-gray-500">Your message</span>
+                <Text as="span" size="xs" weight="medium" tone="muted" className="uppercase tracking-wider">Your message</Text>
                 <textarea
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
@@ -211,12 +217,13 @@ export function SurvivorSupportStories({ showSubmissionForm = true }: SurvivorSu
                 </div>
               )}
 
-              <button
+              <Button
+                variant="unstyled"
                 type="submit"
                 className="rounded-xl bg-navy px-6 py-3 text-sm font-semibold text-white transition hover:bg-navy-dark active:scale-[0.98]"
               >
                 Submit anonymously
-              </button>
+              </Button>
             </form>
           </motion.div>
         )}

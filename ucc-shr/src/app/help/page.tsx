@@ -5,6 +5,7 @@ import { FaqSection } from "@/src/components/organisms/faq-section"
 import { Footer } from "@/src/components/organisms/Footer"
 import { Mail, Phone, MapPin } from "lucide-react"
 import { EmailModal } from "@/src/components/molecules/email-modal/email-modal"
+import { Button } from '@/src/components/atoms/button'
 
 export default function HelpPage() {
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false)
@@ -29,7 +30,8 @@ export default function HelpPage() {
         <section className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {/* Direct Message (Modal) */}
-            <button
+            <Button
+              variant="unstyled"
               onClick={() => setIsEmailModalOpen(true)}
               className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-gray-100 bg-white p-6 text-center shadow-sm transition-all hover:-translate-y-1 hover:border-navy/20 hover:shadow-md"
             >
@@ -40,7 +42,7 @@ export default function HelpPage() {
                 <h3 className="text-lg font-bold text-navy">Direct Message</h3>
                 <p className="mt-1 text-sm text-gray-500">Send us a secure message online.</p>
               </div>
-            </button>
+            </Button>
 
             {/* Emergency Hotline */}
             <a

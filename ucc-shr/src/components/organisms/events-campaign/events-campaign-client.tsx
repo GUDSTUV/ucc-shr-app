@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
 import { HubFeedCard } from '@/src/components/organisms/hub-feed-card'
+import { Heading } from '@/src/components/atoms/heading/heading'
+import { Text } from '@/src/components/atoms/text/text'
 
 export type CampaignFeedItem = {
   id: string
@@ -48,16 +50,16 @@ export function EventsCampaignClient({ items }: { items: CampaignFeedItem[] }) {
           className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
         >
           <div>
-            <span className="text-xs font-semibold uppercase tracking-widest text-navy">
+            <Text as="span" size="xs" weight="semibold" tone="navy" className="uppercase tracking-widest">
               Events &amp; Campaigns
-            </span>
-            <h2 className="mt-2 text-3xl font-bold text-navy lg:text-4xl">
+            </Text>
+            <Heading as="h2" size={{ base: '3xl', lg: '4xl' }} tone="navy" weight="bold" className="mt-2">
               Awareness in Action
-            </h2>
-            <p className="mt-3 max-w-xl text-sm leading-7 text-gray-600">
+            </Heading>
+            <Text size="sm" tone="muted" className="mt-3 max-w-xl leading-7">
               CEGRAD runs workshops, policy forums, and awareness campaigns throughout
               the year. Join us to learn, engage, and advocate.
-            </p>
+            </Text>
           </div>
           <Link
             href="/events"

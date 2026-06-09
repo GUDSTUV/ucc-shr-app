@@ -4,6 +4,8 @@ import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { signOut } from 'next-auth/react'
 import { NavItem } from '@/src/components/molecules/nav-item'
+import { Text } from '@/src/components/atoms/text/text'
+import { Button } from '@/src/components/atoms/button/button'
 
 const items = [
   { href: '/admin', label: 'Dashboard', icon: <LayoutDashboard size={16} /> },
@@ -46,8 +48,8 @@ export function AdminSidebar({ unreadNotificationsCount }: AdminSidebarProps) {
               />
             </span>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-navy">CEGRAD UCC</p>
-              <p className="mt-1 text-base font-semibold text-navy-dark">Admin Console</p>
+              <Text size="xs" weight="semibold" tone="navy" className="uppercase tracking-[0.14em]">CEGRAD UCC</Text>
+              <Text size="base" weight="semibold" className="mt-1 text-navy-dark">Admin Console</Text>
             </div>
           </div>
         </div>
@@ -68,8 +70,8 @@ export function AdminSidebar({ unreadNotificationsCount }: AdminSidebarProps) {
         </nav>
 
         <div className="mt-6 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-700">
-          <p className="font-semibold text-gray-900">Confidential Environment</p>
-          <p className="mt-1 leading-relaxed">Handle all reports under approved institutional protocols.</p>
+          <Text weight="semibold" tone="default">Confidential Environment</Text>
+          <Text className="mt-1 leading-relaxed">Handle all reports under approved institutional protocols.</Text>
         </div>
 
         <div className="mt-auto pt-4">
@@ -84,13 +86,15 @@ export function AdminSidebar({ unreadNotificationsCount }: AdminSidebarProps) {
               ))}
             </nav>
 
-            <button
+            <Button
               type="button"
               onClick={handleLogout}
-              className="mt-2 inline-flex h-11 w-full items-center justify-center rounded-[10px] border border-gray-200 bg-white px-3 text-base font-semibold text-gray-800 transition-colors hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2"
+              variant="outline"
+              fullWidth
+              className="mt-2 bg-white text-gray-800 border-gray-200 hover:bg-gray-100"
             >
               Logout
-            </button>
+            </Button>
           </div>
         </div>
       </div>

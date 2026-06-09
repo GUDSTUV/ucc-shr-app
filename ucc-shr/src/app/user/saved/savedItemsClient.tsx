@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { Bookmark, Calendar, BookOpen, ArrowRight, X } from 'lucide-react'
 import type { SavedResourceItem } from './savedTypes'
+import { Button } from '@/src/components/atoms/button'
 
 type SavedItemsClientProps = {
   initialItems: SavedResourceItem[]
@@ -116,7 +117,8 @@ export function SavedItemsClient({ initialItems }: SavedItemsClientProps) {
                 >
                   Open <ArrowRight size={13} />
                 </Link>
-                <button
+                <Button
+                  variant="unstyled"
                   type="button"
                   onClick={() => void handleUnsave(item)}
                   disabled={removingId === item.id}
@@ -125,7 +127,7 @@ export function SavedItemsClient({ initialItems }: SavedItemsClientProps) {
                 >
                   <X size={14} />
                   <span>{removingId === item.id ? 'Removing…' : 'Unsave'}</span>
-                </button>
+                </Button>
               </div>
             </article>
           )

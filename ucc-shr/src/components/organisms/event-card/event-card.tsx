@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { CalendarDays, MapPin } from 'lucide-react'
 import { Button } from '@/src/components/atoms/button'
+import { Text } from '@/src/components/atoms/text/text'
 
 export interface EventCardProps {
   href: string
@@ -20,16 +21,16 @@ export function EventCard({ href, imageUrl, title, venue, dateLabel, description
           backgroundImage: `linear-gradient(to bottom right, rgb(15 23 42 / 0.12), rgb(15 23 42 / 0.3)), url(${imageUrl || '/icons/default-event.svg'})`,
         }}
       />
-      <h3 className="text-[15px] font-semibold text-gray-900">{title}</h3>
-      <div className="mt-2 flex items-center gap-2 text-[12px] text-gray-600">
+      <Text as="h3" size="sm" weight="semibold" className="text-gray-900">{title}</Text>
+      <Text size="xs" tone="muted" className="mt-2 flex items-center gap-2">
         <CalendarDays size={14} />
         <span>{dateLabel}</span>
-      </div>
-      <div className="mt-1 flex items-center gap-2 text-[12px] text-gray-600">
+      </Text>
+      <Text size="xs" tone="muted" className="mt-1 flex items-center gap-2">
         <MapPin size={14} />
         <span>{venue}</span>
-      </div>
-      {description ? <p className="mt-2 text-[13px] text-gray-600 line-clamp-3">{description}</p> : null}
+      </Text>
+      {description ? <Text size="sm" tone="muted" className="mt-2 line-clamp-3">{description}</Text> : null}
       <div className="mt-3">
         <Link href={href}>
           <Button variant="primary" size="sm" fullWidth>

@@ -1,4 +1,5 @@
 import { PhoneCall, ArrowRight } from 'lucide-react'
+import { Text } from '@/src/components/atoms/text/text'
 
 export function HomeEmergencyCard() {
   return (
@@ -10,8 +11,8 @@ export function HomeEmergencyCard() {
           </div>
 
           <div className="flex-1">
-            <p className="text-sm font-bold">Need urgent help now?</p>
-            <p className="text-xs text-white/70">UCC Emergency: 0332 132 000</p>
+            <Text size="sm" weight="bold" tone="white">Need urgent help now?</Text>
+            <Text size="xs" tone="white" className="opacity-70">UCC Emergency: 0332 132 000</Text>
           </div>
 
           <a

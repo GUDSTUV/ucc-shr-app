@@ -12,6 +12,7 @@ import {
   Search,
   ArrowLeft
 } from 'lucide-react'
+import { Button } from '@/src/components/atoms/button'
 
 type UserReportStatus = 'RECEIVED' | 'REVIEWING' | 'REFERRED' | 'RESOLVED' | 'CLOSED'
 
@@ -153,7 +154,8 @@ export default function UserReports({ reports }: UserReportsProps) {
             {tabs.map((tab) => {
               const active = selectedTab === tab.key
               return (
-                <button
+                <Button
+                  variant="unstyled"
                   key={tab.key}
                   type="button"
                   onClick={() => setSelectedTab(tab.key)}
@@ -162,7 +164,7 @@ export default function UserReports({ reports }: UserReportsProps) {
                   }`}
                 >
                   {tab.label}
-                </button>
+                </Button>
               )
             })}
           </nav>

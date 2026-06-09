@@ -2,6 +2,7 @@
 
 import { ReactNode, useState, KeyboardEvent } from 'react'
 import { motion } from 'framer-motion'
+import { Text } from '../../atoms/text/text'
 
 interface FlipCardProps {
   frontIcon: ReactNode
@@ -43,8 +44,8 @@ export function FlipCard({ frontIcon, frontTitle, backDescription, backList }: F
           <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-navy-light text-navy">
             {frontIcon}
           </div>
-          <h3 className="text-lg font-bold text-navy text-center">{frontTitle}</h3>
-          <span className="mt-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Hover/Tap to flip</span>
+          <Text as="h3" size="lg" weight="bold" tone="navy" className="text-center">{frontTitle}</Text>
+          <Text as="span" size="xs" weight="semibold" className="mt-4 text-gray-400 uppercase tracking-wider">Hover/Tap to flip</Text>
         </div>
 
         {/* Back */}
@@ -52,17 +53,17 @@ export function FlipCard({ frontIcon, frontTitle, backDescription, backList }: F
           className="absolute inset-0 flex flex-col items-start justify-center rounded-2xl border border-navy bg-navy text-white p-6 shadow-lg backface-hidden"
           style={{ transform: 'rotateY(180deg)' }}
         >
-          <h3 className="text-base font-bold mb-2">{frontTitle}</h3>
-          <p className="text-sm text-white/90 leading-relaxed mb-3">
+          <Text as="h3" size="base" weight="bold" tone="white" className="mb-2">{frontTitle}</Text>
+          <Text size="sm" tone="white" className="mb-3 opacity-90 leading-relaxed">
             {backDescription}
-          </p>
+          </Text>
           
           {backList && backList.length > 0 && (
             <ul className="space-y-1.5 w-full">
               {backList.map((item, i) => (
                 <li key={i} className="flex items-start gap-2 text-xs text-white/80">
                   <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-white" />
-                  <span className="leading-relaxed">{item}</span>
+                  <Text as="span" size="xs" tone="white" className="leading-relaxed opacity-80">{item}</Text>
                 </li>
               ))}
             </ul>

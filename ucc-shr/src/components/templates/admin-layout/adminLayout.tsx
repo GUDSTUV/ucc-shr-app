@@ -1,5 +1,6 @@
-// Used by: all /admin/* pages
 import { AdminSidebar } from '@/src/components/organisms/admin-sidebar'
+import { Heading } from '@/src/components/atoms/heading/heading'
+import { Text } from '@/src/components/atoms/text/text'
 
 interface AdminLayoutProps {
   title:    string
@@ -32,8 +33,8 @@ export function AdminLayout({
           <header className="mb-5 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-5">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <h1 className="text-2xl font-bold tracking-tight text-navy sm:text-[28px]">{title}</h1>
-                {description ? <p className="mt-1 max-w-3xl text-base leading-relaxed text-gray-700">{description}</p> : null}
+                <Heading as="h1" size={{ base: '2xl', sm: '3xl' }} weight="bold" tone="navy" className="tracking-tight">{title}</Heading>
+                {description ? <Text as="p" size="base" tone="muted" className="mt-1 max-w-3xl leading-relaxed text-gray-700">{description}</Text> : null}
               </div>
               {actions ? <div className="flex shrink-0 items-center gap-2">{actions}</div> : null}
             </div>
@@ -44,8 +45,8 @@ export function AdminLayout({
           </main>
 
           <footer className="mt-8 border-t border-gray-200 pt-4 text-sm text-gray-600">
-            <p>UCC CEGRAD Admin Dashboard</p>
-            <p className="mt-1">Confidential case data. Access for authorized staff only.</p>
+            <Text as="p">UCC CEGRAD Admin Dashboard</Text>
+            <Text as="p" className="mt-1">Confidential case data. Access for authorized staff only.</Text>
           </footer>
         </div>
       </div>

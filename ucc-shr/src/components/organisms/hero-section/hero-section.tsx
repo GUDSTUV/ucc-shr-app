@@ -5,6 +5,9 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { BookOpen, Flag } from 'lucide-react'
+import { Heading } from '@/src/components/atoms/heading/heading'
+import { Text } from '@/src/components/atoms/text/text'
+import { Button } from '@/src/components/atoms/button'
 
 const slides = [
   {
@@ -66,25 +69,31 @@ export function HeroSection() {
           aria-hidden="true"
         />
 
-        {/* Headline */}
-        <motion.h1
+        <Heading
+          as={motion.h1}
           variants={itemVariants}
-          className="text-4xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl"
+          size={{ base: '4xl', sm: '5xl', lg: '6xl' }}
+          weight="bold"
+          tone="white"
+          className="leading-tight tracking-tight"
         >
           You Are Heard.
           <br />
-          <span className="">You Are Protected.</span>
-        </motion.h1>
+          <Text as="span" tone="white">You Are Protected.</Text>
+        </Heading>
 
         {/* Sub-headline */}
-        <motion.p
+        <Text
+          as={motion.p}
           variants={itemVariants}
-          className="mx-auto mt-4 max-w-md text-base leading-relaxed text-white/75 lg:mx-0 lg:mt-6 lg:text-lg"
+          size={{ base: 'base', lg: 'lg' }}
+          tone="white"
+          className="mx-auto mt-4 max-w-md leading-relaxed opacity-75 lg:mx-0 lg:mt-6"
         >
           Safely report sexual harassment at the University of Cape Coast.
           Your report is confidential, taken seriously, and supported by
           trained CEGRAD staff.
-        </motion.p>
+        </Text>
 
         {/* CTAs */}
         <motion.div
@@ -107,13 +116,15 @@ export function HeroSection() {
           </Link>
         </motion.div>
 
-        {/* Trust line */}
-        <motion.p
+        <Text
+          as={motion.p}
           variants={itemVariants}
-          className="mt-6 text-xs text-white/45"
+          size="xs"
+          tone="white"
+          className="mt-6 opacity-45"
         >
           Your report is confidential and securely handled by authorized CEGRAD personnel
-        </motion.p>
+        </Text>
       </motion.div>
 
       {/* ══ RIGHT: image swiper — flush to right edge, curve on the left ══ */}
@@ -169,13 +180,13 @@ export function HeroSection() {
               className="mx-auto max-w-md text-center px-2 py-1 lg:ml-auto lg:text-left lg:px-4 lg:py-3"
             >
               {slides[active].headline && (
-                <p className="mb-0.5 text-sm font-bold drop-shadow-md lg:mb-1 lg:text-lg">
+                <Text size={{ base: 'sm', lg: 'lg' }} weight="bold" tone="white" className="mb-0.5 drop-shadow-md lg:mb-1">
                   {slides[active].headline}
-                </p>
+                </Text>
               )}
-              <p className="text-xs leading-tight text-white drop-shadow-md lg:text-base lg:text-white/90 lg:leading-snug">
+              <Text size={{ base: 'xs', lg: 'base' }} tone="white" className="leading-tight drop-shadow-md lg:leading-snug lg:opacity-90">
                 {slides[active].tag}
-              </p>
+              </Text>
             </motion.div>
           </AnimatePresence>
         </div>
@@ -183,7 +194,8 @@ export function HeroSection() {
         {/* Dot indicators */}
         <div className="absolute bottom-4 right-4 z-30 flex gap-1.5">
           {slides.map((_, i) => (
-            <button
+            <Button
+              variant="unstyled"
               key={i}
               onClick={() => setActive(i)}
               aria-label={`Go to slide ${i + 1}`}

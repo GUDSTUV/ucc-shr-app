@@ -95,7 +95,8 @@ export default function SignupPage() {
       )}
 
       {/* Google */}
-      <button
+      <Button
+        variant="unstyled"
         type="button"
         onClick={handleGoogleSignIn}
         disabled={googleLoading || isLoading}
@@ -103,7 +104,7 @@ export default function SignupPage() {
       >
         <GoogleLogo />
         {googleLoading ? 'Redirecting…' : 'Continue with Google'}
-      </button>
+      </Button>
 
       <Divider label="or sign up with email" />
 
@@ -190,7 +191,8 @@ export default function SignupPage() {
 
 function TogglePasswordButton({ show, onToggle }: { show: boolean; onToggle: () => void }) {
   return (
-    <button
+    <Button
+      variant="unstyled"
       type="button"
       tabIndex={-1}
       onClick={onToggle}
@@ -198,7 +200,7 @@ function TogglePasswordButton({ show, onToggle }: { show: boolean; onToggle: () 
       aria-label={show ? 'Hide password' : 'Show password'}
     >
       {show ? <EyeOff size={16} /> : <Eye size={16} />}
-    </button>
+    </Button>
   )
 }
 

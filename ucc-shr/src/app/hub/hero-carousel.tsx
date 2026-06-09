@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ChevronLeft, ChevronRight, Flag, Phone } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { Button } from '@/src/components/atoms/button'
 
 interface Banner {
   id: string
@@ -125,25 +126,28 @@ export function HeroCarousel({ banners }: HeroCarouselProps) {
       {/* Navigation Arrows */}
       {displayBanners.length > 1 && (
         <>
-          <button
+          <Button
+            variant="unstyled"
             onClick={prevSlide}
             className="absolute left-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-black/20 p-2 text-white/80 backdrop-blur-sm transition-all hover:bg-black/40 hover:text-white sm:left-8"
             aria-label="Previous slide"
           >
             <ChevronLeft size={24} />
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="unstyled"
             onClick={nextSlide}
             className="absolute right-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-black/20 p-2 text-white/80 backdrop-blur-sm transition-all hover:bg-black/40 hover:text-white sm:right-8"
             aria-label="Next slide"
           >
             <ChevronRight size={24} />
-          </button>
+          </Button>
 
           {/* Dots Indicator */}
           <div className="absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 gap-2">
             {displayBanners.map((_, index) => (
-              <button
+              <Button
+                variant="unstyled"
                 key={index}
                 onClick={() => setCurrentIndex(index)}
                 className={`h-2 rounded-full transition-all ${

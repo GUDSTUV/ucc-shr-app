@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { prisma } from '@/src/lib/prisma'
+import { Text } from '@/src/components/atoms/text/text'
 
 function formatEventDate(value: Date) {
   return new Intl.DateTimeFormat('en-US', {
@@ -40,7 +41,7 @@ export async function HomeEventsPreview() {
   return (
     <section className="mt-6 space-y-2">
       <div className="flex items-center justify-between">
-        <h2 className="text-base font-bold text-navy">Upcoming Events</h2>
+        <Text as="h2" size="base" weight="bold" tone="navy">Upcoming Events</Text>
         <Link href="/events" className="text-xs font-semibold text-gray-500 hover:text-navy">
           View all
         </Link>
@@ -54,13 +55,13 @@ export async function HomeEventsPreview() {
           <article key={event.id} className="rounded-2xl border border-gray-200 bg-gray-100 px-3 py-3.5 shadow-sm hover:border-navy/20 transition-colors">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 shrink-0 flex-col items-center justify-center rounded-lg bg-gray-200 text-navy">
-                <span className="text-[15px] font-bold leading-none">{badge.day}</span>
-                <span className="mt-0.5 text-[9px] font-semibold leading-none">{badge.month}</span>
+                <Text as="span" size="sm" weight="bold" className="leading-none">{badge.day}</Text>
+                <Text as="span" size="xs" weight="semibold" className="mt-0.5 text-[9px] leading-none">{badge.month}</Text>
               </div>
 
               <div className="min-w-0">
-                <h3 className="line-clamp-2 text-[15px] font-bold leading-tight text-navy">{event.title}</h3>
-                <p className="mt-1 text-xs text-gray-500">{event.venue}</p>
+                <Text as="h3" size="sm" weight="bold" tone="navy" className="line-clamp-2 leading-tight">{event.title}</Text>
+                <Text size="xs" tone="muted" className="mt-1">{event.venue}</Text>
               </div>
             </div>
           </article>

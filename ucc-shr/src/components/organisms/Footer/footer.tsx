@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { Facebook, Instagram, Linkedin, Mail, MapPin, Phone, Twitter, Clock } from 'lucide-react'
+import { Text } from '@/src/components/atoms/text/text'
 
 const partners = [
   {
@@ -73,15 +74,15 @@ export function Footer() {
                 />
               </span>
               <div className="leading-tight">
-                <p className="text-sm font-bold text-white">CEGRAD-UCC</p>
-                <p className="text-xs text-white/60">Centre for Gender Research</p>
+                <Text size="sm" weight="bold" tone="white">CEGRAD-UCC</Text>
+                <Text size="xs" tone="white" className="opacity-60">Centre for Gender Research</Text>
               </div>
             </div>
 
-            <p className="text-sm leading-relaxed text-white/60">
+            <Text size="sm" tone="white" className="leading-relaxed opacity-60">
               Creating a safe, inclusive, and respectful academic community free
               from sexual harassment and discrimination.
-            </p>
+            </Text>
 
             {/* Social links */}
             <div className="flex gap-2 pt-1">
@@ -102,9 +103,9 @@ export function Footer() {
 
           {/* ── Col 2: Quick Links ── */}
           <div className="space-y-3">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-white">
+            <Text as="h3" size="xs" weight="bold" tone="white" className="uppercase tracking-wider">
               Quick Links
-            </h3>
+            </Text>
             <ul className="space-y-2">
               {quickLinks.map(({ href, label }) => (
                 <li key={href + label}>
@@ -121,9 +122,9 @@ export function Footer() {
 
           {/* ── Col 3: Resources ── */}
           <div className="space-y-3">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-white">
+            <Text as="h3" size="xs" weight="bold" tone="white" className="uppercase tracking-wider">
               Resources
-            </h3>
+            </Text>
             <ul className="space-y-2">
               {resources.map(({ href, label }) => (
                 <li key={label}>
@@ -140,9 +141,9 @@ export function Footer() {
 
           {/* ── Col 4: Contact ── */}
           <div className="space-y-3">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-white">
+            <Text as="h3" size="xs" weight="bold" tone="white" className="uppercase tracking-wider">
               Contact
-            </h3>
+            </Text>
             <ul className="space-y-3">
               <li className="flex items-start gap-2 text-sm text-white/60">
                 <MapPin size={15} className="mt-0.5 shrink-0 text-red" />
@@ -170,9 +171,9 @@ export function Footer() {
 
         {/* ── Partners strip ── */}
         <div className="mt-10 border-t border-white/10 pt-8">
-          <p className="mb-4 text-center text-xs font-semibold uppercase tracking-widest text-white/30">
+          <Text size="xs" weight="semibold" tone="white" className="mb-4 text-center uppercase tracking-widest opacity-30">
             Trusted Partners &amp; Supporting Institutions
-          </p>
+          </Text>
           <div className="flex flex-wrap items-center justify-center gap-3">
             {partners.map(({ name, abbr, href }) => (
               <a
@@ -193,9 +194,9 @@ export function Footer() {
         {/* ── Copyright row ── */}
         <div className="mt-6 border-t border-white/10 pt-5">
           <div className="flex flex-col items-center gap-3 text-center sm:flex-row sm:justify-between sm:text-left">
-            <p className="text-xs text-white/30">
+            <Text size="xs" tone="white" className="opacity-30">
               © {new Date().getFullYear()} CEGRAD-UCC. All rights reserved.
-            </p>
+            </Text>
             <div className="flex flex-wrap justify-center gap-4 text-xs text-white/40 sm:justify-end">
               <Link href="/privacy" className="transition hover:text-white/70">
                 Privacy Policy

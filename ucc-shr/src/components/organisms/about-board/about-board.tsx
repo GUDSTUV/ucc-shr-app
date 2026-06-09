@@ -1,3 +1,5 @@
+import { Heading } from "../../atoms/heading/heading"
+import { Text } from "../../atoms/text/text"
 
 const boardMembers = [
   {
@@ -36,11 +38,11 @@ export function AboutBoard() {
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto">
           <div className="mb-12 text-center">
-            <span className="text-xs font-semibold uppercase tracking-widest text-navy">Leadership</span>
-            <h2 className="mt-2 text-3xl font-bold text-navy lg:text-4xl">Our Board Members</h2>
-            <p className="mx-auto mt-3 max-w-2xl text-base text-gray-600">
+            <Text as="span" size="xs" weight="semibold" tone="navy" className="uppercase tracking-widest">Leadership</Text>
+            <Heading as="h2" size={{ base: '3xl', lg: '4xl' }} tone="navy" weight="bold" className="mt-2">Our Board Members</Heading>
+            <Text size="base" tone="muted" className="mx-auto mt-3 max-w-2xl">
               Meet the dedicated team leading CEGRAD&apos;s mission and initiatives.
-            </p>
+            </Text>
           </div>
 
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
@@ -52,11 +54,11 @@ export function AboutBoard() {
                 <div className="mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-navy-light/20 text-2xl font-bold text-navy transition-colors group-hover:bg-navy group-hover:text-white">
                   {member.initials}
                 </div>
-                <h3 className="text-lg font-bold text-navy">{member.name}</h3>
-                <p className="text-sm font-medium text-red">{member.role}</p>
-                <p className="mt-3 text-sm leading-relaxed text-gray-500">
+                <Text as="h3" size="lg" weight="bold" tone="navy">{member.name}</Text>
+                <Text size="sm" weight="medium" className="text-red">{member.role}</Text>
+                <Text size="sm" tone="muted" className="mt-3 leading-relaxed text-gray-500">
                   {member.bio}
-                </p>
+                </Text>
               </div>
             ))}
           </div>
