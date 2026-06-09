@@ -124,6 +124,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.id = token.id as string
         session.user.role = token.role as string
         session.user.image = token.picture as string | null | undefined
+        
+        if (session.user.email) {
+          const prefix = session.user.email.split('@')[0]
+          const nameFromEmail = prefix.replace(/[._]/g, ' ')
+          session.user.name = nameFromEmail.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+        }
       }
       return session
     }

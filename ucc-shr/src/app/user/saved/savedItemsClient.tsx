@@ -2,11 +2,17 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { Bookmark } from 'lucide-react'
+import { Bookmark, Calendar, BookOpen, ArrowRight, X } from 'lucide-react'
 import type { SavedResourceItem } from './savedTypes'
 
 type SavedItemsClientProps = {
   initialItems: SavedResourceItem[]
+}
+
+const labelConfig: Record<string, { color: string; icon: React.ReactNode }> = {
+  'Know Your Rights': { color: 'bg-navy-light text-navy', icon: <BookOpen size={12} /> },
+  'Awareness': { color: 'bg-blue-50 text-blue-700', icon: <BookOpen size={12} /> },
+  'Events': { color: 'bg-emerald-50 text-emerald-700', icon: <Calendar size={12} /> },
 }
 
 export function SavedItemsClient({ initialItems }: SavedItemsClientProps) {
@@ -51,53 +57,81 @@ export function SavedItemsClient({ initialItems }: SavedItemsClientProps) {
     return (
       <div className="space-y-3">
         {success ? (
-          <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+          <div role="status" className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
             {success}
           </div>
         ) : null}
-        <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-          <div className="mx-auto mb-3 grid h-12 w-12 place-content-center rounded-full bg-navy-light text-navy">
-            <Bookmark size={20} />
+        <section className="rounded-2xl border border-dashed border-gray-300 bg-white p-10 text-center">
+          <div className="mx-auto mb-4 grid h-14 w-14 place-content-center rounded-full bg-navy-light text-navy">
+            <Bookmark size={24} />
           </div>
-          <p className="text-center text-sm text-gray-700">You do not have any saved resources yet.</p>
-          <p className="mt-2 text-center text-xs text-gray-500">
-            Save posts or events from the Hub and they will appear here.
+          <h2 className="text-base font-semibold text-gray-900">No saved items yet</h2>
+          <p className="mt-2 text-sm text-gray-500 max-w-xs mx-auto">
+            Save articles or events from the Awareness Hub and they will appear here.
           </p>
         </section>
-        </div>
+      </div>
     )
   }
 
   return (
-    <section className="space-y-3">
+    <div className="space-y-4">
       {success ? (
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{success}</div>
+        <div role="status" className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{success}</div>
       ) : null}
       {error ? (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
+        <div role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
       ) : null}
 
-      {items.map((item) => (
-        <article key={item.id} className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-          <p className="text-xs font-semibold tracking-wide text-navy">{item.label.toUpperCase()}</p>
-          <h2 className="mt-1 text-base font-semibold text-gray-900">{item.title}</h2>
-          <p className="mt-1 text-sm text-gray-600">{item.summary}</p>
-
-          <div className="mt-3 flex items-center justify-between gap-3">
-            <Link href={item.href} className="text-sm font-semibold text-navy hover:text-navy-dark">
-              Open
-            </Link>
-            <button
-              type="button"
-              onClick={() => void handleUnsave(item)}
-              disabled={removingId === item.id}
-              className="text-sm font-semibold text-red-600 transition hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {items.map((item) => {
+          const badge = labelConfig[item.label] ?? { color: 'bg-gray-100 text-gray-700', icon: <BookOpen size={12} /> }
+          return (
+            <article
+              key={item.id}
+              className="group flex flex-col rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition hover:border-navy/20 hover:shadow-md"
             >
-              {removingId === item.id ? 'Removing...' : 'Unsave'}
-            </button>
-          </div>
-        </article>
-      ))}
-    </section>
+              {/* Badge */}
+              <div className="mb-3 inline-flex w-fit items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold tracking-wide" style={{}} aria-label={item.label}>
+                <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${badge.color}`}>
+                  {badge.icon}
+                  {item.label}
+                </span>
+              </div>
+
+              {/* Content */}
+              <h2 className="mb-1 text-sm font-bold leading-snug text-gray-900 group-hover:text-navy transition-colors line-clamp-2">
+                {item.title}
+              </h2>
+              <p className="text-xs text-gray-500 leading-relaxed line-clamp-3 flex-1">
+                {item.summary}
+              </p>
+
+              {/* Footer */}
+              <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-3">
+                <Link
+                  href={item.href}
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-navy hover:text-navy-dark transition-colors"
+                  aria-label={`Open ${item.title}`}
+                >
+                  Open <ArrowRight size={13} />
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => void handleUnsave(item)}
+                  disabled={removingId === item.id}
+                  aria-label={`Remove ${item.title} from saved`}
+                  className="inline-flex items-center gap-1 rounded-md p-1 text-xs text-gray-400 transition hover:text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  <X size={14} />
+                  <span>{removingId === item.id ? 'Removing…' : 'Unsave'}</span>
+                </button>
+              </div>
+            </article>
+          )
+        })}
+      </div>
+    </div>
   )
 }
+

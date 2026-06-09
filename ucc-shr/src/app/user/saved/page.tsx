@@ -1,9 +1,10 @@
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Bookmark } from 'lucide-react'
 import { redirect } from 'next/navigation'
 import { auth } from '@/src/lib/auth/auth'
 import { prisma } from '@/src/lib/prisma'
 import { SavedItemsClient } from './savedItemsClient'
+import { PublicLayout } from '@/src/components/templates/public-layout'
 import type { SavedResourceItem } from './savedTypes'
 
 export default async function SavedItemsPage() {
@@ -96,23 +97,28 @@ export default async function SavedItemsPage() {
     .filter((item): item is SavedResourceItem => item !== null)
 
   return (
-    <div className="mx-auto min-h-screen max-w-md bg-gray-50 pb-8 font-sans text-gray-900">
-      <header className="sticky top-0 z-20 border-b border-gray-100 bg-white px-4 py-4">
-        <div className="flex items-center justify-between">
+    <PublicLayout>
+      <div className="font-sans">
+        {/* Page Header */}
+        <div className="mb-6 flex items-center gap-3">
           <Link
-            href="/user/profile"
-            aria-label="Go back"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full text-gray-700 hover:bg-gray-100"
+            href="/user/userDashboard"
+            aria-label="Go back to dashboard"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gray-600 hover:bg-gray-100 transition"
           >
-            <ArrowLeft size={20} />
+            <ArrowLeft size={18} />
           </Link>
-          <h1 className="pr-8 text-lg font-bold text-navy">Saved Items</h1>
+          <div>
+            <h1 className="text-lg font-bold text-navy">Saved Resources</h1>
+            <p className="text-xs text-gray-500">Articles and events you&apos;ve bookmarked</p>
+          </div>
+          <div className="ml-auto grid h-9 w-9 place-content-center rounded-full bg-navy-light text-navy">
+            <Bookmark size={16} />
+          </div>
         </div>
-      </header>
 
-      <main className="px-4 pt-5">
         <SavedItemsClient initialItems={resources} />
-      </main>
-    </div>
+      </div>
+    </PublicLayout>
   )
 }

@@ -42,7 +42,7 @@ export function AboutHero() {
     <section className="bg-white py-16 lg:py-20">
       <div className="mx-auto max-w-7xl px-6 lg:px-8 space-y-12">
         <div className="text-center">
-          <h1 className="mt-2 text-4xl font-bold tracking-tight text-navy sm:text-5xl lg:text-6xl">
+          <h1 className="mt-2 text-4xl font-bold tracking-tight text-navy sm:text-5xl lg:text-4xl">
             About CEGRAD
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-base text-gray-600 lg:text-lg">

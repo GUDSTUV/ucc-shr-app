@@ -141,6 +141,11 @@ function LoginContent() {
               {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
           </div>
+          <div className="mt-1 flex justify-end">
+            <Link href="/forgot-password" className="text-xs font-semibold text-navy hover:underline">
+              Forgot password?
+            </Link>
+          </div>
         </FormField>
 
         <Button type="submit" fullWidth disabled={isLoading} loading={isLoading}>

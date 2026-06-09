@@ -1,10 +1,20 @@
 'use client'
+
 import { usePathname } from 'next/navigation'
-import { Home, CalendarClock, Flag, BookText, UserRound } from 'lucide-react'
+import { Home, CalendarClock, Flag, BookText, UserRound, LayoutDashboard, FileText } from 'lucide-react'
 import { MobileNavItem } from '@/src/components/molecules/mobile-nav-item'
 import { ReportFab } from '@/src/components/atoms/report-fab'
 
-export function BottomNav() {
+type UserInfo = {
+  name?: string | null
+  role?: string | null
+}
+
+interface BottomNavProps {
+  user?: UserInfo | null
+}
+
+export function BottomNav({ user }: BottomNavProps) {
   const path = usePathname()
   const reportHref = '/report'
 
@@ -18,41 +28,79 @@ export function BottomNav() {
       aria-label="Bottom navigation"
     >
       <div className="mx-auto grid h-18.5 w-full max-w-2xl grid-cols-5 items-end rounded-2xl border border-navy/10 bg-white/95 px-1 pb-2 shadow-[0_-8px_24px_rgba(38,56,117,0.15)] backdrop-blur-sm">
-        <MobileNavItem
-          href="/"
-          label="Home"
-          icon={<Home size={20} strokeWidth={2.3} />}
-          active={path === '/'}
-        />
+        
+        {user ? (
+          // Authenticated Bottom Nav: Home, Awareness, Report, Dashboard
+          <>
+            <MobileNavItem
+              href="/"
+              label="Home"
+              icon={<Home size={20} strokeWidth={2.3} />}
+              active={path === '/'}
+            />
+            <MobileNavItem
+              href="/hub"
+              label="Awareness"
+              icon={<CalendarClock size={20} strokeWidth={2.3} />}
+              active={path.startsWith('/hub') || path.startsWith('/events')}
+            />
+            <ReportFab
+              href={reportHref}
+              label="Report"
+              icon={<Flag size={24} strokeWidth={2.5} />}
+              active={path.startsWith('/report')}
+            />
+            <MobileNavItem
+              href="/user/userDashboard"
+              label="Dashboard"
+              icon={<LayoutDashboard size={20} strokeWidth={2.3} />}
+              active={path === '/user/userDashboard'}
+            />
+            <MobileNavItem
+              href="/user/userReports"
+              label="My Reports"
+              icon={<FileText size={20} strokeWidth={2.3} />}
+              active={path.startsWith('/user/userReports')}
+            />
+          </>
+        ) : (
+          // Unauthenticated Bottom Nav: Home, Awareness, Report, About, Sign In
+          <>
+            <MobileNavItem
+              href="/"
+              label="Home"
+              icon={<Home size={20} strokeWidth={2.3} />}
+              active={path === '/'}
+            />
+            <MobileNavItem
+              href="/hub"
+              label="Awareness"
+              icon={<CalendarClock size={20} strokeWidth={2.3} />}
+              active={path.startsWith('/hub') || path.startsWith('/events')}
+            />
+            <ReportFab
+              href={reportHref}
+              label="Report"
+              icon={<Flag size={24} strokeWidth={2.5} />}
+              active={path.startsWith('/report')}
+            />
+            <MobileNavItem
+              href="/about"
+              label="About"
+              icon={<BookText size={20} strokeWidth={2.3} />}
+              active={path === '/about'}
+            />
+            <MobileNavItem
+              href="/login"
+              label="Sign In"
+              icon={<UserRound size={20} strokeWidth={2.3} />}
+              active={path === '/login' || path === '/signup'}
+            />
+          </>
+        )}
 
-        <MobileNavItem
-          href="/hub"
-          label="Post/Event"
-          icon={<CalendarClock size={20} strokeWidth={2.3} />}
-          active={path.startsWith('/hub') || path.startsWith('/events')}
-        />
-
-        <ReportFab
-          href={reportHref}
-          label="Report"
-          icon={<Flag size={24} strokeWidth={2.5} />}
-          active={path.startsWith('/report') || path.startsWith('/user/userDashboard')}
-        />
-
-        <MobileNavItem
-          href="/about"
-          label="About"
-          icon={<BookText size={20} strokeWidth={2.3} />}
-          active={path === '/about'}
-        />
-
-        <MobileNavItem
-          href="/user/profile"
-          label="Profile"
-          icon={<UserRound size={20} strokeWidth={2.3} />}
-          active={path.startsWith('/user/profile')}
-        />
       </div>
     </nav>
   )
 }
+

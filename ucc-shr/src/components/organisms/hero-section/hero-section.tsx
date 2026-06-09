@@ -158,7 +158,7 @@ export function HeroSection() {
         />
 
         {/* Sliding caption tag */}
-        <div className="absolute bottom-14 left-8 right-8 z-30 hidden lg:block xl:bottom-18">
+        <div className="absolute bottom-7 left-4 right-4 z-30 lg:bottom-14 lg:left-8 lg:right-8 xl:bottom-18">
           <AnimatePresence mode="wait">
             <motion.div
               key={active}
@@ -166,14 +166,14 @@ export function HeroSection() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.75 }}
-              className="ml-auto max-w-md px-4 py-3"
+              className="mx-auto max-w-md text-center px-2 py-1 lg:ml-auto lg:text-left lg:px-4 lg:py-3"
             >
               {slides[active].headline && (
-                <p className="mb-1 text-lg font-bold">
+                <p className="mb-0.5 text-sm font-bold drop-shadow-md lg:mb-1 lg:text-lg">
                   {slides[active].headline}
                 </p>
               )}
-              <p className="text-md leading-snug text-white/90">
+              <p className="text-xs leading-tight text-white drop-shadow-md lg:text-base lg:text-white/90 lg:leading-snug">
                 {slides[active].tag}
               </p>
             </motion.div>

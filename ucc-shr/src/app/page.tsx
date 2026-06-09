@@ -1,12 +1,15 @@
+import dynamic from 'next/dynamic'
+
 import { HeroSection } from '@/src/components/organisms/hero-section'
 import { WhyReportingSection } from '@/src/components/organisms/why-reporting'
 import { HarassmentTypesSection } from '@/src/components/organisms/harassment-types'
-import { ReportingProcessSection } from '@/src/components/organisms/reporting-process'
-import { AwarenessPreviewSection } from '@/src/components/organisms/awareness-preview'
-import { EventsCampaignSection } from '@/src/components/organisms/events-campaign/events-campaign'
-import { FaqSection } from '@/src/components/organisms/faq-section'
-import { ContactSection } from '@/src/components/organisms/contact-section'
-import { Footer } from '@/src/components/organisms/Footer'
+
+const ReportingProcessSection = dynamic(() => import('@/src/components/organisms/reporting-process').then(mod => mod.ReportingProcessSection))
+const AwarenessPreviewSection = dynamic(() => import('@/src/components/organisms/awareness-preview').then(mod => mod.AwarenessPreviewSection))
+const EventsCampaignSection = dynamic(() => import('@/src/components/organisms/events-campaign/events-campaign').then(mod => mod.EventsCampaignSection))
+const FaqSection = dynamic(() => import('@/src/components/organisms/faq-section').then(mod => mod.FaqSection))
+const ContactSection = dynamic(() => import('@/src/components/organisms/contact-section').then(mod => mod.ContactSection))
+const Footer = dynamic(() => import('@/src/components/organisms/Footer').then(mod => mod.Footer))
 
 export default function HomePage() {
   return (

@@ -7,6 +7,7 @@ import { prisma } from '@/src/lib/prisma'
 import { belongsToUser } from '@/src/lib/auth/report-access'
 import { StatusBadge } from '@/src/components/molecules/status-badge'
 import { ReportChat } from '@/src/components/organisms/report-chat'
+import { PublicLayout } from '@/src/components/templates/public-layout'
 
 type ReportDetailsPageProps = {
   params: Promise<{
@@ -131,26 +132,20 @@ export default async function ReportDetailsPage({ params }: ReportDetailsPagePro
   const adminUpdates = Array.isArray(parsedNotes.adminUpdates) ? parsedNotes.adminUpdates : []
 
   return (
-    <div className="mx-auto min-h-screen max-w-md bg-gray-50 pb-8 font-sans text-gray-900">
-      <header className="sticky top-0 z-20 border-b border-gray-100 bg-white/95 px-4 py-4 backdrop-blur">
-        <div className="flex items-center justify-between">
-          <Link
-            href="/user/userReports"
-            aria-label="Go back"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full text-gray-700 hover:bg-gray-100"
-          >
-            <ArrowLeft size={20} />
-          </Link>
-          <div className="text-center">
-            <h1 className="text-lg font-bold text-navy sm:text-xl">Report Details</h1>
-            <p className="text-xs text-gray-500">{report.code}</p>
+    <PublicLayout>
+      <div className="font-sans">
+        <div className="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-gray-200 pb-4">
+          <div>
+            <Link href="/user/userReports" className="inline-flex items-center gap-2 text-sm font-medium text-navy mb-4 hover:underline">
+              <ArrowLeft size={16} /> Back to Reports
+            </Link>
+            <h1 className="text-2xl font-bold text-gray-900 md:text-3xl">Report Details</h1>
+            <p className="mt-1 text-sm text-gray-500">Incident #{report.code.replace('UCC-', '')}</p>
           </div>
-          <span className="inline-flex w-10" aria-hidden="true" />
         </div>
-      </header>
 
-      <main className="space-y-4 px-4 pt-5">
-        <section className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+      <main className="space-y-6">
+        <section className="rounded-2xl border border-gray-100 bg-white p-5 lg:p-6 shadow-sm">
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-400">Status</p>
@@ -300,6 +295,7 @@ export default async function ReportDetailsPage({ params }: ReportDetailsPagePro
           <ReportChat reportCode={report.code} />
         </section>
       </main>
-    </div>
+      </div>
+    </PublicLayout>
   )
 }

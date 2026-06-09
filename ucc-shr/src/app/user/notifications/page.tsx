@@ -6,6 +6,7 @@ import { auth } from '@/src/lib/auth/auth'
 import { prisma } from '@/src/lib/prisma'
 import { belongsToUser, parseReportNotes } from '@/src/lib/auth/report-access'
 import { Button } from '@/src/components/atoms/button'
+import { PublicLayout } from '@/src/components/templates/public-layout'
 import {
   clearNotificationDismissed,
   clearNotificationReads,
@@ -160,36 +161,43 @@ export default async function UserNotificationsPage({ searchParams }: PageProps)
   }
 
   return (
-    <div className="mx-auto min-h-screen max-w-md bg-gray-50 pb-8 font-sans text-gray-900">
-      <header className="sticky top-0 z-20 border-b border-gray-100 bg-white/95 px-4 py-4 backdrop-blur">
-        <div className="flex items-center justify-between">
+    <PublicLayout>
+      <div className="font-sans">
+        {/* Page Header */}
+        <div className="mb-6 flex items-center gap-3">
           <Link
             href="/user/userDashboard"
-            aria-label="Go back"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full text-gray-700 hover:bg-gray-100"
+            aria-label="Go back to dashboard"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gray-600 hover:bg-gray-100 transition"
           >
-            <ArrowLeft size={20} />
+            <ArrowLeft size={18} />
           </Link>
-          <div className="text-center">
-            <h1 className="text-lg font-bold text-navy sm:text-xl">Notifications</h1>
-            <p className="text-xs text-gray-500">Stay updated on your reports</p>
+          <div className="flex-1">
+            <h1 className="text-lg font-bold text-navy">Notifications</h1>
+            <p className="text-xs text-gray-500">Updates on your reports</p>
           </div>
-          <span className="inline-flex w-10" aria-hidden="true" />
+          {unreadCount > 0 && (
+            <span className="inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-red-500 px-1.5 text-xs font-bold text-white">
+              {unreadCount}
+            </span>
+          )}
         </div>
-      </header>
-
-      <main className="space-y-4 px-4 pt-5">
-        <div className="flex justify-end">
+        <div className="mb-5 flex items-center justify-between">
+          <p className="text-sm text-gray-500">
+            {unreadCount > 0 ? `${unreadCount} unread` : 'All caught up'}
+          </p>
           <form action={clearAllNotifications}>
             <Button type="submit" variant="outline" size="sm">Clear All</Button>
           </form>
         </div>
-        <section className="space-y-3">
+        <section aria-label="Notifications list" className="space-y-3">
           {filteredNotifications.map((item) => (
             <article
               key={item.id}
-              className={`rounded-2xl border bg-white p-4 shadow-sm ${
-                item.unread ? 'border-navy/20' : 'border-gray-100'
+              className={`rounded-2xl border p-4 shadow-sm transition-colors ${
+                item.unread 
+                  ? 'border-navy/20 bg-blue-50/50' 
+                  : 'border-gray-100 bg-white opacity-90 hover:opacity-100'
               }`}
             >
               <div className="flex items-start gap-3">
@@ -199,10 +207,14 @@ export default async function UserNotificationsPage({ searchParams }: PageProps)
 
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-3">
-                    <p className="text-sm font-semibold text-gray-900">{item.title}</p>
-                    {item.unread ? <span className="h-2.5 w-2.5 rounded-full bg-red" /> : null}
+                    <p className={`text-sm font-semibold ${item.unread ? 'text-gray-900' : 'text-gray-700'}`}>
+                      {item.title}
+                    </p>
+                    {item.unread ? <span className="h-2.5 w-2.5 rounded-full bg-red-500" /> : null}
                   </div>
-                  <p className="mt-1 text-sm text-gray-600">{item.message}</p>
+                  <p className={`mt-1 text-sm ${item.unread ? 'text-gray-700' : 'text-gray-500'}`}>
+                    {item.message}
+                  </p>
                   <div className="mt-2 flex items-center gap-1 text-xs text-gray-500">
                     <Clock3 size={13} />
                     <span>{item.time}</span>
@@ -217,12 +229,16 @@ export default async function UserNotificationsPage({ searchParams }: PageProps)
           ))}
 
           {filteredNotifications.length === 0 ? (
-            <article className="rounded-2xl border border-gray-100 bg-white p-4 text-center text-sm text-gray-600 shadow-sm">
-              No notifications yet. You will see updates here when admin updates your reports.
+            <article className="rounded-2xl border border-dashed border-gray-300 bg-white p-8 text-center shadow-sm">
+              <div className="mx-auto mb-3 grid h-12 w-12 place-content-center rounded-full bg-navy-light text-navy">
+                <Bell size={20} />
+              </div>
+              <p className="text-sm font-semibold text-gray-900">No notifications</p>
+              <p className="mt-1 text-xs text-gray-500">You will see updates here when admin updates your reports.</p>
             </article>
           ) : null}
         </section>
-      </main>
-    </div>
+      </div>
+    </PublicLayout>
   )
 }

@@ -63,7 +63,7 @@ export function EventsCampaignClient({ items }: { items: CampaignFeedItem[] }) {
             href="/events"
             className="inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold text-navy transition-colors hover:text-navy-dark"
           >
-            All events <ArrowRight size={15} />
+            All Posts &amp; Events <ArrowRight size={15} />
           </Link>
         </motion.div>
 

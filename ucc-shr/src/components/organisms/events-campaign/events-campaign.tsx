@@ -10,33 +10,42 @@ const DEFAULT_EVENT_IMAGE = '/icons/default-event.svg'
 const DEFAULT_ARTICLE_IMAGE = '/icons/default-article.svg'
 
 export async function EventsCampaignSection() {
-  const [events, articles] = await Promise.all([
-    prisma.event.findMany({
-      where: { published: true },
-      orderBy: { startDate: 'desc' },
-      take: 2,
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        image: true,
-        startDate: true,
-      },
-    }),
-    prisma.article.findMany({
-      where: { published: true },
-      orderBy: { updatedAt: 'desc' },
-      take: 1,
-      select: {
-        id: true,
-        slug: true,
-        title: true,
-        category: true,
-        content: true,
-        coverImage: true,
-      },
-    }),
-  ])
+  let events: any[] = []
+  let articles: any[] = []
+
+  try {
+    const results = await Promise.all([
+      prisma.event.findMany({
+        where: { published: true },
+        orderBy: { startDate: 'desc' },
+        take: 2,
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          image: true,
+          startDate: true,
+        },
+      }),
+      prisma.article.findMany({
+        where: { published: true },
+        orderBy: { updatedAt: 'desc' },
+        take: 1,
+        select: {
+          id: true,
+          slug: true,
+          title: true,
+          category: true,
+          content: true,
+          coverImage: true,
+        },
+      }),
+    ])
+    events = results[0]
+    articles = results[1]
+  } catch (error) {
+    console.error('Failed to fetch events/articles for home page:', error)
+  }
 
   const eventItems: CampaignFeedItem[] = events.map((event) => ({
     id: `EVENT:${event.id}`,
