@@ -1,8 +1,9 @@
-'use server'
+"use server"
 
 import { requireSuperAdmin } from '@/src/lib/auth/guards'
 import { prisma } from '@/src/lib/prisma'
 import { revalidatePath } from 'next/cache'
+import type { Prisma } from '@prisma/client'
 
 export async function updateSiteContent(formData: FormData) {
   await requireSuperAdmin()
@@ -36,7 +37,7 @@ export async function updateSiteContent(formData: FormData) {
   return { success: true }
 }
 
-export async function updateSiteContentJson(key: string, value: any) {
+export async function updateSiteContentJson(key: string, value: Prisma.JsonValue) {
   await requireSuperAdmin()
 
   await prisma.siteContent.upsert({

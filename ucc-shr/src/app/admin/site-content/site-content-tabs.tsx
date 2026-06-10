@@ -7,7 +7,19 @@ import { AwarenessContentForm } from './awareness-content-form'
 import { HelpContentForm } from './help-content-form'
 
 type SiteContentTabsProps = {
-  initialData: any
+  initialData: {
+    heroTitle: string
+    heroSubtitle: string
+    footerText: string
+    aboutCarousel: { url: string; caption: string }[]
+    aboutBoard: { name: string; role: string; bio: string; imageUrl?: string; initials: string }[]
+    awarenessBanner: string
+    awarenessVideoUrl: string
+    contactEmail: string
+    contactPhone: string
+    contactAddress: string
+    faqs: { question: string; answer: string }[]
+  }
 }
 
 export function SiteContentTabs({ initialData }: SiteContentTabsProps) {

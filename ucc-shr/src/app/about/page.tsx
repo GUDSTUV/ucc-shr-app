@@ -10,17 +10,33 @@ export default async function AboutPage() {
     where: { key: { in: ['aboutCarousel', 'aboutBoard'] } }
   })
 
-  const contentMap = contentRecords.reduce((acc, record) => {
-    acc[record.key] = record.value as any
-    return acc
-  }, {} as Record<string, any>)
+  type CarouselImage = { url: string; caption: string; alt?: string }
+  type BoardMember = { name: string; role: string; bio: string; initials: string; imageUrl?: string }
 
-  const carousel = Array.isArray(contentMap['aboutCarousel']) && contentMap['aboutCarousel'].length > 0 
-    ? contentMap['aboutCarousel'] 
+  const contentMap = contentRecords.reduce(
+    (acc: Record<string, unknown>, record: { key: string; value: unknown }) => {
+      acc[record.key] = record.value
+      return acc
+    },
+    {} as Record<string, unknown>,
+  )
+
+  const rawCarousel = contentMap['aboutCarousel']
+  const carousel = Array.isArray(rawCarousel)
+    ? (rawCarousel as unknown[]).filter((i): i is CarouselImage => {
+        if (typeof i !== 'object' || i === null) return false
+        const r = i as Record<string, unknown>
+        return typeof r.url === 'string' && typeof r.caption === 'string'
+      })
     : undefined
 
-  const board = Array.isArray(contentMap['aboutBoard']) && contentMap['aboutBoard'].length > 0 
-    ? contentMap['aboutBoard'] 
+  const rawBoard = contentMap['aboutBoard']
+  const board = Array.isArray(rawBoard)
+    ? (rawBoard as unknown[]).filter((i): i is BoardMember => {
+        if (typeof i !== 'object' || i === null) return false
+        const r = i as Record<string, unknown>
+        return typeof r.name === 'string' && typeof r.role === 'string' && typeof r.bio === 'string' && typeof r.initials === 'string'
+      })
     : undefined
 
   return (
