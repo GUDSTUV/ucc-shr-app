@@ -21,7 +21,7 @@ export default async function HubPage() {
 		where: { key: { in: ['awarenessBanner', 'awarenessVideoUrl'] } }
 	})
 
-	const contentMap = contentRecords.reduce((acc, record) => {
+	const contentMap = contentRecords.reduce((acc: Record<string, string>, record: { key: string; value: unknown }) => {
 		acc[record.key] = record.value as string
 		return acc
 	}, {} as Record<string, string>)
