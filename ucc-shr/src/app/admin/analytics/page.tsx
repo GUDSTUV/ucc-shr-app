@@ -61,8 +61,13 @@ export default async function AdminAnalyticsPage() {
     prisma.event.count({ where: { startDate: { gte: now }, published: true } }),
   ])
 
-  const statusCountMap = reportStatusCounts.reduce<Record<'RECEIVED' | 'UNDER_REVIEW' | 'UNDER_INVESTIGATION' | 'CLOSED', number>>(
-    (acc, row) => {
+  const statusCountMap = reportStatusCounts.reduce<
+    Record<'RECEIVED' | 'UNDER_REVIEW' | 'UNDER_INVESTIGATION' | 'CLOSED', number>
+  >(
+    (
+      acc: Record<'RECEIVED' | 'UNDER_REVIEW' | 'UNDER_INVESTIGATION' | 'CLOSED', number>,
+      row: { status: 'RECEIVED' | 'UNDER_REVIEW' | 'UNDER_INVESTIGATION' | 'CLOSED'; _count: { status: number } },
+    ) => {
       acc[row.status] = row._count.status
       return acc
     },
@@ -71,7 +76,7 @@ export default async function AdminAnalyticsPage() {
       UNDER_REVIEW: 0,
       UNDER_INVESTIGATION: 0,
       CLOSED: 0,
-    },
+    } as Record<'RECEIVED' | 'UNDER_REVIEW' | 'UNDER_INVESTIGATION' | 'CLOSED', number>,
   )
 
   const totalReports = Object.values(statusCountMap).reduce((sum, count) => sum + count, 0)
