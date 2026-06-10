@@ -20,8 +20,8 @@ export default async function RootLayout({
   const user = session?.user ? { name: session.user.name, role: session.user.role } : null
 
   return (
-    <html lang="en">
-      <body className="bg-gray-50 text-gray-900">
+    <html lang="en" suppressHydrationWarning>
+      <body className="bg-gray-50 text-gray-900" suppressHydrationWarning>
         <Toaster position="top-center" />
         <Suspense fallback={null}>
           <Navbar user={user} />

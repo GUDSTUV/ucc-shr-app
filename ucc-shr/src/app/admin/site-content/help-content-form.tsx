@@ -43,7 +43,7 @@ export function HelpContentForm({ initialData }: Props) {
       // 1. Update text fields
       const textEntries = ['contactEmail', 'contactPhone', 'contactAddress']
       const textResults = await Promise.all(
-        textEntries.map(key => updateSiteContent(key, formData.get(key) as string))
+        textEntries.map(key => updateSiteContentJson(key, formData.get(key) as string))
       )
 
       // 2. Update JSON arrays

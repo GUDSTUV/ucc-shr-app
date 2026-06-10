@@ -1,7 +1,9 @@
 import { Heading } from "../../atoms/heading/heading"
 import { Text } from "../../atoms/text/text"
 
-const boardMembers = [
+type BoardMember = { id?: number; name: string; role: string; bio: string; initials: string; imageUrl?: string }
+
+const boardMembers: BoardMember[] = [
   {
     id: 1,
     name: "Prof. Jane Doe",
@@ -31,8 +33,6 @@ const boardMembers = [
     initials: "JS",
   },
 ]
-
-type BoardMember = { id?: number; name: string; role: string; bio: string; initials: string; imageUrl?: string }
 
 export function AboutBoard({ customMembers }: { customMembers?: BoardMember[] }) {
   const activeMembers = customMembers && customMembers.length > 0 ? customMembers : boardMembers

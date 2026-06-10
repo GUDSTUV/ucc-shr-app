@@ -28,16 +28,14 @@ export function SiteContentForm({ initialData }: Props) {
     const formData = new FormData(e.currentTarget)
     
     try {
-      const entries = Array.from(formData.entries())
-      const results = await Promise.all(
-        entries.map(([key, value]) => updateSiteContent(key, value as string))
-      )
+      // Send the full FormData to the server action which expects a FormData object.
+      const result = await updateSiteContent(formData)
 
-      if (results.every(r => r.success)) {
+      if (result.success) {
         toast.success('Home content updated successfully')
         router.refresh()
       } else {
-        toast.error('Failed to update some content')
+        toast.error('Failed to update content')
       }
     } catch (error) {
       toast.error('An unexpected error occurred')

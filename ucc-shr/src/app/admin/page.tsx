@@ -2,6 +2,7 @@ import { AdminLayout } from '@/src/components/templates/admin-layout'
 import { Badge } from '@/src/components/atoms/badge'
 import { Button } from '@/src/components/atoms/button'
 import Link from 'next/link'
+import MonthlyTrendsChart from '@/src/components/organisms/monthly-trends-chart.client'
 import { prisma } from '@/src/lib/prisma'
 import { parseReportNotes } from '@/src/lib/auth/report-access'
 import { getNotificationReadIds, getNotificationState } from '@/src/lib/notification-state'
@@ -10,7 +11,7 @@ import { AdminReportFilters as RecentReportFilters } from '@/src/components/mole
 import { AdminReportsTable as RecentReportsTable } from '@/src/components/organisms/admin-reports-table/admin-reports-table'
 import { Bell, Plus, AlertCircle, ArrowRight } from 'lucide-react'
 import { AdminStatCards } from '@/src/components/organisms/admin-stat-cards'
-import { MonthlyTrendsChart } from '@/src/components/organisms/monthly-trends-chart'
+ 
 import { CategoryDistribution } from '@/src/components/organisms/category-distribution'
 
 type PageProps = {
