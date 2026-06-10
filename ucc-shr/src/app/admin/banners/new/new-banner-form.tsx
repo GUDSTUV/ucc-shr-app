@@ -95,8 +95,9 @@ export function NewBannerForm() {
       } else {
         throw new Error('Failed to save the banner.')
       }
-    } catch (err: any) {
-      setError(err.message || 'An unexpected error occurred.')
+    } catch (err: unknown) {
+      if (err instanceof Error) setError(err.message)
+      else setError('An unexpected error occurred.')
     } finally {
       setLoading(false)
     }

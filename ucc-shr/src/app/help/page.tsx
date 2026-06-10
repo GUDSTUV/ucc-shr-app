@@ -12,8 +12,10 @@ export default async function HelpPage() {
     where: { key: 'faqs' }
   })
   
-  const customFaqs = Array.isArray(contentRecords[0]?.value) 
-    ? contentRecords[0].value as any 
+  type FAQType = { question: string; answer: string }
+  const rawFaqs = contentRecords[0]?.value
+  const customFaqs = Array.isArray(rawFaqs)
+    ? (rawFaqs as unknown[]).filter((f): f is FAQType => typeof f === 'object' && f !== null && typeof (f as any).question === 'string' && typeof (f as any).answer === 'string')
     : undefined
 
   return <HelpClient customFaqs={customFaqs} />

@@ -16,7 +16,7 @@ type NotificationStateDelegate = {
     where: { userId_scope: { userId: string; scope: NotificationScope } }
     update: { lastSeenAt?: Date; clearedAt?: Date }
     create: { userId: string; scope: NotificationScope; lastSeenAt?: Date; clearedAt?: Date }
-  }) => Promise<unknown>
+  }) => Promise<NotificationStateRow>
 }
 
 type NotificationReadDelegate = {
@@ -42,13 +42,13 @@ type NotificationReadDelegate = {
       scope: NotificationScope
       notificationId: string
     }
-  }) => Promise<unknown>
+  }) => Promise<void>
   deleteMany: (args: {
     where: {
       userId: string
       scope: NotificationScope
     }
-  }) => Promise<unknown>
+  }) => Promise<void>
 }
 
 type NotificationDismissedDelegate = {
@@ -74,13 +74,13 @@ type NotificationDismissedDelegate = {
       scope: NotificationScope
       notificationId: string
     }
-  }) => Promise<unknown>
+  }) => Promise<void>
   deleteMany: (args: {
     where: {
       userId: string
       scope: NotificationScope
     }
-  }) => Promise<unknown>
+  }) => Promise<void>
 }
 
 function getDelegate() {

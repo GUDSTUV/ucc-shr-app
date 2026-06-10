@@ -6,7 +6,7 @@ import { Bookmark, FileText, Plus, MessageCircle, ShieldCheck } from 'lucide-rea
 import { prisma } from '@/src/lib/prisma'
 import { belongsToUser, parseReportNotes } from '@/src/lib/auth/report-access'
 import { getNotificationReadIds, getNotificationState } from '@/src/lib/notification-state'
-import { StatusBadge } from '@/src/components/molecules/status-badge'
+import { StatusBadge, type ReportStatus } from '@/src/components/molecules/status-badge'
 
 type UserDashboardProps = {
   userId: string
@@ -76,12 +76,23 @@ export default async function UserDashbard({
     getNotificationState(userId, 'USER'),
   ])
 
+  type ReportRow = {
+    id: string
+    code: string
+    type: string
+    status: ReportStatus
+    createdAt: Date
+    notes: string | null
+    Message: { id: string; senderId: string; createdAt: Date }[]
+  }
+  const reports = reportsRaw as unknown as ReportRow[]
+
   const cutoffMs = Math.max(
     notificationState?.lastSeenAt?.getTime() ?? 0,
     notificationState?.clearedAt?.getTime() ?? 0,
   )
 
-  const userReports = reportsRaw.filter(r => belongsToUser(r.notes, userId, email ?? null))
+  const userReports = reports.filter(r => belongsToUser(r.notes, userId, email ?? null))
   const activeReports = userReports.filter(r => ['RECEIVED', 'UNDER_REVIEW', 'UNDER_INVESTIGATION'].includes(r.status))
   const latestActiveReport = activeReports[0]
 
@@ -136,7 +147,7 @@ export default async function UserDashbard({
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0">
                   <div className="mb-2 flex flex-wrap items-center gap-2">
-                    <StatusBadge status={latestActiveReport.status as any} />
+                    <StatusBadge status={latestActiveReport.status as ReportStatus} />
                     <span className="text-xs text-gray-400">
                       Submitted {formatDate(latestActiveReport.createdAt)}
                     </span>

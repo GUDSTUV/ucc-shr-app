@@ -10,8 +10,11 @@ const DEFAULT_EVENT_IMAGE = '/icons/default-event.svg'
 const DEFAULT_ARTICLE_IMAGE = '/icons/default-article.svg'
 
 export async function EventsCampaignSection() {
-  let events: any[] = []
-  let articles: any[] = []
+  type EventRow = { id: string; title: string; description: string; image?: string | null; startDate: Date }
+  type ArticleRow = { id: string; slug: string; title: string; category: string; content: string | Record<string, unknown>; coverImage?: string | null }
+
+  let events: EventRow[] = []
+  let articles: ArticleRow[] = []
 
   try {
     const results = await Promise.all([

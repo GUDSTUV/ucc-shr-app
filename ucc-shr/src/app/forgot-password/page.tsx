@@ -33,8 +33,9 @@ export default function ForgotPasswordPage() {
       }
 
       setStatus('success')
-    } catch (err: any) {
-      setErrorMessage(err.message || 'An error occurred')
+    } catch (err: unknown) {
+      if (err instanceof Error) setErrorMessage(err.message)
+      else setErrorMessage('An error occurred')
       setStatus('error')
     }
   }
