@@ -15,7 +15,7 @@ export default function TrackPage() {
   const [result, setResult] = useState<{
     code: string
     type: string
-    status: 'RECEIVED' | 'REVIEWING' | 'REFERRED' | 'RESOLVED' | 'CLOSED'
+    status: 'RECEIVED' | 'UNDER_REVIEW' | 'UNDER_INVESTIGATION' | 'CLOSED'
     description: string
     location: string | null
     createdAt: string
@@ -42,7 +42,7 @@ export default function TrackPage() {
         report?: {
           code: string
           type: string
-          status: 'RECEIVED' | 'REVIEWING' | 'REFERRED' | 'RESOLVED' | 'CLOSED'
+          status: 'RECEIVED' | 'UNDER_REVIEW' | 'UNDER_INVESTIGATION' | 'CLOSED'
           description: string
           location: string | null
           createdAt: string

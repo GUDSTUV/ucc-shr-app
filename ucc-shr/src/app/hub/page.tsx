@@ -17,6 +17,18 @@ import { Phone, ShieldCheck, CheckCircle2 } from 'lucide-react'
 /* ─── Page ─── */
 
 export default async function HubPage() {
+	const contentRecords = await prisma.siteContent.findMany({
+		where: { key: { in: ['awarenessBanner', 'awarenessVideoUrl'] } }
+	})
+
+	const contentMap = contentRecords.reduce((acc, record) => {
+		acc[record.key] = record.value as string
+		return acc
+	}, {} as Record<string, string>)
+
+	const customBanner = contentMap['awarenessBanner']
+	const customVideo = contentMap['awarenessVideoUrl']
+
 	const banners = await prisma.campaignBanner.findMany({
 		where: { isActive: true },
 		orderBy: { createdAt: 'desc' },
@@ -26,8 +38,23 @@ export default async function HubPage() {
 	return (
 		<>
 			<div className="bg-gray-50">
-				{/* ═══ Section 1: Awareness Banner (Carousel) ═══ */}
-				<HeroCarousel banners={banners} />
+				{/* ═══ Section 1: Awareness Banner ═══ */}
+				{customBanner ? (
+					<div className="relative h-64 sm:h-80 lg:h-120 w-full">
+						<img src={customBanner} alt="Awareness Campaign Banner" className="absolute inset-0 h-full w-full object-cover" />
+						<div className="absolute inset-0 bg-black/40" />
+						<div className="absolute inset-0 flex items-center justify-center p-6 text-center">
+							<div>
+								<Text as="span" size="sm" weight="bold" tone="white" className="uppercase tracking-widest text-red-light drop-shadow-md">CEGRAD Campaigns</Text>
+								<Heading as="h1" size={{ base: '4xl', sm: '5xl', lg: '6xl' }} tone="white" weight="bold" className="mt-4 drop-shadow-lg">
+									Awareness & Prevention
+								</Heading>
+							</div>
+						</div>
+					</div>
+				) : (
+					<HeroCarousel banners={banners} />
+				)}
 
 				{/* ═══ Section 2: Quick Stats ═══ */}
 				<section className="border-b border-gray-100 bg-white">
@@ -156,14 +183,28 @@ export default async function HubPage() {
 									</Link>
 								</div>
 							</FadeIn>
-							<FadeIn delay={0.2} className="relative aspect-video w-full overflow-hidden rounded-2xl bg-gray-800 shadow-2xl ring-1 ring-white/10">
-								{/* Placeholder for actual video player or iframe */}
-								<div className="absolute inset-0 flex flex-col items-center justify-center bg-navy/50 backdrop-blur-sm">
-									<div className="flex h-16 w-16 items-center justify-center rounded-full bg-white text-navy shadow-xl transition-transform hover:scale-110 cursor-pointer">
-										<div className="ml-1 h-0 w-0 border-y-8 border-l-[12px] border-y-transparent border-l-navy" />
+							<FadeIn delay={0.2} className="relative aspect-video w-full overflow-hidden rounded-2xl bg-gray-800 shadow-2xl ring-1 ring-white/10 group">
+								{customVideo ? (
+									customVideo.includes('youtube.com') || customVideo.includes('youtu.be') ? (
+										<iframe
+											src={customVideo.replace('watch?v=', 'embed/').replace('youtu.be/', 'www.youtube.com/embed/')}
+											className="absolute inset-0 h-full w-full border-0"
+											allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+											allowFullScreen
+										/>
+									) : (
+										<video controls className="absolute inset-0 h-full w-full object-cover">
+											<source src={customVideo} type="video/mp4" />
+										</video>
+									)
+								) : (
+									<div className="absolute inset-0 flex flex-col items-center justify-center bg-navy/50 backdrop-blur-sm">
+										<div className="flex h-16 w-16 items-center justify-center rounded-full bg-white text-navy shadow-xl transition-transform group-hover:scale-110 cursor-pointer">
+											<div className="ml-1 h-0 w-0 border-y-8 border-l-[12px] border-y-transparent border-l-navy" />
+										</div>
+										<Text as="span" size="sm" weight="medium" tone="white" className="mt-4 opacity-80">Play Campaign Video</Text>
 									</div>
-									<Text as="span" size="sm" weight="medium" tone="white" className="mt-4 opacity-80">Play Campaign Video</Text>
-								</div>
+								)}
 							</FadeIn>
 						</div>
 					</div>

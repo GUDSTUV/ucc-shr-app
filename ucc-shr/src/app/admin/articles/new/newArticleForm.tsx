@@ -109,97 +109,95 @@ export function NewArticleForm() {
   }
 
   return (
-    <AdminLayout title="Create New Article">
-      <form
-        onSubmit={(event) => {
-          event.preventDefault()
-          void handleSubmit('publish')
-        }}
-        className="mx-auto max-w-3xl space-y-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"
-      >
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="sm:col-span-2">
-            <label className="mb-1 block text-sm font-semibold text-gray-700">Display Title</label>
-            <Input
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-              placeholder="Enter article title"
-              className="border-gray-200"
-              maxLength={180}
-              required
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-semibold text-gray-700">Category</label>
-            <Select
-              value={category}
-              onChange={(event) => setCategory(event.target.value as Category)}
-              className="border-gray-200"
-            >
-              <option value="Awareness">Awareness</option>
-              <option value="Rights">Know Your Rights</option>
-            </Select>
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-semibold text-gray-700">Cover Image</label>
-            <input
-              type="file"
-              accept="image/png,image/jpeg,image/webp"
-              onChange={(event) => setCoverFile(event.target.files?.[0] ?? null)}
-              className="block h-12 w-full rounded-[10px] border-[1.5px] border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 file:mr-3 file:rounded-md file:border-0 file:bg-navy file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white hover:file:bg-navy-dark"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="mb-1 block text-sm font-semibold text-gray-700">Card Summary</label>
-          <Textarea
-            value={summary}
-            onChange={(event) => setSummary(event.target.value)}
-            placeholder="Short summary shown on the Posts & Events card"
-            rows={3}
+    <form
+      onSubmit={(event) => {
+        event.preventDefault()
+        void handleSubmit('publish')
+      }}
+      className="mx-auto max-w-3xl space-y-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"
+    >
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="sm:col-span-2">
+          <label className="mb-1 block text-sm font-semibold text-gray-700">Display Title</label>
+          <Input
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
+            placeholder="Enter article title"
             className="border-gray-200"
-            maxLength={300}
-          />
-        </div>
-
-        <div>
-          <label className="mb-1 block text-sm font-semibold text-gray-700">Article Content</label>
-          <Textarea
-            value={content}
-            onChange={(event) => setContent(event.target.value)}
-            placeholder="Write the full article content..."
-            rows={12}
-            className="border-gray-200"
+            maxLength={180}
             required
           />
         </div>
 
-        {error ? (
-          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
-        ) : null}
-
-        <div className="flex flex-wrap items-center gap-3 pt-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            loading={submittingMode === 'draft'}
-            disabled={Boolean(submittingMode)}
-            onClick={() => void handleSubmit('draft')}
+        <div>
+          <label className="mb-1 block text-sm font-semibold text-gray-700">Category</label>
+          <Select
+            value={category}
+            onChange={(event) => setCategory(event.target.value as Category)}
+            className="border-gray-200"
           >
-            Save Draft
-          </Button>
-          <Button type="submit" size="sm" loading={submittingMode === 'publish'} disabled={Boolean(submittingMode)}>
-            Publish Article
-          </Button>
-          <Link href="/admin/articles" className="text-sm font-semibold text-navy hover:text-navy-dark">
-            Back to Articles
-          </Link>
+            <option value="Awareness">Awareness</option>
+            <option value="Rights">Know Your Rights</option>
+          </Select>
         </div>
-      </form>
-    </AdminLayout>
+
+        <div>
+          <label className="mb-1 block text-sm font-semibold text-gray-700">Cover Image</label>
+          <input
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            onChange={(event) => setCoverFile(event.target.files?.[0] ?? null)}
+            className="block h-12 w-full rounded-[10px] border-[1.5px] border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 file:mr-3 file:rounded-md file:border-0 file:bg-navy file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white hover:file:bg-navy-dark"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className="mb-1 block text-sm font-semibold text-gray-700">Card Summary</label>
+        <Textarea
+          value={summary}
+          onChange={(event) => setSummary(event.target.value)}
+          placeholder="Short summary shown on the Posts & Events card"
+          rows={3}
+          className="border-gray-200"
+          maxLength={300}
+        />
+      </div>
+
+      <div>
+        <label className="mb-1 block text-sm font-semibold text-gray-700">Article Content</label>
+        <Textarea
+          value={content}
+          onChange={(event) => setContent(event.target.value)}
+          placeholder="Write the full article content..."
+          rows={12}
+          className="border-gray-200"
+          required
+        />
+      </div>
+
+      {error ? (
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
+      ) : null}
+
+      <div className="flex flex-wrap items-center gap-3 pt-2">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          loading={submittingMode === 'draft'}
+          disabled={Boolean(submittingMode)}
+          onClick={() => void handleSubmit('draft')}
+        >
+          Save Draft
+        </Button>
+        <Button type="submit" size="sm" loading={submittingMode === 'publish'} disabled={Boolean(submittingMode)}>
+          Publish Article
+        </Button>
+        <Link href="/admin/articles" className="text-sm font-semibold text-navy hover:text-navy-dark">
+          Back to Articles
+        </Link>
+      </div>
+    </form>
   )
 }

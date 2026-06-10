@@ -1,8 +1,13 @@
-import { requireSuperAdmin } from '@/src/lib/auth/guards'
+import { requireAdmin } from '@/src/lib/auth/guards'
+import { AdminLayout } from '@/src/components/templates/admin-layout'
 import { NewArticleForm } from './newArticleForm'
 
 export default async function NewArticlePage() {
-  await requireSuperAdmin()
+  await requireAdmin()
 
-  return <NewArticleForm />
+  return (
+    <AdminLayout title="Create New Article">
+      <NewArticleForm />
+    </AdminLayout>
+  )
 }

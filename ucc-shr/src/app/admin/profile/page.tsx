@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { AdminLayout } from '@/src/components/templates/admin-layout'
 import { Button } from '@/src/components/atoms/button'
 import { Input } from '@/src/components/atoms/input'
-import { requireSuperAdmin } from '@/src/lib/auth/guards'
+import { requireAdmin } from '@/src/lib/auth/guards'
 import { prisma } from '@/src/lib/prisma'
 
 type PageProps = {
@@ -39,7 +39,7 @@ function isInstitutionalEmail(email: string) {
 }
 
 export default async function AdminProfilePage({ searchParams }: PageProps) {
-  const session = await requireSuperAdmin()
+  const session = await requireAdmin()
 
   const params = searchParams ? await searchParams : undefined
   const status = params?.status ?? ''
@@ -63,7 +63,7 @@ export default async function AdminProfilePage({ searchParams }: PageProps) {
   async function updateAdminProfile(formData: FormData) {
     'use server'
 
-    const actionSession = await requireSuperAdmin()
+    const actionSession = await requireAdmin()
 
     const nextName = sanitizeText(String(formData.get('name') ?? ''), 80)
     const nextEmail = sanitizeText(String(formData.get('email') ?? ''), 160).toLowerCase()

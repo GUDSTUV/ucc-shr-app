@@ -82,7 +82,7 @@ export default async function UserDashbard({
   )
 
   const userReports = reportsRaw.filter(r => belongsToUser(r.notes, userId, email ?? null))
-  const activeReports = userReports.filter(r => ['RECEIVED', 'REVIEWING', 'REFERRED'].includes(r.status))
+  const activeReports = userReports.filter(r => ['RECEIVED', 'UNDER_REVIEW', 'UNDER_INVESTIGATION'].includes(r.status))
   const latestActiveReport = activeReports[0]
 
   // Calculate unread admin updates (notifications)

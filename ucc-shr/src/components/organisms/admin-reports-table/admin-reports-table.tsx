@@ -87,7 +87,7 @@ function SortHeader({
   )
 }
 
-export function RecentReportsTable({
+export function AdminReportsTable({
   reports,
 }: {
   reports: RecentReport[]
@@ -114,7 +114,7 @@ export function RecentReportsTable({
         </thead>
         <tbody>
           {reports.map((report) => (
-            <tr key={report.id} className="border-t border-gray-100 align-top text-[15px] text-gray-800">
+            <tr key={report.id} className="border-t border-gray-100 align-top text-[15px] text-gray-800 transition-colors hover:bg-gray-50/80">
               <td className="px-4 py-5">
                 <p className="font-semibold text-gray-900">{report.id}</p>
                 <p className="text-sm text-gray-700">{report.submittedAt}</p>

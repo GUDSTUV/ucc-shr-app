@@ -14,7 +14,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/src/components/atoms/button'
 
-type UserReportStatus = 'RECEIVED' | 'REVIEWING' | 'REFERRED' | 'RESOLVED' | 'CLOSED'
+type UserReportStatus = 'RECEIVED' | 'UNDER_REVIEW' | 'UNDER_INVESTIGATION' | 'CLOSED'
 
 type UserReport = {
   code: string
@@ -34,29 +34,25 @@ const reportStatusStyles: Record<
     label: 'Submitted',
     chip: 'bg-navy-light text-navy border border-navy/20',
   },
-  REVIEWING: {
+  UNDER_REVIEW: {
     label: 'Under review',
     chip: 'bg-red-light text-red-dark border border-red/30',
   },
-  REFERRED: {
+  UNDER_INVESTIGATION: {
     label: 'Referred',
     chip: 'bg-orange-100 text-orange-800 border border-orange-200',
   },
-  RESOLVED: {
+  CLOSED: {
     label: 'Resolved',
     chip: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
   },
-  CLOSED: {
-    label: 'Closed',
-    chip: 'bg-gray-100 text-gray-700 border border-gray-200',
-  },
 }
 
-type ReportTab = 'ACTIVE' | 'RESOLVED'
+type ReportTab = 'ACTIVE' | 'CLOSED'
 
 const tabs: Array<{ key: ReportTab; label: string }> = [
   { key: 'ACTIVE', label: 'Active Cases' },
-  { key: 'RESOLVED', label: 'Resolved Cases' },
+  { key: 'CLOSED', label: 'Resolved Cases' },
 ]
 
 function formatSubmittedDate(value: string) {
@@ -70,14 +66,14 @@ function formatSubmittedDate(value: string) {
 }
 
 function getCardIcon(status: UserReport['status']) {
-  if (status === 'REVIEWING' || status === 'REFERRED') return <MessageSquare size={19} />
-  if (status === 'RESOLVED' || status === 'CLOSED') return <CheckCircle2 size={19} />
+  if (status === 'UNDER_REVIEW' || status === 'UNDER_INVESTIGATION') return <MessageSquare size={19} />
+  if (status === 'CLOSED') return <CheckCircle2 size={19} />
   if (status === 'RECEIVED') return <Search size={19} />
   return <FileText size={19} />
 }
 
 function reportActionLabel(status: UserReport['status']) {
-  return status === 'RESOLVED' || status === 'CLOSED' ? 'View Summary' : 'View Details'
+  return status === 'CLOSED' ? 'View Summary' : 'View Details'
 }
 
 function ReportsCard({ report }: { report: UserReport }) {
@@ -132,8 +128,8 @@ export default function UserReports({ reports }: UserReportsProps) {
 
   const filteredReports = useMemo(() => {
     return selectedTab === 'ACTIVE'
-      ? sortedReports.filter((report) => report.status !== 'RESOLVED' && report.status !== 'CLOSED')
-      : sortedReports.filter((report) => report.status === 'RESOLVED' || report.status === 'CLOSED')
+      ? sortedReports.filter((report) => report.status !== 'CLOSED')
+      : sortedReports.filter((report) => report.status === 'CLOSED')
   }, [selectedTab, sortedReports])
 
   return (

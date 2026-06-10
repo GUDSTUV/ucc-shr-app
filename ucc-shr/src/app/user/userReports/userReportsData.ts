@@ -1,4 +1,4 @@
-export type ReportStatus = 'SUBMITTED' | 'UNDER_REVIEW' | 'INVESTIGATION' | 'RESOLVED'
+export type ReportStatus = 'SUBMITTED' | 'UNDER_REVIEW' | 'INVESTIGATION' | 'CLOSED'
 
 export type ReportTimelineItem = {
 	title: string
@@ -36,7 +36,7 @@ export const reportStatusStyles: Record<
 		label: 'Investigation',
 		chip: 'bg-amber-50 text-amber-700 border border-amber-200',
 	},
-	RESOLVED: {
+	CLOSED: {
 		label: 'Resolved',
 		chip: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
 	},
@@ -114,7 +114,7 @@ export const userReportsMock: UserReport[] = [
 	{
 		id: 'UCC-7942',
 		title: 'Persistent online sexual harassment in class group chat',
-		status: 'RESOLVED',
+		status: 'CLOSED',
 		submittedAt: '2026-03-11T08:20:00Z',
 		zone: 'Department WhatsApp group',
 		summary: 'Case closed after documented sanctions and digital conduct directives were issued.',

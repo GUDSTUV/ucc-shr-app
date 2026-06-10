@@ -54,13 +54,22 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }
 
         // Enforce separated auth entry points for admin and user apps.
-        if (portal === 'admin' && user.role !== 'SUPER_ADMIN') {
+        if (portal === 'admin' && user.role !== 'SUPER_ADMIN' && user.role !== 'ADMIN') {
           return null
         }
 
-        if (portal === 'user' && user.role === 'SUPER_ADMIN') {
+        if (portal === 'user' && (user.role === 'SUPER_ADMIN' || user.role === 'ADMIN')) {
           return null
         }
+
+        if (user.role === 'SUSPENDED') {
+          return null
+        }
+
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { lastLoginAt: new Date() }
+        })
 
         return {
           id: user.id,
@@ -83,8 +92,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           select: { id: true, role: true },
         })
 
-        // Block SUPER_ADMIN from signing in via Google on the user portal
-        if (existing?.role === 'SUPER_ADMIN') return '/login?error=AccessDenied'
+        // Block SUPER_ADMIN and ADMIN from signing in via Google on the user portal
+        if (existing?.role === 'SUPER_ADMIN' || existing?.role === 'ADMIN') return '/login?error=AccessDenied'
+
+        if (existing?.role === 'SUSPENDED') return '/login?error=AccessDenied'
 
         if (!existing) {
           await prisma.user.create({
@@ -93,7 +104,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               name: user.name ?? email.split('@')[0],
               image: user.image ?? null,
               role: 'STAFF',
+              lastLoginAt: new Date(),
             },
+          })
+        } else {
+          await prisma.user.update({
+            where: { id: existing.id },
+            data: { lastLoginAt: new Date() }
           })
         }
       }

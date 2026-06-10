@@ -26,7 +26,7 @@ function updateQuery(
   return query ? `${pathname}?${query}` : pathname
 }
 
-export function RecentReportFilters() {
+export function AdminReportFilters() {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -81,8 +81,8 @@ export function RecentReportFilters() {
       >
         <option value="">All statuses</option>
         <option value="RECEIVED">Received</option>
-        <option value="REVIEWING">Reviewing</option>
-        <option value="RESOLVED">Resolved</option>
+        <option value="UNDER_REVIEW">Reviewing</option>
+        <option value="CLOSED">Resolved</option>
         <option value="CLOSED">Closed</option>
       </Select>
 

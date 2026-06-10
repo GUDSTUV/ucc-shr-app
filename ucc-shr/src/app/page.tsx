@@ -3,6 +3,7 @@ import dynamic from 'next/dynamic'
 import { HeroSection } from '@/src/components/organisms/hero-section'
 import { WhyReportingSection } from '@/src/components/organisms/why-reporting'
 import { HarassmentTypesSection } from '@/src/components/organisms/harassment-types'
+import { prisma } from '@/src/lib/prisma'
 
 const ReportingProcessSection = dynamic(() => import('@/src/components/organisms/reporting-process').then(mod => mod.ReportingProcessSection))
 const AwarenessPreviewSection = dynamic(() => import('@/src/components/organisms/awareness-preview').then(mod => mod.AwarenessPreviewSection))
@@ -11,17 +12,34 @@ const FaqSection = dynamic(() => import('@/src/components/organisms/faq-section'
 const ContactSection = dynamic(() => import('@/src/components/organisms/contact-section').then(mod => mod.ContactSection))
 const Footer = dynamic(() => import('@/src/components/organisms/Footer').then(mod => mod.Footer))
 
-export default function HomePage() {
+export default async function HomePage() {
+  const activeBanners = await prisma.campaignBanner.findMany({
+    where: { isActive: true },
+    orderBy: { createdAt: 'desc' }
+  })
+
+  const mappedBanners = activeBanners.map(b => ({
+    id: b.id,
+    imageUrl: b.imageUrl,
+    title: b.title,
+    linkUrl: b.linkUrl,
+  }))
+
+  const contentRecords = await prisma.siteContent.findMany({
+    where: { key: 'faqs' }
+  })
+  const customFaqs = Array.isArray(contentRecords[0]?.value) ? contentRecords[0].value as any : undefined
+
   return (
     <>
-      <HeroSection />
+      <HeroSection banners={mappedBanners} />
       <WhyReportingSection />
       <HarassmentTypesSection />
       <ReportingProcessSection />
       <AwarenessPreviewSection />
       <EventsCampaignSection />
       {/* <SurvivorSupportStories showSubmissionForm={false} /> */}
-      <FaqSection featuredOnly={true} />
+      <FaqSection featuredOnly={true} customFaqs={customFaqs} />
       <ContactSection />
       <Footer />
     </>

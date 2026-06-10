@@ -1,5 +1,5 @@
 'use client'
-import { LayoutDashboard, FileText, CalendarDays, Flag, BellRing, UserCircle2, Settings, BarChart3 } from 'lucide-react'
+import { LayoutDashboard, FileText, CalendarDays, Flag, BellRing, UserCircle2, Settings, BarChart3, Users, Image as ImageIcon, Globe } from 'lucide-react'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { signOut } from 'next-auth/react'
@@ -14,6 +14,9 @@ const items = [
   { href: '/admin/notifications', label: 'Notifications', icon: <BellRing size={16} /> },
   { href: '/admin/articles', label: 'Articles', icon: <FileText size={16} /> },
   { href: '/admin/events', label: 'Events', icon: <CalendarDays size={16} /> },
+  { href: '/admin/banners', label: 'Banners', icon: <ImageIcon size={16} /> },
+  { href: '/admin/site-content', label: 'Site Content', icon: <Globe size={16} /> },
+  { href: '/admin/team', label: 'Team', icon: <Users size={16} /> },
 ]
 
 const accountItems = [
@@ -23,39 +26,53 @@ const accountItems = [
 
 type AdminSidebarProps = {
   unreadNotificationsCount?: number
+  userRole?: string
 }
 
-export function AdminSidebar({ unreadNotificationsCount }: AdminSidebarProps) {
+export function AdminSidebar({ unreadNotificationsCount, userRole = 'ADMIN' }: AdminSidebarProps) {
   const pathname = usePathname()
+
+  const visibleItems = items.filter(item => {
+    if (userRole === 'SUPER_ADMIN') return true
+    // Standard ADMIN can only see Dashboard, Reports, Notifications
+    return ['/admin', '/admin/reports', '/admin/notifications'].includes(item.href)
+  })
+
+  const visibleAccountItems = accountItems.filter(item => {
+    if (userRole === 'SUPER_ADMIN') return true
+    return item.href === '/admin/profile'
+  })
 
   async function handleLogout() {
     await signOut({ callbackUrl: '/admin/login' })
   }
 
   return (
-    <aside className="hidden w-72 shrink-0 border-r border-gray-200 bg-white md:block">
-      <div className="sticky top-0 flex h-dvh flex-col p-4">
-        <div className="mb-5 rounded-xl border border-navy/15 bg-navy-light px-3 py-3">
-          <div className="flex items-center gap-3">
-            <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-white/70">
-              <Image
-                src="/icons/logo.svg"
-                alt="CEGRAD logo"
-                width={30}
-                height={30}
-                priority
-                className="h-7.5 w-7.5"
-              />
-            </span>
-            <div>
-              <Text size="xs" weight="semibold" tone="navy" className="uppercase tracking-[0.14em]">CEGRAD UCC</Text>
-              <Text size="base" weight="semibold" className="mt-1 text-navy-dark">Admin Console</Text>
+    <aside className="hidden w-72 shrink-0 border-r border-gray-200 bg-white md:block print:hidden">
+      <div className="sticky top-0 flex h-dvh flex-col py-4">
+        <div className="mb-4 shrink-0 px-4">
+          <div className="rounded-xl border border-navy/15 bg-navy-light px-3 py-3">
+            <div className="flex items-center gap-3">
+              <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/70">
+                <Image
+                  src="/icons/logo.svg"
+                  alt="CEGRAD logo"
+                  width={30}
+                  height={30}
+                  priority
+                  className="h-7.5 w-7.5"
+                />
+              </span>
+              <div>
+                <Text size="xs" weight="semibold" tone="navy" className="uppercase tracking-[0.14em]">CEGRAD UCC</Text>
+                <Text size="base" weight="semibold" className="mt-1 text-navy-dark">Admin Console</Text>
+              </div>
             </div>
           </div>
         </div>
 
-        <nav aria-label="Admin navigation" className="space-y-1.5">
-          {items.map((item) => (
+        <nav aria-label="Admin navigation" className="flex-1 space-y-1.5 overflow-y-auto px-4 pb-2 scrollbar-thin scrollbar-thumb-gray-200 hover:scrollbar-thumb-gray-300">
+          {visibleItems.map((item) => (
             <NavItem
               key={item.href}
               {...item}
@@ -69,15 +86,10 @@ export function AdminSidebar({ unreadNotificationsCount }: AdminSidebarProps) {
           ))}
         </nav>
 
-        <div className="mt-6 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-700">
-          <Text weight="semibold" tone="default">Confidential Environment</Text>
-          <Text className="mt-1 leading-relaxed">Handle all reports under approved institutional protocols.</Text>
-        </div>
-
-        <div className="mt-auto pt-4">
-          <div className="rounded-xl border border-gray-200 bg-white p-2">
+        <div className="mt-auto shrink-0 border-t border-gray-100 bg-white px-4 pt-4">
+          <div className="rounded-xl border border-gray-200 bg-gray-50/50 p-2">
             <nav aria-label="Admin account" className="space-y-1">
-              {accountItems.map((item) => (
+              {visibleAccountItems.map((item) => (
                 <NavItem
                   key={item.href}
                   {...item}
@@ -91,7 +103,7 @@ export function AdminSidebar({ unreadNotificationsCount }: AdminSidebarProps) {
               onClick={handleLogout}
               variant="outline"
               fullWidth
-              className="mt-2 bg-white text-gray-800 border-gray-200 hover:bg-gray-100"
+              className="mt-2 border-gray-200 bg-white text-gray-800 hover:bg-gray-100"
             >
               Logout
             </Button>

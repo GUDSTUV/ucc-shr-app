@@ -3,7 +3,7 @@ import { BellRing, Clock3 } from 'lucide-react'
 import { revalidatePath } from 'next/cache'
 import { AdminLayout } from '@/src/components/templates/admin-layout'
 import { Button } from '@/src/components/atoms/button'
-import { requireSuperAdmin } from '@/src/lib/auth/guards'
+import { requireAdmin } from '@/src/lib/auth/guards'
 import { prisma } from '@/src/lib/prisma'
 import {
   clearNotificationDismissed,
@@ -33,7 +33,7 @@ function formatRelativeTime(value: Date) {
 }
 
 export default async function AdminNotificationsPage({ searchParams }: PageProps) {
-  const session = await requireSuperAdmin()
+  const session = await requireAdmin()
 
   const params = await searchParams
   const activeTab = params.tab === 'unread' ? 'unread' : 'all'
@@ -93,7 +93,7 @@ export default async function AdminNotificationsPage({ searchParams }: PageProps
   async function clearAllNotifications() {
     'use server'
 
-    const actionSession = await requireSuperAdmin()
+    const actionSession = await requireAdmin()
 
     const now = new Date()
     await clearNotificationReads(actionSession.user.id, 'ADMIN')
@@ -110,7 +110,7 @@ export default async function AdminNotificationsPage({ searchParams }: PageProps
   async function clearSingleNotification(formData: FormData) {
     'use server'
 
-    const actionSession = await requireSuperAdmin()
+    const actionSession = await requireAdmin()
 
     const notificationId = String(formData.get('notificationId') ?? '').trim()
     if (!notificationId) {

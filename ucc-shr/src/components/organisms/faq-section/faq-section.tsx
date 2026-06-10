@@ -100,7 +100,11 @@ function FaqAccordionItem({
   )
 }
 
-export function FaqSection({ showHelpLink = true, featuredOnly = false }: { showHelpLink?: boolean; featuredOnly?: boolean }) {
+type FAQType = { question: string; answer: string }
+
+export function FaqSection({ showHelpLink = true, featuredOnly = false, customFaqs }: { showHelpLink?: boolean; featuredOnly?: boolean; customFaqs?: FAQType[] }) {
+  const activeFaqs = customFaqs && customFaqs.length > 0 ? customFaqs : faqs
+
   return (
     <section className="bg-white py-16 lg:py-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -132,7 +136,7 @@ export function FaqSection({ showHelpLink = true, featuredOnly = false }: { show
           viewport={{ once: true, margin: '-80px' }}
           className="mx-auto mt-10 max-w-3xl space-y-3"
         >
-          {faqs
+          {activeFaqs
             .filter((_, i) => (featuredOnly ? [0, 1, 5].includes(i) : true))
             .map((faq, i) => (
               <FaqAccordionItem

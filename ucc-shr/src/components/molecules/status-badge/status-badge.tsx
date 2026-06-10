@@ -1,13 +1,12 @@
 import { Badge } from '@/src/components/atoms/badge'
 
-export type ReportStatus = 'RECEIVED' | 'REVIEWING' | 'REFERRED' | 'RESOLVED' | 'CLOSED'
+export type ReportStatus = 'RECEIVED' | 'UNDER_REVIEW' | 'UNDER_INVESTIGATION' | 'CLOSED'
 
 const config: Record<ReportStatus, { label: string; variant: 'navy' | 'warning' | 'success' | 'gray' }> = {
   RECEIVED: { label: 'Received', variant: 'navy' },
-  REVIEWING: { label: 'Reviewing', variant: 'warning' },
-  REFERRED: { label: 'Referred', variant: 'warning' },
-  RESOLVED: { label: 'Resolved', variant: 'success' },
-  CLOSED: { label: 'Closed', variant: 'gray' },
+  UNDER_REVIEW: { label: 'Reviewing', variant: 'warning' },
+  UNDER_INVESTIGATION: { label: 'Referred', variant: 'warning' },
+  CLOSED: { label: 'Resolved', variant: 'success' },
 }
 
 export interface StatusBadgeProps {

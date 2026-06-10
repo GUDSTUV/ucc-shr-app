@@ -1,3 +1,4 @@
+import { auth } from '@/src/lib/auth/auth'
 import { AdminSidebar } from '@/src/components/organisms/admin-sidebar'
 import { Heading } from '@/src/components/atoms/heading/heading'
 import { Text } from '@/src/components/atoms/text/text'
@@ -10,13 +11,16 @@ interface AdminLayoutProps {
   actions?: React.ReactNode
 }
 
-export function AdminLayout({
+export async function AdminLayout({
   title,
   description,
   children,
   unreadNotificationsCount,
   actions,
 }: AdminLayoutProps) {
+  const session = await auth()
+  const userRole = session?.user?.role as string | undefined
+
   return (
     <div className="flex min-h-dvh bg-gray-50 font-sans text-[15px] text-gray-900">
       <a
@@ -26,11 +30,11 @@ export function AdminLayout({
         Skip to main content
       </a>
 
-      <AdminSidebar unreadNotificationsCount={unreadNotificationsCount} />
+      <AdminSidebar unreadNotificationsCount={unreadNotificationsCount} userRole={userRole} />
 
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto flex min-h-dvh w-full max-w-310 flex-col px-4 py-5 sm:px-6 lg:px-8">
-          <header className="mb-5 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-5">
+          <header className="mb-5 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-5 print:hidden">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <Heading as="h1" size={{ base: '2xl', sm: '3xl' }} weight="bold" tone="navy" className="tracking-tight">{title}</Heading>
@@ -40,11 +44,11 @@ export function AdminLayout({
             </div>
           </header>
 
-          <main id="admin-main-content" className="flex-1">
+          <main id="admin-main-content" className="flex-1 print:m-0 print:p-0">
             {children}
           </main>
 
-          <footer className="mt-8 border-t border-gray-200 pt-4 text-sm text-gray-600">
+          <footer className="mt-8 border-t border-gray-200 pt-4 text-sm text-gray-600 print:hidden">
             <Text as="p">UCC CEGRAD Admin Dashboard</Text>
             <Text as="p" className="mt-1">Confidential case data. Access for authorized staff only.</Text>
           </footer>

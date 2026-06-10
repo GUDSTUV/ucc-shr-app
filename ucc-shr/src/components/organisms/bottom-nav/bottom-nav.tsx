@@ -50,18 +50,31 @@ export function BottomNav({ user }: BottomNavProps) {
               icon={<Flag size={24} strokeWidth={2.5} />}
               active={path.startsWith('/report')}
             />
-            <MobileNavItem
-              href="/user/userDashboard"
-              label="Dashboard"
-              icon={<LayoutDashboard size={20} strokeWidth={2.3} />}
-              active={path === '/user/userDashboard'}
-            />
-            <MobileNavItem
-              href="/user/userReports"
-              label="My Reports"
-              icon={<FileText size={20} strokeWidth={2.3} />}
-              active={path.startsWith('/user/userReports')}
-            />
+            {user.role === 'ADMIN' || user.role === 'SUPER_ADMIN' ? (
+              <>
+                <MobileNavItem
+                  href="/admin"
+                  label="Admin Portal"
+                  icon={<LayoutDashboard size={20} strokeWidth={2.3} />}
+                  active={false}
+                />
+              </>
+            ) : (
+              <>
+                <MobileNavItem
+                  href="/user/userDashboard"
+                  label="Dashboard"
+                  icon={<LayoutDashboard size={20} strokeWidth={2.3} />}
+                  active={path === '/user/userDashboard'}
+                />
+                <MobileNavItem
+                  href="/user/userReports"
+                  label="My Reports"
+                  icon={<FileText size={20} strokeWidth={2.3} />}
+                  active={path.startsWith('/user/userReports')}
+                />
+              </>
+            )}
           </>
         ) : (
           // Unauthenticated Bottom Nav: Home, Awareness, Report, About, Sign In

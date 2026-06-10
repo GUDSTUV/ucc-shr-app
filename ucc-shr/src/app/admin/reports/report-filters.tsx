@@ -47,7 +47,7 @@ export function ReportFilters({
   }
 
   return (
-    <div className="grid grid-cols-1 gap-2.5 md:grid-cols-5">
+    <div className="grid grid-cols-1 gap-2.5 md:grid-cols-4">
       <Input
         defaultValue={currentQ}
         onChange={(e) => {
@@ -65,13 +65,7 @@ export function ReportFilters({
         aria-label="Search reports"
       />
 
-      <Select value={currentStatus} onChange={(e) => pushFilters({ status: e.target.value })} className="h-11 text-base" aria-label="Filter by status">
-        <option value="">Status: All</option>
-        <option value="RECEIVED">Received</option>
-        <option value="REVIEWING">Reviewing</option>
-        <option value="RESOLVED">Resolved</option>
-        <option value="CLOSED">Closed</option>
-      </Select>
+
 
       <Select value={currentType} onChange={(e) => pushFilters({ type: e.target.value })} className="h-11 text-base" aria-label="Filter by category">
         <option value="">Category: All</option>

@@ -1,14 +1,16 @@
 import { notFound } from 'next/navigation'
-import { requireSuperAdmin } from '@/src/lib/auth/guards'
+import { requireAdmin } from '@/src/lib/auth/guards'
 import { prisma } from '@/src/lib/prisma'
 import { EditEventForm } from './editEventForm'
+
+import { AdminLayout } from '@/src/components/templates/admin-layout'
 
 type PageProps = {
   params: Promise<{ id: string }>
 }
 
 export default async function EditEventPage({ params }: PageProps) {
-  await requireSuperAdmin()
+  await requireAdmin()
 
   const { id } = await params
   const event = await prisma.event.findUnique({
@@ -30,5 +32,9 @@ export default async function EditEventPage({ params }: PageProps) {
     notFound()
   }
 
-  return <EditEventForm event={{ ...event, image: event.image ?? '/icons/default-event.svg' }} />
+  return (
+    <AdminLayout title="Edit Event">
+      <EditEventForm event={{ ...event, image: event.image ?? '/icons/default-event.svg' }} />
+    </AdminLayout>
+  )
 }

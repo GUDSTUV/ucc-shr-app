@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { AdminLayout } from '@/src/components/templates/admin-layout'
 import { Button } from '@/src/components/atoms/button'
 import { Input } from '@/src/components/atoms/input'
-import { requireSuperAdmin } from '@/src/lib/auth/guards'
+import { requireAdmin, requireSuperAdmin } from '@/src/lib/auth/guards'
 import { prisma } from '@/src/lib/prisma'
 import {
   clearNotificationDismissed,
@@ -80,7 +80,7 @@ export default async function AdminSettingsPage({ searchParams }: PageProps) {
   async function clearAdminFeed() {
     'use server'
 
-    const actionSession = await requireSuperAdmin()
+    const actionSession = await requireAdmin()
 
     const now = new Date()
     await clearNotificationReads(actionSession.user.id, 'ADMIN')
@@ -99,7 +99,7 @@ export default async function AdminSettingsPage({ searchParams }: PageProps) {
   async function markFeedAsSeen() {
     'use server'
 
-    const actionSession = await requireSuperAdmin()
+    const actionSession = await requireAdmin()
 
     await upsertNotificationState(actionSession.user.id, 'ADMIN', {
       lastSeenAt: new Date(),
@@ -113,7 +113,7 @@ export default async function AdminSettingsPage({ searchParams }: PageProps) {
   async function changePassword(formData: FormData) {
     'use server'
 
-    const actionSession = await requireSuperAdmin()
+    const actionSession = await requireAdmin()
 
     const currentPassword = String(formData.get('currentPassword') ?? '')
     const nextPassword = String(formData.get('newPassword') ?? '')

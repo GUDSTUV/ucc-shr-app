@@ -32,7 +32,11 @@ const boardMembers = [
   },
 ]
 
-export function AboutBoard() {
+type BoardMember = { id?: number; name: string; role: string; bio: string; initials: string; imageUrl?: string }
+
+export function AboutBoard({ customMembers }: { customMembers?: BoardMember[] }) {
+  const activeMembers = customMembers && customMembers.length > 0 ? customMembers : boardMembers
+
   return (
     <section className="bg-white py-16 lg:py-20">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -46,14 +50,18 @@ export function AboutBoard() {
           </div>
 
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {boardMembers.map((member) => (
+            {activeMembers.map((member, i) => (
               <div
-                key={member.id}
+                key={member.id || i}
                 className="group flex flex-col items-center rounded-2xl border border-gray-100 bg-white p-6 text-center shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
               >
-                <div className="mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-navy-light/20 text-2xl font-bold text-navy transition-colors group-hover:bg-navy group-hover:text-white">
-                  {member.initials}
-                </div>
+                {member.imageUrl ? (
+                  <img src={member.imageUrl} alt={member.name} className="mb-4 h-24 w-24 rounded-full object-cover border-2 border-navy/20" />
+                ) : (
+                  <div className="mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-navy-light/20 text-2xl font-bold text-navy transition-colors group-hover:bg-navy group-hover:text-white">
+                    {member.initials}
+                  </div>
+                )}
                 <Text as="h3" size="lg" weight="bold" tone="navy">{member.name}</Text>
                 <Text size="sm" weight="medium" className="text-red">{member.role}</Text>
                 <Text size="sm" tone="muted" className="mt-3 leading-relaxed text-gray-500">

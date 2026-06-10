@@ -8,7 +8,7 @@ import { Textarea } from '@/src/components/atoms/textarea'
 
 type AdminReportUpdateFormProps = {
   code: string
-  currentStatus: 'RECEIVED' | 'REVIEWING' | 'REFERRED' | 'RESOLVED' | 'CLOSED'
+  currentStatus: 'RECEIVED' | 'UNDER_REVIEW' | 'UNDER_INVESTIGATION' | 'CLOSED'
   counsellors: Array<{ id: string; label: string }>
   currentCounsellorId: string | null
 }
@@ -79,9 +79,8 @@ export function AdminReportUpdateForm({
           className="mt-2 h-11 text-base"
         >
           <option value="RECEIVED">Received</option>
-          <option value="REVIEWING">Reviewing</option>
-          <option value="REFERRED">Referred (Police/DOPSU)</option>
-          <option value="RESOLVED">Resolved</option>
+          <option value="UNDER_REVIEW">Review & Support (Chat Stage)</option>
+          <option value="UNDER_INVESTIGATION">Investigation (Office/Board)</option>
           <option value="CLOSED">Closed</option>
         </Select>
       </div>

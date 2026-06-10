@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "dev:turbo": "next dev",
+    "dev:turbo": "next dev --turbo",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
@@ -29,6 +29,7 @@
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-hook-form": "^7.71.2",
+    "react-hot-toast": "^2.6.0",
     "recharts": "^3.8.0",
     "resend": "^6.12.4",
     "zod": "^4.3.6",

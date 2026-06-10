@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
-import { requireSuperAdmin } from '@/src/lib/auth/guards'
+import { requireAdmin } from '@/src/lib/auth/guards'
 import { prisma } from '@/src/lib/prisma'
+import { AdminLayout } from '@/src/components/templates/admin-layout'
 import { EditArticleForm } from './editArticleForm'
 
 type PageProps = {
@@ -8,7 +9,7 @@ type PageProps = {
 }
 
 export default async function EditArticlePage({ params }: PageProps) {
-  await requireSuperAdmin()
+  await requireAdmin()
 
   const { id } = await params
 
@@ -33,14 +34,16 @@ export default async function EditArticlePage({ params }: PageProps) {
   const body = rest.join('\n\n') || contentText
 
   return (
-    <EditArticleForm
-      articleId={article.id}
-      initialTitle={article.title}
-      initialCategory={article.category === 'Rights' ? 'Rights' : 'Awareness'}
-      initialSummary={summary}
-      initialContent={body}
-      initialCoverImage={article.coverImage ?? '/icons/default-article.svg'}
-      initialPublished={article.published}
-    />
+    <AdminLayout title="Edit Article">
+      <EditArticleForm
+        articleId={article.id}
+        initialTitle={article.title}
+        initialCategory={article.category === 'Rights' ? 'Rights' : 'Awareness'}
+        initialSummary={summary}
+        initialContent={body}
+        initialCoverImage={article.coverImage ?? '/icons/default-article.svg'}
+        initialPublished={article.published}
+      />
+    </AdminLayout>
   )
 }

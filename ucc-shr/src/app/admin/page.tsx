@@ -5,18 +5,13 @@ import Link from 'next/link'
 import { prisma } from '@/src/lib/prisma'
 import { parseReportNotes } from '@/src/lib/auth/report-access'
 import { getNotificationReadIds, getNotificationState } from '@/src/lib/notification-state'
-import { requireSuperAdmin } from '@/src/lib/auth/guards'
-import { RecentReportFilters } from './recent-report-filters'
-import { RecentReportsTable } from './recent-reports-table'
-import {
-  ArrowRight,
-  Bell,
-  CheckCircle2,
-  Clock3,
-  ClipboardList,
-  FileWarning,
-  Plus,
-} from 'lucide-react'
+import { requireAdmin } from '@/src/lib/auth/guards'
+import { AdminReportFilters as RecentReportFilters } from '@/src/components/molecules/admin-report-filters/admin-report-filters'
+import { AdminReportsTable as RecentReportsTable } from '@/src/components/organisms/admin-reports-table/admin-reports-table'
+import { Bell, Plus, AlertCircle, ArrowRight } from 'lucide-react'
+import { AdminStatCards } from '@/src/components/organisms/admin-stat-cards'
+import { MonthlyTrendsChart } from '@/src/components/organisms/monthly-trends-chart'
+import { CategoryDistribution } from '@/src/components/organisms/category-distribution'
 
 type PageProps = {
   searchParams?: Promise<{
@@ -27,7 +22,7 @@ type PageProps = {
   }>
 }
 
-const ALLOWED_RECENT_STATUSES = new Set(['RECEIVED', 'REVIEWING', 'REFERRED', 'RESOLVED', 'CLOSED'])
+const ALLOWED_RECENT_STATUSES = new Set(['RECEIVED', 'UNDER_REVIEW', 'UNDER_INVESTIGATION', 'CLOSED', 'CLOSED'])
 const ALLOWED_RECENT_ASSIGNED = new Set(['assigned', 'unassigned'])
 
 function formatSubmittedAt(value: Date) {
@@ -40,16 +35,15 @@ function formatSubmittedAt(value: Date) {
   }).format(value)
 }
 
-function statusMeta(status: 'RECEIVED' | 'REVIEWING' | 'REFERRED' | 'RESOLVED' | 'CLOSED') {
-  if (status === 'REVIEWING') return { label: 'Reviewing', variant: 'warning' as const }
-  if (status === 'REFERRED') return { label: 'Referred', variant: 'navy' as const }
-  if (status === 'RESOLVED') return { label: 'Resolved', variant: 'success' as const }
-  if (status === 'CLOSED') return { label: 'Closed', variant: 'gray' as const }
+function statusMeta(status: 'RECEIVED' | 'UNDER_REVIEW' | 'UNDER_INVESTIGATION' | 'CLOSED') {
+  if (status === 'UNDER_REVIEW') return { label: 'Reviewing', variant: 'warning' as const }
+  if (status === 'UNDER_INVESTIGATION') return { label: 'Referred', variant: 'navy' as const }
+  if (status === 'CLOSED') return { label: 'Closed', variant: 'success' as const }
   return { label: 'Received', variant: 'navy' as const }
 }
 
 export default async function AdminDashboardPage({ searchParams }: PageProps) {
-  const session = await requireSuperAdmin()
+  const session = await requireAdmin()
 
   const now = new Date()
   const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1)
@@ -65,7 +59,7 @@ export default async function AdminDashboardPage({ searchParams }: PageProps) {
     prisma.report.groupBy({ by: ['status'], _count: { status: true } }),
     prisma.report.findMany({
       orderBy: { createdAt: 'desc' },
-      take: 24,
+      take: 5,
       select: {
         id: true,
         code: true,
@@ -81,29 +75,28 @@ export default async function AdminDashboardPage({ searchParams }: PageProps) {
       select: { createdAt: true },
     }),
     prisma.report.findMany({
-      where: { status: { in: ['RESOLVED', 'CLOSED'] } },
+      where: { status: { in: ['CLOSED', 'CLOSED'] } },
       select: { createdAt: true, updatedAt: true },
     }),
     getNotificationState(session.user.id, 'ADMIN'),
   ])
 
-  const statusCountMap = reportStatusCounts.reduce<Record<'RECEIVED' | 'REVIEWING' | 'REFERRED' | 'RESOLVED' | 'CLOSED', number>>(
+  const statusCountMap = reportStatusCounts.reduce<Record<'RECEIVED' | 'UNDER_REVIEW' | 'UNDER_INVESTIGATION' | 'CLOSED', number>>(
     (acc, row) => {
       acc[row.status] = row._count.status
       return acc
     },
     {
       RECEIVED: 0,
-      REVIEWING: 0,
-      REFERRED: 0,
-      RESOLVED: 0,
+      UNDER_REVIEW: 0,
+      UNDER_INVESTIGATION: 0,
       CLOSED: 0,
     },
   )
 
   const totalReports = Object.values(statusCountMap).reduce((sum, count) => sum + count, 0)
-  const activeCases = statusCountMap.RECEIVED + statusCountMap.REVIEWING + statusCountMap.REFERRED
-  const resolvedCases = statusCountMap.RESOLVED + statusCountMap.CLOSED
+  const activeCases = statusCountMap.RECEIVED + statusCountMap.UNDER_REVIEW + statusCountMap.UNDER_INVESTIGATION
+  const resolvedCases = statusCountMap.CLOSED + statusCountMap.CLOSED
 
   const adminNotificationCutoffMs = notificationState?.clearedAt?.getTime() ?? 0
   const recentNotificationIds = recentReportsRaw.map((report) => `report:${report.id}`)
@@ -174,41 +167,7 @@ export default async function AdminDashboardPage({ searchParams }: PageProps) {
     percent: totalReports > 0 ? Math.round((count / totalReports) * 100) : 0,
   }))
 
-  const statCards = [
-    {
-      label: 'Total Reports',
-      value: totalReports.toLocaleString(),
-      trend: `${trendDiff >= 0 ? '+' : ''}${trendPercent}%`,
-      trendVariant: trendDiff >= 0 ? ('success' as const) : ('red' as const),
-      icon: <ClipboardList size={18} />,
-      iconClass: 'bg-navy-light text-navy',
-    },
-    {
-      label: 'Active Cases',
-      value: activeCases.toLocaleString(),
-      trend: `${activeCases} pending`,
-      trendVariant: 'warning' as const,
-      icon: <FileWarning size={18} />,
-      iconClass: 'bg-red-light text-red',
-    },
-    {
-      label: 'Resolved Cases',
-      value: resolvedCases.toLocaleString(),
-      trend: totalReports > 0 ? `${Math.round((resolvedCases / totalReports) * 100)}% rate` : '0% rate',
-      trendVariant: 'success' as const,
-      icon: <CheckCircle2 size={18} />,
-      iconClass: 'bg-[#E8F5EE] text-[#1A6B50]',
-    },
-    {
-      label: 'Avg. Response Time',
-      value: `${avgResponseHours.toFixed(1)} hrs`,
-      trend: resolvedForSla.length ? `${resolvedForSla.length} closed cases` : 'No closed cases yet',
-      trendVariant: 'navy' as const,
-      icon: <Clock3 size={18} />,
-      iconClass: 'bg-navy-light text-navy',
-    },
-  ]
-
+  // Removed statCards generation here as it is moved into the AdminStatCards component
   const recentReports = recentReportsRaw.map((report) => {
     const meta = statusMeta(report.status)
     const notes = parseReportNotes(report.notes)
@@ -226,7 +185,7 @@ export default async function AdminDashboardPage({ searchParams }: PageProps) {
   })
 
   const unassignedCount = recentReports.filter((report) => !report.counsellorAssigned).length
-  const reviewingCount = recentReportsRaw.filter((report) => report.status === 'REVIEWING').length
+  const reviewingCount = recentReportsRaw.filter((report) => report.status === 'UNDER_REVIEW').length
   const receivedCount = recentReportsRaw.filter((report) => report.status === 'RECEIVED').length
 
   const params = (await searchParams) ?? {}
@@ -304,120 +263,48 @@ export default async function AdminDashboardPage({ searchParams }: PageProps) {
       }
     >
       <section className="space-y-6">
-        <section className="rounded-2xl border border-navy/15 bg-linear-to-r from-navy to-navy-dark p-5 text-white shadow-sm">
-          <p className="text-sm font-semibold uppercase tracking-widest text-white/85">Case Operations</p>
-          <h2 className="mt-2 text-2xl font-semibold leading-tight">Welcome, CEGRAD</h2>
-          <p className="mt-2 max-w-3xl text-base text-white/90">
-            You have {activeCases} active case{activeCases === 1 ? '' : 's'} and {newReportsCount} new notification{newReportsCount === 1 ? '' : 's'} requiring review.
-          </p>
-
-
-          <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-            <Link href="/admin/notifications?tab=unread&page=1" className="rounded-xl border border-white/25 bg-white/10 p-4 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
-              <div className="flex items-start justify-between gap-2">
-                <p className="text-base font-semibold">Unread Reports and Alerts</p>
-                <span className="rounded border border-white/35 bg-navy/50 px-2.5 py-1 text-xs font-semibold text-white">{newReportsCount} unread</span>
-              </div>
-              <p className="mt-2 text-sm text-white/85">Review incoming items that have not been acknowledged.</p>
-            </Link>
-
-            <Link href="/admin/reports?status=REVIEWING&sort=updated" className="rounded-xl border border-white/25 bg-white/10 p-4 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
-              <div className="flex items-start justify-between gap-2">
-                <p className="text-base font-semibold">Reviewing Queue</p>
-                <span className="rounded border border-white/35 bg-navy/50 px-2.5 py-1 text-xs font-semibold text-white">{reviewingCount} in review</span>
-              </div>
-              <p className="mt-2 text-sm text-white/85">Continue active investigations and update status quickly.</p>
-            </Link>
-
-            <Link href="/admin/reports?status=RECEIVED&sort=newest" className="rounded-xl border border-white/25 bg-white/10 p-4 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
-              <div className="flex items-start justify-between gap-2">
-                <p className="text-base font-semibold">Newly Received Cases</p>
-                <span className="rounded border border-white/35 bg-navy/50 px-2.5 py-1 text-xs font-semibold text-white">{receivedCount} received</span>
-              </div>
-              <p className="mt-2 text-sm text-white/85">Triage new submissions and assign first actions.</p>
-            </Link>
-
-            <Link href="/admin/reports?assigned=unassigned" className="rounded-xl border border-white/25 bg-white/10 p-4 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
-              <div className="flex items-start justify-between gap-2">
-                <p className="text-base font-semibold">Unassigned Reports</p>
-                <span className="rounded border border-white/35 bg-navy/50 px-2.5 py-1 text-xs font-semibold text-white">{unassignedCount} pending</span>
-              </div>
-              <p className="mt-2 text-sm text-white/85">Route reports to counsellors or investigators.</p>
-            </Link>
-
-            <Link href="/admin/reports?sort=updated" className="rounded-xl border border-white/25 bg-white/10 p-4 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white md:col-span-2 xl:col-span-1">
-              <div className="flex items-start justify-between gap-2">
-                <p className="text-base font-semibold">Recently Updated Cases</p>
-                <ArrowRight size={16} className="text-white/85" />
-              </div>
-              <p className="mt-2 text-sm text-white/85">Check latest activity and follow-up progress.</p>
-            </Link>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-2xl bg-white p-6 md:p-8 shadow-sm border border-gray-200">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 tracking-tight mb-1">
+              Welcome back, {session.user.name?.split(' ')[0] || 'Admin'} 👋
+            </h1>
+            <p className="text-gray-500 text-sm">
+              Here's what's happening today. You have <strong className="text-navy">{activeCases} active cases</strong> requiring your attention.
+            </p>
           </div>
-        </section>
-
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          {statCards.map((card) => (
-            <article key={card.label} className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-              <div className="mb-3 flex items-start justify-between">
-                <span className={`inline-flex h-9 w-9 items-center justify-center rounded-xl ${card.iconClass}`}>
-                  {card.icon}
-                </span>
-                <Badge variant={card.trendVariant}>{card.trend}</Badge>
-              </div>
-
-              <p className="text-sm font-medium text-gray-700">{card.label}</p>
-              <p className="mt-1 text-[30px] font-semibold leading-none text-gray-900">{card.value}</p>
-            </article>
-          ))}
+          
+          <div className="flex flex-wrap items-center gap-3">
+            {unassignedCount > 0 && (
+              <Link href="/admin/reports?assigned=unassigned" className="flex items-center gap-2 rounded-xl bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-700 hover:bg-red-100 transition-colors">
+                <AlertCircle size={18} /> {unassignedCount} Unassigned
+              </Link>
+            )}
+            {newReportsCount > 0 && (
+              <Link href="/admin/notifications" className="flex items-center gap-2 rounded-xl bg-orange-50 px-4 py-2.5 text-sm font-semibold text-orange-700 hover:bg-orange-100 transition-colors">
+                <Bell size={18} /> {newReportsCount} New Alerts
+              </Link>
+            )}
+            {unassignedCount === 0 && newReportsCount === 0 && (
+              <Link href="/admin/reports?status=RECEIVED&sort=newest" className="flex items-center gap-2 rounded-xl bg-gray-50 px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-100 transition-colors">
+                View Recent Cases <ArrowRight size={16} />
+              </Link>
+            )}
+          </div>
         </div>
 
+        <AdminStatCards 
+          totalReports={totalReports}
+          activeCases={activeCases}
+          resolvedCases={resolvedCases}
+          avgResponseHours={avgResponseHours}
+          trendDiff={trendDiff}
+          trendPercent={trendPercent}
+          resolvedForSlaLength={resolvedForSla.length}
+        />
+
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-          <section className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm xl:col-span-2">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">Monthly Reporting Trends</h2>
-              <Badge variant="gray">Last 6 Months</Badge>
-            </div>
-
-            <div className="flex h-64 items-end gap-3 rounded-xl border border-gray-100 bg-gray-50 p-4" role="img" aria-label="Monthly report volume for the last six months">
-              {trendBars.map((bar, index) => (
-                <div key={bar.key} className="flex flex-1 flex-col items-center gap-2">
-                  <div
-                    className={`w-full rounded-t-xl ${index === trendBars.length - 1 ? 'bg-navy' : 'bg-navy/30'}`}
-                    style={{ height: `${bar.height}%` }}
-                    aria-hidden="true"
-                  />
-                  <span className="text-xs font-semibold tracking-wide text-gray-700">
-                    {bar.label}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section className="space-y-4">
-            <article className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-              <div className="mb-3 flex items-center justify-between">
-                <h2 className="text-base font-semibold text-gray-900">Category Distribution</h2>
-                <Link href="/admin/reports" className="text-sm font-semibold text-navy hover:text-navy-dark">
-                  View
-                </Link>
-              </div>
-
-              <div className="space-y-4">
-                {categoryData.map((item) => (
-                  <div key={item.label}>
-                    <div className="mb-1 flex items-center justify-between text-base">
-                      <span className="text-gray-800">{item.label}</span>
-                      <span className="font-semibold text-gray-900">{item.percent}%</span>
-                    </div>
-                    <div className="h-2 rounded-full bg-gray-100" aria-hidden="true">
-                      <div className="h-full rounded-full bg-navy" style={{ width: `${item.percent}%` }} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </article>
-          </section>
+          <MonthlyTrendsChart trendBars={trendBars} />
+          <CategoryDistribution categoryData={categoryData} />
         </div>
 
         <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">

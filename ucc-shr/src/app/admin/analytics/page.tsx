@@ -61,24 +61,23 @@ export default async function AdminAnalyticsPage() {
     prisma.event.count({ where: { startDate: { gte: now }, published: true } }),
   ])
 
-  const statusCountMap = reportStatusCounts.reduce<Record<'RECEIVED' | 'REVIEWING' | 'REFERRED' | 'RESOLVED' | 'CLOSED', number>>(
+  const statusCountMap = reportStatusCounts.reduce<Record<'RECEIVED' | 'UNDER_REVIEW' | 'UNDER_INVESTIGATION' | 'CLOSED', number>>(
     (acc, row) => {
       acc[row.status] = row._count.status
       return acc
     },
     {
       RECEIVED: 0,
-      REVIEWING: 0,
-      REFERRED: 0,
-      RESOLVED: 0,
+      UNDER_REVIEW: 0,
+      UNDER_INVESTIGATION: 0,
       CLOSED: 0,
     },
   )
 
   const totalReports = Object.values(statusCountMap).reduce((sum, count) => sum + count, 0)
   const receivedReports = statusCountMap.RECEIVED
-  const reviewingReports = statusCountMap.REVIEWING
-  const resolvedReports = statusCountMap.RESOLVED
+  const reviewingReports = statusCountMap.UNDER_REVIEW
+  const resolvedReports = statusCountMap.CLOSED
   const closedReports = statusCountMap.CLOSED
 
   const monthBuckets = Array.from({ length: 12 }, (_, index) => {
@@ -120,7 +119,7 @@ export default async function AdminAnalyticsPage() {
     }))
 
   const resolvedDurations = reportsInWindow
-    .filter((report) => report.status === 'RESOLVED' || report.status === 'CLOSED')
+    .filter((report) => report.status === 'CLOSED')
     .map((report) => (report.updatedAt.getTime() - report.createdAt.getTime()) / (1000 * 60 * 60))
     .filter((value) => value >= 0)
 
@@ -153,9 +152,14 @@ export default async function AdminAnalyticsPage() {
       title="Analytics"
       description="Track operational patterns, case response velocity, and content activity for institutional decisions."
       actions={
-        <Link href="/admin/reports">
-          <Button size="sm" className="h-10 rounded-lg">Open Case Management</Button>
-        </Link>
+        <div className="flex gap-2">
+          <a href="/api/admin/export" download className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border-[1.5px] border-navy px-4 text-sm font-semibold text-navy transition-all hover:bg-navy-light active:scale-[0.97]">
+            Export CSV
+          </a>
+          <Link href="/admin/reports">
+            <Button size="sm" className="h-10 rounded-lg">Open Case Management</Button>
+          </Link>
+        </div>
       }
     >
       <section className="space-y-4">

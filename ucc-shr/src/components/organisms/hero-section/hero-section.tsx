@@ -9,20 +9,28 @@ import { Heading } from '@/src/components/atoms/heading/heading'
 import { Text } from '@/src/components/atoms/text/text'
 import { Button } from '@/src/components/atoms/button'
 
-const slides = [
+export type BannerSlide = {
+  id: string
+  imageUrl: string
+  title: string
+  linkUrl?: string | null
+}
+
+const fallbackSlides: BannerSlide[] = [
   {
-    image: '/images/hero/campus.jpg',
-    tag: 'Creating a Safe and Respectful Campus Environment',
+    id: '1',
+    imageUrl: '/images/hero/campus.jpg',
+    title: 'Creating a Safe and Respectful Campus Environment',
   },
   {
-    image: '/images/hero/campus-2.jpg',
-    headline: "Don't Stay Silent",
-    tag: 'Report sexual harassment today. Help is here. You deserve to be heard and supported.',
+    id: '2',
+    imageUrl: '/images/hero/campus-2.jpg',
+    title: "Don't Stay Silent. Report sexual harassment today. Help is here. You deserve to be heard and supported.",
   },
   {
-    image: '/images/hero/campus-3.jpg',
-    headline: 'Report Sexual Harassment',
-    tag: 'Safely report harassment, intimidation, unwanted behaviour, and boundary violations with full confidence.',
+    id: '3',
+    imageUrl: '/images/hero/campus-3.jpg',
+    title: 'Report Sexual Harassment. Safely report harassment, intimidation, unwanted behaviour, and boundary violations with full confidence.',
   },
 ]
 
@@ -42,16 +50,18 @@ const itemVariants = {
   },
 }
 
-export function HeroSection() {
+export function HeroSection({ banners = [] }: { banners?: BannerSlide[] }) {
   const [active, setActive] = useState(0)
   const reportHref = '/report'
+
+  const slides = banners.length > 0 ? banners : fallbackSlides
 
   useEffect(() => {
     const timer = setInterval(() => {
       setActive((prev) => (prev + 1) % slides.length)
     }, INTERVAL_MS)
     return () => clearInterval(timer)
-  }, [])
+  }, [slides.length])
 
   return (
     <section className="relative min-h-140 overflow-hidden bg-navy text-white lg:grid lg:min-h-160 lg:grid-cols-2 lg:items-center">
@@ -145,8 +155,8 @@ export function HeroSection() {
             className="absolute inset-0"
           >
             <Image
-              src={slides[active].image}
-              alt={slides[active].tag}
+              src={slides[active].imageUrl}
+              alt={slides[active].title}
               fill
               loading="eager"
               priority={active === 0}
@@ -179,13 +189,8 @@ export function HeroSection() {
               transition={{ duration: 0.75 }}
               className="mx-auto max-w-md text-center px-2 py-1 lg:ml-auto lg:text-left lg:px-4 lg:py-3"
             >
-              {slides[active].headline && (
-                <Text size={{ base: 'sm', lg: 'lg' }} weight="bold" tone="white" className="mb-0.5 drop-shadow-md lg:mb-1">
-                  {slides[active].headline}
-                </Text>
-              )}
               <Text size={{ base: 'xs', lg: 'base' }} tone="white" className="leading-tight drop-shadow-md lg:leading-snug lg:opacity-90">
-                {slides[active].tag}
+                {slides[active].title}
               </Text>
             </motion.div>
           </AnimatePresence>

@@ -25,15 +25,19 @@ const images = [
   }
 ]
 
-export function AboutHero() {
+type CarouselImage = { url: string; caption: string; alt?: string }
+
+export function AboutHero({ customImages }: { customImages?: CarouselImage[] }) {
   const [currentIndex, setCurrentIndex] = useState(0)
 
+  const activeImages = customImages && customImages.length > 0 ? customImages : images
+
   const handleNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % images.length)
+    setCurrentIndex((prev) => (prev + 1) % activeImages.length)
   }
 
   const handlePrev = () => {
-    setCurrentIndex((prev) => (prev - 1 + images.length) % images.length)
+    setCurrentIndex((prev) => (prev - 1 + activeImages.length) % activeImages.length)
   }
 
   useEffect(() => {
@@ -57,8 +61,8 @@ export function AboutHero() {
           <AnimatePresence mode="wait">
             <motion.img
               key={currentIndex}
-              src={images[currentIndex].url}
-              alt={images[currentIndex].alt}
+              src={activeImages[currentIndex]?.url || images[0].url}
+              alt={activeImages[currentIndex]?.alt || activeImages[currentIndex]?.caption || 'Carousel image'}
               className="absolute inset-0 h-full w-full object-cover opacity-80"
               initial={{ opacity: 0, scale: 1.05 }}
               animate={{ opacity: 0.8, scale: 1 }}
@@ -82,7 +86,7 @@ export function AboutHero() {
                 weight="semibold"
                 tone="white"
               >
-                {images[currentIndex].caption}
+                {activeImages[currentIndex]?.caption}
               </Heading>
             </AnimatePresence>
           </div>

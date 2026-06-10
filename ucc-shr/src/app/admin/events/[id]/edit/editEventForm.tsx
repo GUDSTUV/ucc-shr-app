@@ -121,69 +121,67 @@ export function EditEventForm({ event }: Props) {
   }
 
   return (
-    <AdminLayout title="Edit Event">
-      <form
-        onSubmit={(event) => {
-          event.preventDefault()
-          void handleSave()
-        }}
-        className="mx-auto max-w-3xl space-y-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"
-      >
+    <form
+      onSubmit={(event) => {
+        event.preventDefault()
+        void handleSave()
+      }}
+      className="mx-auto max-w-3xl space-y-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"
+    >
+      <div>
+        <label className="mb-1 block text-sm font-semibold text-gray-700">Title</label>
+        <Input value={title} onChange={(event) => setTitle(event.target.value)} required />
+      </div>
+
+      <div>
+        <label className="mb-1 block text-sm font-semibold text-gray-700">Venue</label>
+        <Input value={venue} onChange={(event) => setVenue(event.target.value)} required />
+      </div>
+
+      <div>
+        <label className="mb-1 block text-sm font-semibold text-gray-700">Event Image (optional)</label>
+        <input
+          type="file"
+          accept="image/png,image/jpeg,image/webp"
+          onChange={(event) => setImageFile(event.target.files?.[0] ?? null)}
+          className="block h-12 w-full rounded-[10px] border-[1.5px] border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 file:mr-3 file:rounded-md file:border-0 file:bg-navy file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white hover:file:bg-navy-dark"
+        />
+        <p className="mt-1 text-xs text-gray-500">Current image: {imagePath}</p>
+      </div>
+
+      <div>
+        <label className="mb-1 block text-sm font-semibold text-gray-700">Description</label>
+        <Textarea value={description} onChange={(event) => setDescription(event.target.value)} rows={8} required />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
-          <label className="mb-1 block text-sm font-semibold text-gray-700">Title</label>
-          <Input value={title} onChange={(event) => setTitle(event.target.value)} required />
+          <label className="mb-1 block text-sm font-semibold text-gray-700">Start Date & Time</label>
+          <Input type="datetime-local" value={startDate} onChange={(event) => setStartDate(event.target.value)} required />
         </div>
-
         <div>
-          <label className="mb-1 block text-sm font-semibold text-gray-700">Venue</label>
-          <Input value={venue} onChange={(event) => setVenue(event.target.value)} required />
+          <label className="mb-1 block text-sm font-semibold text-gray-700">End Date & Time (optional)</label>
+          <Input type="datetime-local" value={endDate} onChange={(event) => setEndDate(event.target.value)} />
         </div>
+      </div>
 
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
-          <label className="mb-1 block text-sm font-semibold text-gray-700">Event Image (optional)</label>
-          <input
-            type="file"
-            accept="image/png,image/jpeg,image/webp"
-            onChange={(event) => setImageFile(event.target.files?.[0] ?? null)}
-            className="block h-12 w-full rounded-[10px] border-[1.5px] border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 file:mr-3 file:rounded-md file:border-0 file:bg-navy file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white hover:file:bg-navy-dark"
-          />
-          <p className="mt-1 text-xs text-gray-500">Current image: {imagePath}</p>
+          <label className="mb-1 block text-sm font-semibold text-gray-700">Capacity (optional)</label>
+          <Input type="number" min={1} value={capacity} onChange={(event) => setCapacity(event.target.value)} />
         </div>
+        <label className="flex items-center gap-2 pt-7 text-sm font-semibold text-gray-700">
+          <input type="checkbox" checked={published} onChange={(event) => setPublished(event.target.checked)} className="h-4 w-4" />
+          Published
+        </label>
+      </div>
 
-        <div>
-          <label className="mb-1 block text-sm font-semibold text-gray-700">Description</label>
-          <Textarea value={description} onChange={(event) => setDescription(event.target.value)} rows={8} required />
-        </div>
+      {error ? <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div> : null}
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div>
-            <label className="mb-1 block text-sm font-semibold text-gray-700">Start Date & Time</label>
-            <Input type="datetime-local" value={startDate} onChange={(event) => setStartDate(event.target.value)} required />
-          </div>
-          <div>
-            <label className="mb-1 block text-sm font-semibold text-gray-700">End Date & Time (optional)</label>
-            <Input type="datetime-local" value={endDate} onChange={(event) => setEndDate(event.target.value)} />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div>
-            <label className="mb-1 block text-sm font-semibold text-gray-700">Capacity (optional)</label>
-            <Input type="number" min={1} value={capacity} onChange={(event) => setCapacity(event.target.value)} />
-          </div>
-          <label className="flex items-center gap-2 pt-7 text-sm font-semibold text-gray-700">
-            <input type="checkbox" checked={published} onChange={(event) => setPublished(event.target.checked)} className="h-4 w-4" />
-            Published
-          </label>
-        </div>
-
-        {error ? <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div> : null}
-
-        <div className="flex items-center gap-3">
-          <Button type="submit" size="sm" loading={saving}>Save Changes</Button>
-          <Link href="/admin/events" className="text-sm font-semibold text-navy hover:text-navy-dark">Back to Events</Link>
-        </div>
-      </form>
-    </AdminLayout>
+      <div className="flex items-center gap-3">
+        <Button type="submit" size="sm" loading={saving}>Save Changes</Button>
+        <Link href="/admin/events" className="text-sm font-semibold text-navy hover:text-navy-dark">Back to Events</Link>
+      </div>
+    </form>
   )
 }

@@ -97,6 +97,7 @@ model User {
   verifyTokenExpiry     DateTime?
   resetToken            String?                 @unique
   resetTokenExpiry      DateTime?
+  lastLoginAt           DateTime?
   createdAt             DateTime                @default(now())
   Article               Article[]
   Event                 Event[]
@@ -179,17 +180,26 @@ model SupportStory {
   @@index([approved, createdAt])
 }
 
+/// Generic key-value store for dynamic frontend content (Hero text, FAQs, Contacts, Footer)
+model SiteContent {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     Json
+  updatedAt DateTime @updatedAt
+}
+
 enum ReportStatus {
   RECEIVED
-  REVIEWING
-  REFERRED
-  RESOLVED
+  UNDER_REVIEW
+  UNDER_INVESTIGATION
   CLOSED
 }
 
 enum Role {
   STAFF
+  ADMIN
   SUPER_ADMIN
+  SUSPENDED
 }
 
 enum SavedResourceType {

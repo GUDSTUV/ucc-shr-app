@@ -143,23 +143,38 @@ export function Navbar({ user }: NavbarProps) {
 
                 {dropdownOpen && (
                   <div className="absolute right-0 mt-2 w-56 origin-top-right rounded-xl border border-gray-100 bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                    <div className="p-2 border-b border-gray-100">
-                      <Text as="p" size="xs" weight="medium" tone="muted" className="px-3 py-1 uppercase tracking-wider">Navigation</Text>
-                      <Link href="/user/userDashboard" className="group flex items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-navy">
-                        <LayoutDashboard size={16} className="text-gray-400 group-hover:text-navy" /> Dashboard
-                      </Link>
-                      <Link href="/user/userReports" className="group flex items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-navy">
-                        <FileText size={16} className="text-gray-400 group-hover:text-navy" /> My Reports
-                      </Link>
-                      <Link href="/user/saved" className="group flex items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-navy">
-                        <Bookmark size={16} className="text-gray-400 group-hover:text-navy" /> Saved Resources
-                      </Link>
-                    </div>
+                    {user.role === 'ADMIN' || user.role === 'SUPER_ADMIN' ? (
+                      <div className="p-2 border-b border-gray-100">
+                        <Text as="p" size="xs" weight="medium" tone="muted" className="px-3 py-1 uppercase tracking-wider">Navigation</Text>
+                        <Link href="/admin" className="group flex items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-navy">
+                          <LayoutDashboard size={16} className="text-gray-400 group-hover:text-navy" /> Admin Portal
+                        </Link>
+                      </div>
+                    ) : (
+                      <div className="p-2 border-b border-gray-100">
+                        <Text as="p" size="xs" weight="medium" tone="muted" className="px-3 py-1 uppercase tracking-wider">Navigation</Text>
+                        <Link href="/user/userDashboard" className="group flex items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-navy">
+                          <LayoutDashboard size={16} className="text-gray-400 group-hover:text-navy" /> Dashboard
+                        </Link>
+                        <Link href="/user/userReports" className="group flex items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-navy">
+                          <FileText size={16} className="text-gray-400 group-hover:text-navy" /> My Reports
+                        </Link>
+                        <Link href="/user/saved" className="group flex items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-navy">
+                          <Bookmark size={16} className="text-gray-400 group-hover:text-navy" /> Saved Resources
+                        </Link>
+                      </div>
+                    )}
                     <div className="p-2 border-b border-gray-100">
                       <Text as="p" size="xs" weight="medium" tone="muted" className="px-3 py-1 uppercase tracking-wider">Account</Text>
-                      <Link href="/user/change-password" className="group flex items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-navy">
-                        <Lock size={16} className="text-gray-400 group-hover:text-navy" /> Password Change
-                      </Link>
+                      {user.role === 'ADMIN' || user.role === 'SUPER_ADMIN' ? (
+                        <Link href="/admin/settings" className="group flex items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-navy">
+                          <Lock size={16} className="text-gray-400 group-hover:text-navy" /> Admin Settings
+                        </Link>
+                      ) : (
+                        <Link href="/user/change-password" className="group flex items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-navy">
+                          <Lock size={16} className="text-gray-400 group-hover:text-navy" /> Password Change
+                        </Link>
+                      )}
                     </div>
                     <div className="p-2">
                       <Button
@@ -233,26 +248,44 @@ export function Navbar({ user }: NavbarProps) {
                   </div>
                 </div>
 
-                {/* Dashboard links — not on bottom nav */}
-                <Text as="p" size="xs" weight="semibold" tone="muted" className="px-3 py-1 uppercase tracking-wider">Quick Access</Text>
-                <Link href="/user/userReports" className="flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-50">
-                  <FileText size={18} className="text-gray-400" /> My Reports
-                </Link>
-                <Link href="/user/saved" className="flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-50">
-                  <Bookmark size={18} className="text-gray-400" /> Saved Resources
-                </Link>
-                <Link href="/about" className="flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-50">
-                  <BookText size={18} className="text-gray-400" /> About
-                </Link>
-                <Link href="/help" className="flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-50">
-                  <HelpCircle size={18} className="text-gray-400" /> Help
-                </Link>
+                {user.role === 'ADMIN' || user.role === 'SUPER_ADMIN' ? (
+                  <>
+                    <Text as="p" size="xs" weight="semibold" tone="muted" className="px-3 py-1 uppercase tracking-wider">Quick Access</Text>
+                    <Link href="/admin" className="flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-50">
+                      <LayoutDashboard size={18} className="text-gray-400" /> Admin Portal
+                    </Link>
+                    <Link href="/about" className="flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-50">
+                      <BookText size={18} className="text-gray-400" /> About
+                    </Link>
+                    <div className="my-2 h-px bg-gray-100" />
+                    <Text as="p" size="xs" weight="semibold" tone="muted" className="px-3 py-1 uppercase tracking-wider">Account</Text>
+                    <Link href="/admin/settings" className="flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-50">
+                      <Lock size={18} className="text-gray-400" /> Admin Settings
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <Text as="p" size="xs" weight="semibold" tone="muted" className="px-3 py-1 uppercase tracking-wider">Quick Access</Text>
+                    <Link href="/user/userDashboard" className="flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-50">
+                      <FileText size={18} className="text-gray-400" /> My Reports
+                    </Link>
+                    <Link href="/user/saved" className="flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-50">
+                      <Bookmark size={18} className="text-gray-400" /> Saved Resources
+                    </Link>
+                    <Link href="/about" className="flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-50">
+                      <BookText size={18} className="text-gray-400" /> About
+                    </Link>
+                    <Link href="/help" className="flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-50">
+                      <HelpCircle size={18} className="text-gray-400" /> Help
+                    </Link>
 
-                <div className="my-2 h-px bg-gray-100" />
-                <Text as="p" size="xs" weight="semibold" tone="muted" className="px-3 py-1 uppercase tracking-wider">Account</Text>
-                <Link href="/user/change-password" className="flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-50">
-                  <Lock size={18} className="text-gray-400" /> Password Change
-                </Link>
+                    <div className="my-2 h-px bg-gray-100" />
+                    <Text as="p" size="xs" weight="semibold" tone="muted" className="px-3 py-1 uppercase tracking-wider">Account</Text>
+                    <Link href="/user/change-password" className="flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-50">
+                      <Lock size={18} className="text-gray-400" /> Password Change
+                    </Link>
+                  </>
+                )}
                 <Button
                   variant="unstyled"
                   onClick={() => signOut({ callbackUrl: '/', redirect: true })}

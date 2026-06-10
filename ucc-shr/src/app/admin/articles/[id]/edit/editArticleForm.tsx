@@ -111,67 +111,65 @@ export function EditArticleForm({
   }
 
   return (
-    <AdminLayout title="Edit Article">
-      <form
-        onSubmit={(event) => {
-          event.preventDefault()
-          void saveChanges()
-        }}
-        className="mx-auto max-w-3xl space-y-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"
-      >
+    <form
+      onSubmit={(event) => {
+        event.preventDefault()
+        void saveChanges()
+      }}
+      className="mx-auto max-w-3xl space-y-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"
+    >
+      <div>
+        <label className="mb-1 block text-sm font-semibold text-gray-700">Display Title</label>
+        <Input value={title} onChange={(event) => setTitle(event.target.value)} className="border-gray-200" required />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
-          <label className="mb-1 block text-sm font-semibold text-gray-700">Display Title</label>
-          <Input value={title} onChange={(event) => setTitle(event.target.value)} className="border-gray-200" required />
+          <label className="mb-1 block text-sm font-semibold text-gray-700">Category</label>
+          <Select value={category} onChange={(event) => setCategory(event.target.value as 'Awareness' | 'Rights')}>
+            <option value="Awareness">Awareness</option>
+            <option value="Rights">Know Your Rights</option>
+          </Select>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div>
-            <label className="mb-1 block text-sm font-semibold text-gray-700">Category</label>
-            <Select value={category} onChange={(event) => setCategory(event.target.value as 'Awareness' | 'Rights')}>
-              <option value="Awareness">Awareness</option>
-              <option value="Rights">Know Your Rights</option>
-            </Select>
-          </div>
-
-          <label className="flex items-center gap-2 pt-7 text-sm font-semibold text-gray-700">
-            <input
-              type="checkbox"
-              checked={published}
-              onChange={(event) => setPublished(event.target.checked)}
-              className="h-4 w-4"
-            />
-            Published
-          </label>
-        </div>
-
-        <div>
-          <label className="mb-1 block text-sm font-semibold text-gray-700">Cover Image</label>
+        <label className="flex items-center gap-2 pt-7 text-sm font-semibold text-gray-700">
           <input
-            type="file"
-            accept="image/png,image/jpeg,image/webp"
-            onChange={(event) => setCoverFile(event.target.files?.[0] ?? null)}
-            className="block h-12 w-full rounded-[10px] border-[1.5px] border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 file:mr-3 file:rounded-md file:border-0 file:bg-navy file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white hover:file:bg-navy-dark"
+            type="checkbox"
+            checked={published}
+            onChange={(event) => setPublished(event.target.checked)}
+            className="h-4 w-4"
           />
-          <p className="mt-1 text-xs text-gray-500">Current image: {coverImage}</p>
-        </div>
+          Published
+        </label>
+      </div>
 
-        <div>
-          <label className="mb-1 block text-sm font-semibold text-gray-700">Card Summary</label>
-          <Textarea value={summary} onChange={(event) => setSummary(event.target.value)} rows={3} className="border-gray-200" />
-        </div>
+      <div>
+        <label className="mb-1 block text-sm font-semibold text-gray-700">Cover Image</label>
+        <input
+          type="file"
+          accept="image/png,image/jpeg,image/webp"
+          onChange={(event) => setCoverFile(event.target.files?.[0] ?? null)}
+          className="block h-12 w-full rounded-[10px] border-[1.5px] border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 file:mr-3 file:rounded-md file:border-0 file:bg-navy file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white hover:file:bg-navy-dark"
+        />
+        <p className="mt-1 text-xs text-gray-500">Current image: {coverImage}</p>
+      </div>
 
-        <div>
-          <label className="mb-1 block text-sm font-semibold text-gray-700">Article Content</label>
-          <Textarea value={content} onChange={(event) => setContent(event.target.value)} rows={12} className="border-gray-200" required />
-        </div>
+      <div>
+        <label className="mb-1 block text-sm font-semibold text-gray-700">Card Summary</label>
+        <Textarea value={summary} onChange={(event) => setSummary(event.target.value)} rows={3} className="border-gray-200" />
+      </div>
 
-        {error ? <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div> : null}
+      <div>
+        <label className="mb-1 block text-sm font-semibold text-gray-700">Article Content</label>
+        <Textarea value={content} onChange={(event) => setContent(event.target.value)} rows={12} className="border-gray-200" required />
+      </div>
 
-        <div className="flex items-center gap-3">
-          <Button type="submit" size="sm" loading={saving}>Save Changes</Button>
-          <Link href="/admin/articles" className="text-sm font-semibold text-navy hover:text-navy-dark">Back to Articles</Link>
-        </div>
-      </form>
-    </AdminLayout>
+      {error ? <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div> : null}
+
+      <div className="flex items-center gap-3">
+        <Button type="submit" size="sm" loading={saving}>Save Changes</Button>
+        <Link href="/admin/articles" className="text-sm font-semibold text-navy hover:text-navy-dark">Back to Articles</Link>
+      </div>
+    </form>
   )
 }

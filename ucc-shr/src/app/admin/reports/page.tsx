@@ -2,10 +2,11 @@ import Link from 'next/link'
 import { AdminLayout } from '@/src/components/templates/admin-layout'
 import { Badge } from '@/src/components/atoms/badge'
 import { Button } from '@/src/components/atoms/button'
-import { requireSuperAdmin } from '@/src/lib/auth/guards'
+import { requireAdmin } from '@/src/lib/auth/guards'
 import { prisma } from '@/src/lib/prisma'
 import { parseReportNotes } from '@/src/lib/auth/report-access'
 import { ReportFilters } from './report-filters'
+import { ReportTabs } from './report-tabs'
 
 type PageProps = {
   searchParams?: Promise<{
@@ -17,7 +18,7 @@ type PageProps = {
   }>
 }
 
-const ALLOWED_STATUSES = new Set(['RECEIVED', 'REVIEWING', 'REFERRED', 'RESOLVED', 'CLOSED'])
+const ALLOWED_STATUSES = new Set(['RECEIVED', 'UNDER_REVIEW', 'UNDER_INVESTIGATION', 'CLOSED', 'CLOSED'])
 const ALLOWED_ASSIGNED = new Set(['assigned', 'unassigned'])
 const ALLOWED_SORT = new Set(['newest', 'oldest', 'updated', 'status'])
 
@@ -31,11 +32,10 @@ function formatSubmittedAt(value: Date) {
   }).format(value)
 }
 
-function statusMeta(status: 'RECEIVED' | 'REVIEWING' | 'REFERRED' | 'RESOLVED' | 'CLOSED') {
-  if (status === 'REVIEWING') return { label: 'Reviewing', variant: 'warning' as const }
-  if (status === 'REFERRED') return { label: 'Referred', variant: 'navy' as const }
-  if (status === 'RESOLVED') return { label: 'Resolved', variant: 'success' as const }
-  if (status === 'CLOSED') return { label: 'Closed', variant: 'gray' as const }
+function statusMeta(status: 'RECEIVED' | 'UNDER_REVIEW' | 'UNDER_INVESTIGATION' | 'CLOSED') {
+  if (status === 'UNDER_REVIEW') return { label: 'Reviewing', variant: 'warning' as const }
+  if (status === 'UNDER_INVESTIGATION') return { label: 'Referred', variant: 'navy' as const }
+  if (status === 'CLOSED') return { label: 'Closed', variant: 'success' as const }
   return { label: 'Received', variant: 'navy' as const }
 }
 
@@ -44,7 +44,7 @@ function sortReports(
     code: string
     createdAt: Date
     updatedAt: Date
-    status: 'RECEIVED' | 'REVIEWING' | 'REFERRED' | 'RESOLVED' | 'CLOSED'
+    status: 'RECEIVED' | 'UNDER_REVIEW' | 'UNDER_INVESTIGATION' | 'CLOSED'
     type: string
     counsellorName: string | null
   }>,
@@ -61,12 +61,12 @@ function sortReports(
   }
 
   if (sort === 'status') {
-    const rank: Record<'RECEIVED' | 'REVIEWING' | 'REFERRED' | 'RESOLVED' | 'CLOSED', number> = {
+    const rank: Record<'RECEIVED' | 'UNDER_REVIEW' | 'UNDER_INVESTIGATION' | 'CLOSED', number> = {
       RECEIVED: 1,
-      REVIEWING: 2,
-      REFERRED: 3,
-      RESOLVED: 4,
-      CLOSED: 5,
+      UNDER_REVIEW: 2,
+      UNDER_INVESTIGATION: 3,
+      CLOSED: 4,
+
     }
 
     return [...reports].sort((a, b) => {
@@ -80,7 +80,7 @@ function sortReports(
 }
 
 export default async function AdminReportsPage({ searchParams }: PageProps) {
-  await requireSuperAdmin()
+  await requireAdmin()
 
   const params = (await searchParams) ?? {}
 
@@ -98,7 +98,7 @@ export default async function AdminReportsPage({ searchParams }: PageProps) {
 
   const reportsRaw = await prisma.report.findMany({
     where: {
-      ...(statusFilter ? { status: statusFilter as 'RECEIVED' | 'REVIEWING' | 'REFERRED' | 'RESOLVED' | 'CLOSED' } : {}),
+      ...(statusFilter ? { status: statusFilter as 'RECEIVED' | 'UNDER_REVIEW' | 'UNDER_INVESTIGATION' | 'CLOSED' } : {}),
       ...(typeFilter ? { type: typeFilter } : {}),
       ...(rawQuery
         ? {
@@ -165,6 +165,8 @@ export default async function AdminReportsPage({ searchParams }: PageProps) {
             currentSort={sortBy}
           />
         </div>
+
+        <ReportTabs />
 
         <div className="overflow-x-auto">
           <table className="min-w-190 w-full text-left">

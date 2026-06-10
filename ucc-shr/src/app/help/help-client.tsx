@@ -7,7 +7,7 @@ import { Mail, Phone, MapPin } from "lucide-react"
 import { EmailModal } from "@/src/components/molecules/email-modal/email-modal"
 import { Button } from '@/src/components/atoms/button'
 
-export default function HelpPage() {
+export function HelpClient({ customFaqs }: { customFaqs?: any[] }) {
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false)
 
   return (
@@ -97,7 +97,7 @@ export default function HelpPage() {
         </section>
 
         {/* FAQ Section */}
-        <FaqSection showHelpLink={false} />
+        <FaqSection showHelpLink={false} customFaqs={customFaqs} />
       </div>
 
       {/* Email Form Modal */}

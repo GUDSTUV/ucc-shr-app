@@ -4,6 +4,7 @@ import './globals.css'
 import { BottomNav } from '@/src/components/organisms/bottom-nav'
 import { Navbar } from '@/src/components/organisms/Navbar'
 import { auth } from '@/src/lib/auth/auth'
+import { Toaster } from 'react-hot-toast'
 
 export const metadata: Metadata = {
   title: 'CEGRAD UCC',
@@ -21,6 +22,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className="bg-gray-50 text-gray-900">
+        <Toaster position="top-center" />
         <Suspense fallback={null}>
           <Navbar user={user} />
         </Suspense>

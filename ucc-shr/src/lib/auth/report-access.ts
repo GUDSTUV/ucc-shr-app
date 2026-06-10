@@ -15,7 +15,7 @@ export type ReportAdminUpdate = {
   id: string
   at: string
   by: string
-  status: 'RECEIVED' | 'REVIEWING' | 'REFERRED' | 'RESOLVED' | 'CLOSED'
+  status: 'RECEIVED' | 'UNDER_REVIEW' | 'UNDER_INVESTIGATION' | 'CLOSED'
   message: string
 }
 
