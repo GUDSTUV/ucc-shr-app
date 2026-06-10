@@ -55,10 +55,10 @@ export function SiteContentTabs({ initialData }: SiteContentTabsProps) {
       </div>
 
       <div className="pt-2">
-        {activeTab === 'home' && <SiteContentForm initialData={initialData} />}
-        {activeTab === 'about' && <AboutContentForm initialData={initialData} />}
-        {activeTab === 'awareness' && <AwarenessContentForm initialData={initialData} />}
-        {activeTab === 'help' && <HelpContentForm initialData={initialData} />}
+        {activeTab === 'home' && <SiteContentForm initialData={initialData as any} />}
+        {activeTab === 'about' && <AboutContentForm initialData={initialData as any} />}
+        {activeTab === 'awareness' && <AwarenessContentForm initialData={initialData as any} />}
+        {activeTab === 'help' && <HelpContentForm initialData={initialData as any} />}
       </div>
     </div>
   )

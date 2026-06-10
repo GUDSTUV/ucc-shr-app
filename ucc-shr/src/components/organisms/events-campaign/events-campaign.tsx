@@ -11,7 +11,7 @@ const DEFAULT_ARTICLE_IMAGE = '/icons/default-article.svg'
 
 export async function EventsCampaignSection() {
   type EventRow = { id: string; title: string; description: string; image?: string | null; startDate: Date }
-  type ArticleRow = { id: string; slug: string; title: string; category: string; content: string | Record<string, unknown>; coverImage?: string | null }
+  type ArticleRow = { id: string; slug: string; title: string; category: string; content: any; coverImage?: string | null }
 
   let events: EventRow[] = []
   let articles: ArticleRow[] = []

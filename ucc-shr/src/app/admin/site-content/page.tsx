@@ -55,7 +55,7 @@ export default async function SiteContentPage() {
       title="Site Content CMS" 
       description="Update text, images, and dynamic lists displayed on the public frontend pages."
     >
-      <SiteContentTabs initialData={defaultContent} />
+      <SiteContentTabs initialData={defaultContent as any} />
     </AdminLayout>
   )
 }

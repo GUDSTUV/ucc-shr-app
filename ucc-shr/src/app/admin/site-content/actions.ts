@@ -42,8 +42,8 @@ export async function updateSiteContentJson(key: string, value: Prisma.JsonValue
 
   await prisma.siteContent.upsert({
     where: { key },
-    update: { value },
-    create: { key, value }
+    update: { value: value as Prisma.InputJsonValue },
+    create: { key, value: value as Prisma.InputJsonValue }
   })
 
   // Revalidate public pages
