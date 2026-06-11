@@ -79,7 +79,7 @@ export default async function AdminAnalyticsPage() {
     } as Record<'RECEIVED' | 'UNDER_REVIEW' | 'UNDER_INVESTIGATION' | 'CLOSED', number>,
   )
 
-  const totalReports = Object.values(statusCountMap).reduce((sum, count) => sum + count, 0)
+  const totalReports = Object.values(statusCountMap).reduce((sum: number, count: number) => sum + count, 0)
   const receivedReports = statusCountMap.RECEIVED
   const reviewingReports = statusCountMap.UNDER_REVIEW
   const resolvedReports = statusCountMap.CLOSED
