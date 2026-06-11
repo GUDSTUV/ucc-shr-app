@@ -44,6 +44,7 @@ export function Navbar({ user }: NavbarProps) {
 
   // Close dropdowns on route change
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setDropdownOpen(false)
     setMobileMenuOpen(false)
   }, [path])
