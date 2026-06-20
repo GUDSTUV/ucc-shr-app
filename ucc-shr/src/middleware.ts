@@ -7,10 +7,30 @@ export async function middleware(req: NextRequest) {
   const isAdminLogin = pathname === '/admin/login'
   const isAdminSignup = pathname === '/admin/signup'
 
-  const token = await getToken({
-    req,
-    secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
-  })
+  const secret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET
+
+  // Try reading the token. In production (Vercel), secure cookies are used.
+  let token = await getToken({ req, secret })
+
+  if (!token) {
+    // Fallback for Auth.js v5 secure cookie
+    token = await getToken({
+      req,
+      secret,
+      secureCookie: true,
+      salt: '__Secure-authjs.session-token',
+    })
+  }
+
+  if (!token) {
+    // Fallback for NextAuth v4 secure cookie
+    token = await getToken({
+      req,
+      secret,
+      secureCookie: true,
+      salt: '__Secure-next-auth.session-token',
+    })
+  }
 
   if (isAdminLogin || isAdminSignup) {
     if (token) {

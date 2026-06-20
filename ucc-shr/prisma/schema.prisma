@@ -34,7 +34,6 @@ model Event {
   id          String    @id @default(cuid())
   title       String
   description String
-  image       String?
   venue       String
   startDate   DateTime
   endDate     DateTime?
@@ -42,6 +41,7 @@ model Event {
   published   Boolean   @default(false)
   authorId    String
   createdAt   DateTime  @default(now())
+  image       String?
   User        User      @relation(fields: [authorId], references: [id])
   Rsvp        Rsvp[]
 }
@@ -89,23 +89,23 @@ model User {
   id                    String                  @id @default(cuid())
   email                 String                  @unique
   name                  String
-  image                 String?
   password              String?
   role                  Role                    @default(STAFF)
+  createdAt             DateTime                @default(now())
+  image                 String?
   emailVerified         Boolean                 @default(false)
   verifyToken           String?                 @unique
   verifyTokenExpiry     DateTime?
   resetToken            String?                 @unique
   resetTokenExpiry      DateTime?
   lastLoginAt           DateTime?
-  createdAt             DateTime                @default(now())
   Article               Article[]
   Event                 Event[]
-  SavedResource         SavedResource[]
-  NotificationState     NotificationState[]
-  NotificationRead      NotificationRead[]
-  NotificationDismissed NotificationDismissed[]
   Message               Message[]
+  NotificationDismissed NotificationDismissed[]
+  NotificationRead      NotificationRead[]
+  NotificationState     NotificationState[]
+  SavedResource         SavedResource[]
 }
 
 model NotificationState {
@@ -197,8 +197,8 @@ enum ReportStatus {
 
 enum Role {
   STAFF
-  ADMIN
   SUPER_ADMIN
+  ADMIN
   SUSPENDED
 }
 

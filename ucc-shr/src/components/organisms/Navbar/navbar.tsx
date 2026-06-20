@@ -20,7 +20,7 @@ interface NavbarProps {
 
 const navLinks = [
   { href: '/', label: 'Home', exact: true },
-  { href: '/about', label: 'About', exact: false },
+  { href: '/about', label: 'About Us', exact: false },
   { href: '/hub', label: 'Awareness', exact: false },
   { href: '/help', label: 'Help', exact: false },
 ]
@@ -44,7 +44,6 @@ export function Navbar({ user }: NavbarProps) {
 
   // Close dropdowns on route change
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setDropdownOpen(false)
     setMobileMenuOpen(false)
   }, [path])
