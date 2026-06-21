@@ -67,17 +67,17 @@ function FaqAccordionItem({
   const [open, setOpen] = useState(false)
 
   return (
-    <motion.div variants={itemVariants}>
+    <motion.div variants={itemVariants} className="border-b border-gray-200 last:border-0">
       <Button
         variant="unstyled"
         onClick={() => setOpen((prev) => !prev)}
         aria-expanded={open}
-        className="flex w-full items-center justify-between gap-4 rounded-2xl border border-gray-100 bg-white px-5 py-4 text-left shadow-sm transition-colors hover:border-navy/20 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy/40"
+        className="group flex w-full items-center justify-between gap-4 py-6 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-4"
       >
-        <Text as="span" size="base" weight="semibold" className="text-gray-900">{question}</Text>
+        <Text as="span" size="lg" weight="semibold" className="text-gray-900 transition-colors group-hover:text-navy">{question}</Text>
         <ChevronDown
-          size={18}
-          className={`shrink-0 text-navy transition-transform duration-300 ${open ? 'rotate-180' : ''}`}
+          size={20}
+          className={`shrink-0 text-gray-400 transition-transform duration-300 group-hover:text-navy ${open ? 'rotate-180 text-navy' : ''}`}
         />
       </Button>
       <AnimatePresence initial={false}>
@@ -90,7 +90,7 @@ function FaqAccordionItem({
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
             className="overflow-hidden"
           >
-            <Text size="sm" tone="muted" className="rounded-b-2xl border border-t-0 border-gray-100 bg-white px-5 pb-4 pt-3 leading-relaxed">
+            <Text size="base" tone="muted" className="pb-8 pr-12 leading-relaxed">
               {answer}
             </Text>
           </motion.div>
@@ -106,8 +106,8 @@ export function FaqSection({ showHelpLink = true, featuredOnly = false, customFa
   const activeFaqs = customFaqs && customFaqs.length > 0 ? customFaqs : faqs
 
   return (
-    <section className="bg-white py-16 lg:py-24">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+    <section className="bg-white py-20 lg:py-24">
+      <div className="mx-auto max-w-4xl px-6 lg:px-8">
         {/* Heading */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -122,19 +122,19 @@ export function FaqSection({ showHelpLink = true, featuredOnly = false, customFa
           <Heading as="h2" size={{ base: '3xl', lg: '4xl' }} tone="navy" weight="bold" className="mt-2">
             Frequently Asked Questions
           </Heading>
-          <Text size="base" tone="muted" className="mx-auto mt-3 max-w-2xl">
+          <Text size="base" tone="muted" className="mx-auto mt-4 max-w-2xl">
             Answers to the most common concerns about reporting, privacy, and
             the support process.
           </Text>
         </motion.div>
 
-        {/* Accordion grid */}
+        {/* Accordion list */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: '-80px' }}
-          className="mx-auto mt-10 max-w-3xl space-y-3"
+          className="mx-auto mt-16 max-w-3xl"
         >
           {activeFaqs
             .filter((_, i) => (featuredOnly ? [0, 1, 5].includes(i) : true))
@@ -155,13 +155,13 @@ export function FaqSection({ showHelpLink = true, featuredOnly = false, customFa
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="mt-10 text-center"
+            className="mt-16 text-center"
           >
-            <Text size="sm" tone="muted" className="text-gray-500">
+            <Text size="base" tone="muted" className="text-gray-500">
               Still have questions?{' '}
               <Link
                 href="/help"
-                className="font-semibold text-navy underline-offset-2 hover:underline"
+                className="font-semibold text-navy underline-offset-4 hover:underline"
               >
                 Visit the Help Centre
               </Link>

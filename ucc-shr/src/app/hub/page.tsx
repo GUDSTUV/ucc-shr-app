@@ -9,10 +9,11 @@ import { Text } from '@/src/components/atoms/text'
 import { Heading } from '@/src/components/atoms/heading'
 import { stats, harassmentTypes, rights, consentPrinciples, policyPoints } from './constants'
 
-const ScenarioCards = dynamic(() => import('@/src/components/organisms/scenario-cards/scenario-cards').then(m => m.ScenarioCards))
-const FlipCard = dynamic(() => import('@/src/components/molecules/flip-card/flip-card').then(m => m.FlipCard))
 import { HeroCarousel } from './hero-carousel'
-import { Phone, ShieldCheck, CheckCircle2 } from 'lucide-react'
+import { Phone, CheckCircle2 } from 'lucide-react'
+import { ConsentSection } from '@/src/components/organisms/consent-section/consent-section'
+import { HarassmentTypesSection } from '@/src/components/organisms/harassment-types'
+const ScenarioCards = dynamic(() => import('@/src/components/organisms/scenario-cards/scenario-cards').then(m => m.ScenarioCards))
 
 /* ─── Page ─── */
 
@@ -22,39 +23,36 @@ export default async function HubPage() {
 	})
 
 	const contentMap = contentRecords.reduce((acc: Record<string, string>, record: { key: string; value: unknown }) => {
-		acc[record.key] = record.value as string
-		return acc
-	}, {} as Record<string, string>)
+		// Safely strip double quotes if Prisma serialized it as a JSON string literal
+		let val = typeof record.value === 'string' ? record.value : String(record.value || '');
+		val = val.replace(/^"|"$/g, '');
+		acc[record.key] = val;
+		return acc;
+	}, {} as Record<string, string>);
 
-	const customBanner = contentMap['awarenessBanner']
-	const customVideo = contentMap['awarenessVideoUrl']
-
-	const banners = await prisma.campaignBanner.findMany({
-		where: { isActive: true },
-		orderBy: { createdAt: 'desc' },
-		take: 5,
-	})
+	const customBanner = contentMap['awarenessBanner'];
+	const customVideo = contentMap['awarenessVideoUrl'];
 
 	return (
 		<>
 			<div className="bg-gray-50">
 				{/* ═══ Section 1: Awareness Banner ═══ */}
-				{customBanner ? (
-					<div className="relative h-64 sm:h-80 lg:h-120 w-full">
-						<img src={customBanner} alt="Awareness Campaign Banner" className="absolute inset-0 h-full w-full object-cover" />
-						<div className="absolute inset-0 bg-black/40" />
-						<div className="absolute inset-0 flex items-center justify-center p-6 text-center">
-							<div>
-								<Text as="span" size="sm" weight="bold" tone="white" className="uppercase tracking-widest text-red-light drop-shadow-md">CEGRAD Campaigns</Text>
-								<Heading as="h1" size={{ base: '4xl', sm: '5xl', lg: '6xl' }} tone="white" weight="bold" className="mt-4 drop-shadow-lg">
-									Awareness & Prevention
-								</Heading>
-							</div>
+				<div className={`relative h-64 sm:h-80 lg:h-120 w-full ${!customBanner ? 'bg-gradient-to-br from-navy to-navy-light' : ''}`}>
+					{customBanner && (
+						<>
+							<img src={customBanner} alt="Awareness Campaign Banner" className="absolute inset-0 h-full w-full object-cover" />
+							<div className="absolute inset-0 bg-black/40" />
+						</>
+					)}
+					<div className="absolute inset-0 flex items-center justify-center p-6 text-center">
+						<div>
+							<Text as="span" size="sm" weight="bold" tone="white" className="uppercase tracking-widest text-red-light drop-shadow-md">CEGRAD Campaigns</Text>
+							<Heading as="h1" size={{ base: '4xl', sm: '5xl', lg: '6xl' }} tone="white" weight="bold" className="mt-4 drop-shadow-lg">
+								Awareness & Prevention
+							</Heading>
 						</div>
 					</div>
-				) : (
-					<HeroCarousel banners={banners} />
-				)}
+				</div>
 
 				{/* ═══ Section 2: Quick Stats ═══ */}
 				<section className="border-b border-gray-100 bg-white">
@@ -72,29 +70,7 @@ export default async function HubPage() {
 				</section>
 
 				{/* ═══ Section 3: What is Sexual Harassment ═══ */}
-				<section className="py-16 lg:py-20">
-					<div className="mx-auto max-w-7xl px-6 lg:px-8">
-						<FadeIn className="text-center">
-							<Text as="span" size="xs" weight="semibold" tone="navy" className="uppercase tracking-widest">Know the Signs</Text>
-							<Heading size="3xl" tone="navy" className="mt-2 lg:text-4xl">What is Sexual Harassment?</Heading>
-							<Text size="base" tone="muted" className="mx-auto mt-3 max-w-2xl">
-								Sexual harassment is any unwelcome conduct of a sexual nature that makes a person feel offended, humiliated, or intimidated. It can happen to anyone, regardless of gender, and takes many forms.
-							</Text>
-						</FadeIn>
-
-						<FadeInStagger className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-							{harassmentTypes.map((type) => (
-								<FlipCard
-									key={type.title}
-									frontIcon={<type.Icon size={32} />}
-									frontTitle={type.title}
-									backDescription={type.description}
-									backList={type.examples}
-								/>
-							))}
-						</FadeInStagger>
-					</div>
-				</section>
+				<HarassmentTypesSection />
 
 				{/* ═══ Section 4: Know Your Rights ═══ */}
 				<section className="bg-navy-light py-16 lg:py-20">
@@ -107,17 +83,17 @@ export default async function HubPage() {
 							</Text>
 						</FadeIn>
 
-						<FadeInStagger className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+						<FadeInStagger className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
 							{rights.map((right) => (
 								<FadeInItem
 									key={right.title}
-									className="rounded-2xl border border-white bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg focus-within:ring-2 focus-within:ring-navy focus-within:ring-offset-2"
+									className="group flex h-full flex-col rounded-xl border border-gray-200 bg-white p-6 sm:p-8 transition-colors hover:border-navy hover:bg-gray-50"
 								>
-									<div className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-navy text-white">
-										<right.Icon size={20} />
+									<div className="inline-flex h-12 w-12 items-center justify-center rounded-md bg-navy text-white">
+										<right.Icon size={22} />
 									</div>
-									<Heading as="h3" size="xl" tone="default" className="mt-4 text-base font-semibold">{right.title}</Heading>
-									<Text size="sm" tone="muted" className="mt-2 leading-relaxed">{right.description}</Text>
+									<Heading as="h3" size="lg" tone="navy" weight="semibold" className="mt-6 text-base">{right.title}</Heading>
+									<Text size="sm" tone="muted" className="mt-2 flex-1 leading-relaxed">{right.description}</Text>
 								</FadeInItem>
 							))}
 						</FadeInStagger>
@@ -125,41 +101,7 @@ export default async function HubPage() {
 				</section>
 
 				{/* ═══ Section 5: Understanding Consent (F.R.I.E.S) ═══ */}
-				<section className="py-16 lg:py-20">
-					<div className="mx-auto max-w-7xl px-6 lg:px-8">
-						<FadeIn className="text-center">
-							<Text as="span" size="xs" weight="semibold" tone="navy" className="uppercase tracking-widest">Clear Boundaries</Text>
-							<Heading size="3xl" tone="navy" className="mt-2 lg:text-4xl">Understanding Consent</Heading>
-							<Text size="base" tone="muted" className="mx-auto mt-3 max-w-2xl">
-								Consent is a clear, unambiguous, and voluntary agreement. It must be present in every interaction. Remember the F.R.I.E.S framework:
-							</Text>
-						</FadeIn>
-
-						<FadeInStagger className="mt-10 grid gap-5 sm:grid-cols-3 lg:grid-cols-5">
-							{consentPrinciples.map((item) => (
-								<FadeInItem key={item.letter} className="flex flex-col items-center rounded-2xl border border-gray-100 bg-white p-6 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
-									<div className="flex h-14 w-14 items-center justify-center rounded-full bg-navy text-xl font-bold text-white shadow-md">
-										{item.letter}
-									</div>
-									<Heading as="h3" size="xl" tone="navy" className="mt-4 text-base">{item.title}</Heading>
-									<Text size="sm" tone="muted" className="mt-2">{item.desc}</Text>
-								</FadeInItem>
-							))}
-						</FadeInStagger>
-
-						<FadeIn delay={0.2} className="mx-auto mt-10 flex max-w-3xl flex-col items-center gap-5 rounded-2xl bg-navy p-8 text-white shadow-xl sm:flex-row sm:items-center">
-							<div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-white/10">
-								<ShieldCheck size={28} className="text-white" />
-							</div>
-							<div className="text-center sm:text-left">
-								<Heading as="h3" size="xl" tone="white" className="text-lg">Silence is NOT Consent</Heading>
-								<Text size="sm" tone="white" className="mt-1 opacity-80">
-									The absence of a &quot;no&quot; does not mean &quot;yes&quot;. Only a clear, enthusiastic &quot;yes&quot; constitutes consent.
-								</Text>
-							</div>
-						</FadeIn>
-					</div>
-				</section>
+				<ConsentSection />
 
 				{/* ═══ Section 6: What Would You Do? Scenarios ═══ */}
 				<ScenarioCards />
@@ -183,7 +125,7 @@ export default async function HubPage() {
 									</Link>
 								</div>
 							</FadeIn>
-							<FadeIn delay={0.2} className="relative aspect-video w-full overflow-hidden rounded-2xl bg-gray-800 shadow-2xl ring-1 ring-white/10 group">
+							<FadeIn delay={0.2} className="relative aspect-video w-full overflow-hidden rounded-xl bg-gray-800 border border-white/10 group">
 								{customVideo ? (
 									customVideo.includes('youtube.com') || customVideo.includes('youtu.be') ? (
 										<iframe
@@ -193,7 +135,7 @@ export default async function HubPage() {
 											allowFullScreen
 										/>
 									) : (
-										<video controls className="absolute inset-0 h-full w-full object-cover">
+										<video key={customVideo} controls className="absolute inset-0 h-full w-full object-cover">
 											<source src={customVideo} type="video/mp4" />
 										</video>
 									)

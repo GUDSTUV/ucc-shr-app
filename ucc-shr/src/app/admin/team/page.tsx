@@ -7,7 +7,7 @@ export default async function AdminTeamPage() {
   const session = await requireSuperAdmin()
 
   const admins = await prisma.user.findMany({
-    where: { role: { in: ['ADMIN', 'SUPER_ADMIN', 'SUSPENDED'] } },
+    where: { role: { in: ['ADMIN', 'SUPER_ADMIN', 'COUNSELOR', 'INVESTIGATOR', 'SUSPENDED'] } },
     orderBy: { name: 'asc' }
   })
 

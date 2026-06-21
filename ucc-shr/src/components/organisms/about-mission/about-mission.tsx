@@ -17,7 +17,7 @@ export function AboutMission() {
         <div className="mx-auto">
           <div className="grid gap-8 md:grid-cols-2">
             {/* Mission Card */}
-            <div className="rounded-2xl border border-navy/10 bg-white p-8 shadow-sm transition hover:shadow-md">
+            <div className="rounded-xl border border-gray-200 bg-white p-8 sm:p-10 transition-colors hover:border-navy hover:bg-gray-50">
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-navy-light/30">
                 <Target className="h-6 w-6 text-navy" />
               </div>
@@ -29,7 +29,7 @@ export function AboutMission() {
             </div>
 
             {/* Vision Card */}
-            <div className="rounded-2xl border border-navy/10 bg-white p-8 shadow-sm transition hover:shadow-md">
+            <div className="rounded-xl border border-gray-200 bg-white p-8 sm:p-10 transition-colors hover:border-navy hover:bg-gray-50">
               <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-red/10">
                 <Eye className="h-6 w-6 text-red" />
               </div>

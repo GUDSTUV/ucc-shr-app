@@ -2,7 +2,6 @@ import dynamic from 'next/dynamic'
 
 import { HeroSection } from '@/src/components/organisms/hero-section'
 import { WhyReportingSection } from '@/src/components/organisms/why-reporting'
-import { HarassmentTypesSection } from '@/src/components/organisms/harassment-types'
 import { prisma } from '@/src/lib/prisma'
 
 const ReportingProcessSection = dynamic(() => import('@/src/components/organisms/reporting-process').then(mod => mod.ReportingProcessSection))
@@ -26,19 +25,27 @@ export default async function HomePage() {
   }))
 
   const contentRecords = await prisma.siteContent.findMany({
-    where: { key: 'faqs' }
+    where: { key: { in: ['faqs', 'heroTitle', 'heroSubtitle'] } }
   })
+  
+  const contentMap = contentRecords.reduce((acc, record) => {
+    acc[record.key] = record.value
+    return acc
+  }, {} as Record<string, unknown>)
+
   type FAQType = { question: string; answer: string }
-  const rawFaqs = contentRecords[0]?.value
+  const rawFaqs = contentMap['faqs']
   const customFaqs = Array.isArray(rawFaqs)
     ? (rawFaqs as unknown[]).filter((f): f is FAQType => typeof f === 'object' && f !== null && typeof (f as any).question === 'string' && typeof (f as any).answer === 'string')
     : undefined
 
+  const heroTitle = typeof contentMap['heroTitle'] === 'string' ? contentMap['heroTitle'] : undefined
+  const heroSubtitle = typeof contentMap['heroSubtitle'] === 'string' ? contentMap['heroSubtitle'] : undefined
+
   return (
     <>
-      <HeroSection banners={mappedBanners} />
+      <HeroSection banners={mappedBanners} customTitle={heroTitle} customSubtitle={heroSubtitle} />
       <WhyReportingSection />
-      <HarassmentTypesSection />
       <ReportingProcessSection />
       <AwarenessPreviewSection />
       <EventsCampaignSection />
@@ -48,4 +55,4 @@ export default async function HomePage() {
       <Footer />
     </>
   )
-}
+}

@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Badge } from '@/src/components/atoms/badge'
 import { Button } from '@/src/components/atoms/button'
 import { Input } from '@/src/components/atoms/input'
-import { suspendAdmin, restoreAdmin } from './team-actions'
+import { suspendAdmin, restoreAdmin, resetAdminPassword, deleteSuspendedAdmin } from './team-actions'
 import { createAdminAccount } from './create-account-action'
 
 type AdminUser = {
@@ -80,6 +80,41 @@ export function TeamTable({ admins, currentUserId }: TeamTableProps) {
     setLoading(false)
   }
 
+  async function handleResetPassword(userId: string) {
+    const newPassword = window.prompt("Enter the new password for this user (min 6 characters):")
+    if (!newPassword) return
+
+    setLoading(true)
+    setError('')
+    setSuccess('')
+
+    const res = await resetAdminPassword(userId, newPassword)
+
+    if (res.error) {
+      setError(res.error)
+    } else {
+      setSuccess(`Password has been successfully updated.`)
+    }
+    setLoading(false)
+  }
+
+  async function handleDelete(userId: string) {
+    if (!confirm('WARNING: Are you absolutely sure you want to permanently delete this suspended account? This action cannot be undone.')) return
+    
+    setLoading(true)
+    setError('')
+    setSuccess('')
+
+    const res = await deleteSuspendedAdmin(userId)
+    
+    if (res.error) {
+      setError(res.error)
+    } else {
+      setSuccess(`Suspended account has been permanently deleted.`)
+    }
+    setLoading(false)
+  }
+
   return (
     <div className="space-y-6">
       {error && <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</div>}
@@ -107,6 +142,19 @@ export function TeamTable({ admins, currentUserId }: TeamTableProps) {
               required
               disabled={loading}
             />
+          </div>
+          <div className="flex-1 w-full">
+            <label className="mb-1 block text-sm font-medium text-gray-700">Role</label>
+            <select 
+              name="role"
+              required
+              disabled={loading}
+              className="flex h-11 w-full items-center rounded-xl border border-gray-200 bg-white px-4 text-sm font-medium text-gray-900 transition-all focus:border-navy focus:outline-none focus:ring-1 focus:ring-navy disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <option value="ADMIN">Admin</option>
+              <option value="COUNSELOR">Case Coordinator / Counselor</option>
+              <option value="INVESTIGATOR">Investigator</option>
+            </select>
           </div>
           <div className="flex-1 w-full">
             <label className="mb-1 block text-sm font-medium text-gray-700">Temporary Password</label>
@@ -148,14 +196,19 @@ export function TeamTable({ admins, currentUserId }: TeamTableProps) {
                     <p className="text-sm text-gray-500">{admin.email}</p>
                   </td>
                   <td className="px-4 py-4">
-                    <Badge variant={admin.role === 'SUPER_ADMIN' ? 'navy' : admin.role === 'SUSPENDED' ? 'error' : 'warning'}>
+                    <Badge variant={
+                      admin.role === 'SUPER_ADMIN' ? 'navy' : 
+                      admin.role === 'SUSPENDED' ? 'error' : 
+                      admin.role === 'COUNSELOR' ? 'success' :
+                      admin.role === 'INVESTIGATOR' ? 'warning' : 'warning'
+                    }>
                       {admin.role.replace('_', ' ')}
                     </Badge>
                   </td>
                   <td className="px-4 py-4 text-sm text-gray-600">
                     {admin.lastLoginAt ? new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(admin.lastLoginAt)) : 'Never'}
                   </td>
-                  <td className="px-4 py-4 text-right">
+                  <td className="px-4 py-4 text-right space-x-2">
                     {admin.role !== 'SUPER_ADMIN' && admin.id !== currentUserId && admin.role !== 'SUSPENDED' && (
                       <Button 
                         variant="outline" 
@@ -168,13 +221,34 @@ export function TeamTable({ admins, currentUserId }: TeamTableProps) {
                       </Button>
                     )}
                     {admin.role === 'SUSPENDED' && (
+                      <>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => handleRestore(admin.id)}
+                          disabled={loading}
+                        >
+                          Restore Access
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="border-red-200 text-red-600 hover:bg-red-50"
+                          onClick={() => handleDelete(admin.id)}
+                          disabled={loading}
+                        >
+                          Delete
+                        </Button>
+                      </>
+                    )}
+                    {admin.role !== 'SUPER_ADMIN' && admin.id !== currentUserId && (
                       <Button 
                         variant="outline" 
                         size="sm" 
-                        onClick={() => handleRestore(admin.id)}
+                        onClick={() => handleResetPassword(admin.id)}
                         disabled={loading}
                       >
-                        Restore Access
+                        Change Password
                       </Button>
                     )}
                   </td>

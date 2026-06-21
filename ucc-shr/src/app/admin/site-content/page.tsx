@@ -11,9 +11,13 @@ export default async function SiteContentPage() {
   
   // Convert array to a key-value object
   const contentMap = contentRecords.reduce((acc: Record<string, unknown>, record: { key: string; value: unknown }) => {
-    acc[record.key] = record.value
-    return acc
-  }, {} as Record<string, unknown>)
+    let val = record.value;
+    if (typeof val === 'string') {
+      val = val.replace(/^"|"$/g, '');
+    }
+    acc[record.key] = val;
+    return acc;
+  }, {} as Record<string, unknown>);
 
   // Default structure if empty — validate shapes where necessary
   const defaultContent = {

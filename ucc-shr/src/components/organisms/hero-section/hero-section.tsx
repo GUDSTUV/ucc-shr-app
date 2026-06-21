@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { BookOpen, Flag } from 'lucide-react'
 import { Heading } from '@/src/components/atoms/heading/heading'
 import { Text } from '@/src/components/atoms/text/text'
@@ -50,8 +51,9 @@ const itemVariants = {
   },
 }
 
-export function HeroSection({ banners = [] }: { banners?: BannerSlide[] }) {
+export function HeroSection({ banners = [], customTitle, customSubtitle }: { banners?: BannerSlide[], customTitle?: string, customSubtitle?: string }) {
   const [active, setActive] = useState(0)
+  const router = useRouter()
   const reportHref = '/report'
 
   const slides = banners.length > 0 ? banners : fallbackSlides
@@ -82,14 +84,25 @@ export function HeroSection({ banners = [] }: { banners?: BannerSlide[] }) {
         <Heading
           as={motion.h1}
           variants={itemVariants}
-          size={{ base: '4xl', sm: '5xl', lg: '6xl' }}
+          size={{ base: '3xl', sm: '4xl', lg: '5xl' }}
           weight="bold"
           tone="white"
           className="leading-tight tracking-tight"
         >
-          You Are Heard.
-          <br />
-          <Text as="span" tone="white">You Are Protected.</Text>
+          {customTitle ? (
+            customTitle.split('. ').map((part, i, arr) => (
+              <span key={i}>
+                {i > 0 && <br />}
+                {i === arr.length - 1 ? <span>{part}</span> : part + '.'}
+              </span>
+            ))
+          ) : (
+            <>
+              You Are Heard.
+              <br />
+              <span>You Are Protected.</span>
+            </>
+          )}
         </Heading>
 
         {/* Sub-headline */}
@@ -100,30 +113,31 @@ export function HeroSection({ banners = [] }: { banners?: BannerSlide[] }) {
           tone="white"
           className="mx-auto mt-4 max-w-md leading-relaxed opacity-75 lg:mx-0 lg:mt-6"
         >
-          Safely report sexual harassment at the University of Cape Coast.
-          Your report is confidential, taken seriously, and supported by
-          trained CEGRAD staff.
+          {customSubtitle || "Safely report sexual harassment at the University of Cape Coast. Your report is confidential, taken seriously, and supported by trained CEGRAD staff."}
         </Text>
 
         {/* CTAs */}
         <motion.div
           variants={itemVariants}
-          className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center lg:justify-start"
+          className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center lg:justify-start"
         >
-          <Link
-            href={reportHref}
-            className="inline-flex items-center gap-2 rounded-xl bg-navy-dark px-6 py-3.5 text-base font-semibold text-white shadow-lg shadow-navy/30 transition-all border border-transparent hover:border-white hover:bg-navy-dark hover:shadow-navy/40 active:scale-[0.98]"
+          <Button
+            variant="primary"
+            size="lg"
+            className="w-full sm:w-auto bg-navy-dark shadow-lg shadow-navy/30 border border-transparent hover:border-white hover:bg-navy-dark hover:shadow-navy/40"
+            onClick={() => router.push(reportHref)}
           >
-            <Flag size={18}/>
+            <Flag size={20} />
             Report an Incident
-          </Link>
-          <Link
-            href="/hub"
-            className="inline-flex items-center gap-2 rounded-xl border border-white/25 bg-white/10 px-6 py-3.5 text-base font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/20 active:scale-[0.98]"
+          </Button>
+          <Button
+            variant="unstyled"
+            className="inline-flex h-[54px] w-full sm:w-auto items-center justify-center gap-2 rounded-md border border-white/25 bg-white/10 px-6 text-[17px] font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/20 active:scale-[0.98]"
+            onClick={() => router.push('/hub')}
           >
-            <BookOpen size={18} />
+            <BookOpen size={20} />
             Know Your Rights
-          </Link>
+          </Button>
         </motion.div>
 
         <Text

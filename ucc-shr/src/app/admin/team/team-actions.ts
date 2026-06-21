@@ -3,6 +3,8 @@
 import { requireSuperAdmin } from '@/src/lib/auth/guards'
 import { prisma } from '@/src/lib/prisma'
 import { revalidatePath } from 'next/cache'
+import { logActivity } from '@/src/lib/audit'
+import bcrypt from 'bcryptjs'
 
 export async function suspendAdmin(userId: string) {
   const session = await requireSuperAdmin()
@@ -19,6 +21,14 @@ export async function suspendAdmin(userId: string) {
   await prisma.user.update({
     where: { id: userId },
     data: { role: 'SUSPENDED' }
+  })
+
+  logActivity({
+    userId: session.user.id!,
+    action: 'SUSPENDED',
+    resourceType: 'USER',
+    resourceId: userId,
+    details: { targetEmail: targetUser.email, previousRole: targetUser.role },
   })
 
   revalidatePath('/admin/team')
@@ -42,12 +52,20 @@ export async function restoreAdmin(userId: string) {
     data: { role: 'ADMIN' }
   })
 
+  logActivity({
+    userId: session.user.id!,
+    action: 'PROMOTED',
+    resourceType: 'USER',
+    resourceId: userId,
+    details: { targetEmail: targetUser.email, restoredToRole: 'ADMIN' },
+  })
+
   revalidatePath('/admin/team')
   return { success: true }
 }
 
 export async function promoteToAdmin(email: string) {
-  await requireSuperAdmin()
+  const session = await requireSuperAdmin()
   
   const user = await prisma.user.findUnique({ where: { email } })
   
@@ -62,6 +80,72 @@ export async function promoteToAdmin(email: string) {
   await prisma.user.update({
     where: { email },
     data: { role: 'ADMIN' }
+  })
+
+  logActivity({
+    userId: session.user.id!,
+    action: 'PROMOTED',
+    resourceType: 'USER',
+    resourceId: user.id,
+    details: { targetEmail: email, previousRole: user.role, newRole: 'ADMIN' },
+  })
+
+  revalidatePath('/admin/team')
+  return { success: true }
+}
+
+export async function resetAdminPassword(userId: string, newPasswordRaw: string) {
+  const session = await requireSuperAdmin()
+  
+  if (newPasswordRaw.length < 6) {
+    return { error: "Password must be at least 6 characters long." }
+  }
+
+  const targetUser = await prisma.user.findUnique({ where: { id: userId } })
+  if (!targetUser) {
+    return { error: "User does not exist." }
+  }
+
+  const hashedPassword = await bcrypt.hash(newPasswordRaw, 10)
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: { password: hashedPassword }
+  })
+
+  logActivity({
+    userId: session.user.id!,
+    action: 'UPDATED',
+    resourceType: 'USER',
+    resourceId: userId,
+    details: { targetEmail: targetUser.email, description: "Super Admin changed the user's password" },
+  })
+
+  return { success: true }
+}
+
+export async function deleteSuspendedAdmin(userId: string) {
+  const session = await requireSuperAdmin()
+  
+  const targetUser = await prisma.user.findUnique({ where: { id: userId } })
+  if (!targetUser) {
+    return { error: "User does not exist." }
+  }
+
+  if (targetUser.role !== 'SUSPENDED') {
+    return { error: "Only suspended accounts can be deleted. Suspend the account first." }
+  }
+
+  await prisma.user.delete({
+    where: { id: userId }
+  })
+
+  logActivity({
+    userId: session.user.id!,
+    action: 'DELETED',
+    resourceType: 'USER',
+    resourceId: userId,
+    details: { targetEmail: targetUser.email, description: "Permanently deleted suspended account" },
   })
 
   revalidatePath('/admin/team')

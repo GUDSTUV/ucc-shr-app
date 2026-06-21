@@ -8,6 +8,7 @@ import { Flag, LogIn, Bell, UserCircle2, ChevronDown, LogOut, LayoutDashboard, F
 import { Text } from '@/src/components/atoms/text'
 import { Button } from '@/src/components/atoms/button'
 import { signOut } from 'next-auth/react'
+import { isAdminRole } from '@/src/lib/auth/roles'
 
 type UserInfo = {
   name?: string | null
@@ -48,12 +49,11 @@ export function Navbar({ user }: NavbarProps) {
     setMobileMenuOpen(false)
   }, [path])
 
-  // Hide completely on auth, reporting flows, and admin
+  // Hide completely on auth and admin
   if (
     path.startsWith('/admin') ||
     path === '/login' ||
     path === '/signup' ||
-    path.startsWith('/report') ||
     path.startsWith('/track')
   ) {
     return null
@@ -143,7 +143,7 @@ export function Navbar({ user }: NavbarProps) {
 
                 {dropdownOpen && (
                   <div className="absolute right-0 mt-2 w-56 origin-top-right rounded-xl border border-gray-100 bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                    {user.role === 'ADMIN' || user.role === 'SUPER_ADMIN' ? (
+                    {isAdminRole(user.role) ? (
                       <div className="p-2 border-b border-gray-100">
                         <Text as="p" size="xs" weight="medium" tone="muted" className="px-3 py-1 uppercase tracking-wider">Navigation</Text>
                         <Link href="/admin" className="group flex items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-navy">
@@ -166,7 +166,7 @@ export function Navbar({ user }: NavbarProps) {
                     )}
                     <div className="p-2 border-b border-gray-100">
                       <Text as="p" size="xs" weight="medium" tone="muted" className="px-3 py-1 uppercase tracking-wider">Account</Text>
-                      {user.role === 'ADMIN' || user.role === 'SUPER_ADMIN' ? (
+                      {isAdminRole(user.role) ? (
                         <Link href="/admin/settings" className="group flex items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-navy">
                           <Lock size={16} className="text-gray-400 group-hover:text-navy" /> Admin Settings
                         </Link>
@@ -199,7 +199,7 @@ export function Navbar({ user }: NavbarProps) {
             </Link>
           )}
 
-          {!isUserSection && (
+          {!isUserSection && !path.startsWith('/report') && (
             <Link
               href="/report"
               className="inline-flex h-11 items-center gap-2 rounded-[10px] bg-navy px-5 text-[15px] font-semibold text-white shadow-sm shadow-navy/25 transition hover:bg-navy-dark"
@@ -248,7 +248,7 @@ export function Navbar({ user }: NavbarProps) {
                   </div>
                 </div>
 
-                {user.role === 'ADMIN' || user.role === 'SUPER_ADMIN' ? (
+                {isAdminRole(user.role) ? (
                   <>
                     <Text as="p" size="xs" weight="semibold" tone="muted" className="px-3 py-1 uppercase tracking-wider">Quick Access</Text>
                     <Link href="/admin" className="flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-50">

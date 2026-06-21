@@ -1,5 +1,5 @@
 'use client'
-import { LayoutDashboard, FileText, CalendarDays, Flag, BellRing, UserCircle2, Settings, BarChart3, Users, Image as ImageIcon, Globe } from 'lucide-react'
+import { LayoutDashboard, FileText, CalendarDays, Flag, BellRing, UserCircle2, Settings, BarChart3, Users, Image as ImageIcon, Globe, ScrollText } from 'lucide-react'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { signOut } from 'next-auth/react'
@@ -17,6 +17,7 @@ const items = [
   { href: '/admin/banners', label: 'Banners', icon: <ImageIcon size={16} /> },
   { href: '/admin/site-content', label: 'Site Content', icon: <Globe size={16} /> },
   { href: '/admin/team', label: 'Team', icon: <Users size={16} /> },
+  { href: '/admin/logs', label: 'Activity Logs', icon: <ScrollText size={16} /> },
 ]
 
 const accountItems = [

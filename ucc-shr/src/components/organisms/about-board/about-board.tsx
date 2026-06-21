@@ -53,7 +53,7 @@ export function AboutBoard({ customMembers }: { customMembers?: BoardMember[] })
             {activeMembers.map((member, i) => (
               <div
                 key={member.id || i}
-                className="group flex flex-col items-center rounded-2xl border border-gray-100 bg-white p-6 text-center shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
+                className="group flex flex-col items-center rounded-xl border border-gray-200 bg-white p-8 text-center transition-colors hover:border-navy hover:bg-gray-50"
               >
                 {member.imageUrl ? (
                   <img src={member.imageUrl} alt={member.name} className="mb-4 h-24 w-24 rounded-full object-cover border-2 border-navy/20" />

@@ -2,34 +2,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Facebook, Instagram, Linkedin, Mail, MapPin, Phone, Twitter, Clock } from 'lucide-react'
 import { Text } from '@/src/components/atoms/text/text'
+import { prisma } from '@/src/lib/prisma'
 
-const partners = [
-  {
-    name: 'University of Cape Coast',
-    abbr: 'UCC',
-    href: 'https://ucc.edu.gh',
-  },
-  {
-    name: 'UN Women',
-    abbr: 'UN Women',
-    href: 'https://www.unwomen.org',
-  },
-  {
-    name: 'Ghana Education Service',
-    abbr: 'GES',
-    href: 'https://ges.gov.gh',
-  },
-  {
-    name: 'Commission on Human Rights and Administrative Justice',
-    abbr: 'CHRAJ',
-    href: 'https://chraj.gov.gh',
-  },
-  {
-    name: 'Domestic Violence and Victims Support Unit',
-    abbr: 'DOVVSU',
-    href: 'https://police.gov.gh',
-  },
-]
 
 const quickLinks = [
   { href: '/', label: 'Home' },
@@ -55,7 +29,31 @@ const socials = [
   { href: 'https://linkedin.com', label: 'LinkedIn', Icon: Linkedin },
 ]
 
-export function Footer() {
+export async function Footer() {
+  const contentRecords = await prisma.siteContent.findMany({
+    where: { key: { in: ['footerText', 'contactAddress', 'contactPhone'] } }
+  })
+  
+  const contentMap = contentRecords.reduce((acc, record) => {
+    acc[record.key] = record.value
+    return acc
+  }, {} as Record<string, unknown>)
+  
+  const footerText = typeof contentMap['footerText'] === 'string' 
+    ? contentMap['footerText'] 
+    : 'Creating a safe, inclusive, and respectful academic community free from sexual harassment and discrimination.'
+    
+  const addressText = typeof contentMap['contactAddress'] === 'string'
+    ? contentMap['contactAddress']
+    : 'Second Floor, C.A Ackah lecture Theatre Complex, UCC Campus'
+    
+  const phoneText = typeof contentMap['contactPhone'] === 'string'
+    ? contentMap['contactPhone']
+    : '+233 235 383 415'
+    
+  const phoneLines = phoneText.split(',').map(p => p.trim()).filter(Boolean)
+  if (phoneLines.length === 0) phoneLines.push('+233 235 383 415')
+
   return (
     <footer className="border-t border-navy/40 bg-navy-dark text-navy-light">
       {/* Main grid */}
@@ -80,8 +78,7 @@ export function Footer() {
             </div>
 
             <Text size="sm" tone="white" className="leading-relaxed opacity-60">
-              Creating a safe, inclusive, and respectful academic community free
-              from sexual harassment and discrimination.
+              {footerText}
             </Text>
 
             {/* Social links */}
@@ -148,7 +145,7 @@ export function Footer() {
               <li className="flex items-start gap-2 text-sm text-white/60">
                 <MapPin size={15} className="mt-0.5 shrink-0 text-red" />
                 <span>
-                  Second Floor, C.A Ackah lecture Theatre Complex, UCC Campus
+                  {addressText}
                 </span>
               </li>
               <li className="flex items-start gap-2 text-sm text-white/60">
@@ -160,34 +157,12 @@ export function Footer() {
               <li className="flex items-start gap-2 text-sm text-white/60">
                 <Phone size={15} className="mt-0.5 shrink-0 text-red" />
                 <div className="flex flex-col gap-1">
-                  <a href="tel:+233235383415" className="transition hover:text-white">+233 235 383 415</a>
-                  <a href="tel:+233205383415" className="transition hover:text-white">+233 205 383 415</a>
-                  <a href="tel:+233575383415" className="transition hover:text-white">+233 575 383 415</a>
+                  {phoneLines.map((phone, idx) => (
+                    <a key={idx} href={`tel:${phone.replace(/\s+/g, '')}`} className="transition hover:text-white">{phone}</a>
+                  ))}
                 </div>
               </li>
             </ul>
-          </div>
-        </div>
-
-        {/* ── Partners strip ── */}
-        <div className="mt-10 border-t border-white/10 pt-8">
-          <Text size="xs" weight="semibold" tone="white" className="mb-4 text-center uppercase tracking-widest opacity-30">
-            Trusted Partners &amp; Supporting Institutions
-          </Text>
-          <div className="flex flex-wrap items-center justify-center gap-3">
-            {partners.map(({ name, abbr, href }) => (
-              <a
-                key={abbr}
-                href={href}
-                target="_blank"
-                rel="noreferrer"
-                aria-label={name}
-                title={name}
-                className="rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs font-semibold text-white/50 transition hover:border-white/30 hover:text-white/80"
-              >
-                {abbr}
-              </a>
-            ))}
           </div>
         </div>
 

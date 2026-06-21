@@ -1,6 +1,7 @@
 import { getToken } from 'next-auth/jwt'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { isAdminRole } from './lib/auth/roles'
 
 export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname
@@ -32,9 +33,11 @@ export async function middleware(req: NextRequest) {
     })
   }
 
+  const hasError = req.nextUrl.searchParams.has('error')
+
   if (isAdminLogin || isAdminSignup) {
-    if (token) {
-      if (token.role === 'SUPER_ADMIN' || token.role === 'ADMIN') {
+    if (token && !hasError) {
+      if (isAdminRole(token.role as string)) {
         return NextResponse.redirect(new URL('/admin', req.nextUrl.origin))
       }
       return NextResponse.redirect(new URL('/user/userDashboard', req.nextUrl.origin))
@@ -49,8 +52,8 @@ export async function middleware(req: NextRequest) {
 
   if (!isProtectedRoute) {
     // If it's the public login page, and user is already logged in, redirect them.
-    if (pathname === '/login' && token) {
-      if (token.role === 'SUPER_ADMIN' || token.role === 'ADMIN') {
+    if (pathname === '/login' && token && !hasError) {
+      if (isAdminRole(token.role as string)) {
         return NextResponse.redirect(new URL('/admin', req.nextUrl.origin))
       }
       return NextResponse.redirect(new URL('/user/userDashboard', req.nextUrl.origin))
@@ -64,14 +67,14 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
 
-  if (pathname.startsWith('/admin') && token.role !== 'SUPER_ADMIN' && token.role !== 'ADMIN') {
+  if (pathname.startsWith('/admin') && !isAdminRole(token.role as string)) {
     const loginUrl = new URL('/admin/login', req.nextUrl.origin)
     loginUrl.searchParams.set('callbackUrl', `${pathname}${req.nextUrl.search}`)
     return NextResponse.redirect(loginUrl)
   }
 
   // Keep admin and client sessions scoped to their own route groups.
-  if (pathname.startsWith('/user') && (token.role === 'SUPER_ADMIN' || token.role === 'ADMIN')) {
+  if (pathname.startsWith('/user') && isAdminRole(token.role as string)) {
     const adminUrl = new URL('/admin', req.nextUrl.origin)
     return NextResponse.redirect(adminUrl)
   }

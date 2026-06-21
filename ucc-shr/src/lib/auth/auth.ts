@@ -3,6 +3,7 @@ import Google from "next-auth/providers/google"
 import Credentials from "next-auth/providers/credentials"
 import { prisma } from "@/src/lib/prisma"
 import bcrypt from "bcryptjs"
+import { isAdminRole } from "@/src/lib/auth/roles"
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
@@ -53,13 +54,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return null
         }
 
-        // Enforce separated auth entry points for admin and user apps.
-        if (portal === 'admin' && user.role !== 'SUPER_ADMIN' && user.role !== 'ADMIN') {
-          return null
+        if (portal === 'admin' && !isAdminRole(user.role)) {
+          throw new Error('Access denied. Admin privileges required.')
         }
 
-        if (portal === 'user' && (user.role === 'SUPER_ADMIN' || user.role === 'ADMIN')) {
-          return null
+        if (portal === 'user' && isAdminRole(user.role)) {
+          throw new Error('Admins must use the Admin Console to log in.')
         }
 
         if (user.role === 'SUSPENDED') {
@@ -93,7 +93,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         })
 
         // Block SUPER_ADMIN and ADMIN from signing in via Google on the user portal
-        if (existing?.role === 'SUPER_ADMIN' || existing?.role === 'ADMIN') return '/login?error=AccessDenied'
+        if (isAdminRole(existing?.role)) return '/login?error=AccessDenied'
 
         if (existing?.role === 'SUSPENDED') return '/login?error=AccessDenied'
 

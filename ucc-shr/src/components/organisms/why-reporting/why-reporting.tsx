@@ -45,7 +45,7 @@ const cardVariants = {
 
 export function WhyReportingSection() {
   return (
-    <section className="bg-white py-16 lg:py-24">
+    <section className="bg-white py-20 lg:py-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         {/* Heading */}
         <motion.div
@@ -79,7 +79,7 @@ export function WhyReportingSection() {
             <motion.div
               key={card.title}
               variants={cardVariants}
-              className="rounded-2xl border border-gray-100 bg-gray-50 p-6 transition-all hover:border-navy/20 hover:shadow-sm"
+              className="flex flex-col group rounded-lg border border-gray-200 p-6 lg:p-8"
             >
               <div
                 className={`inline-flex h-12 w-12 items-center justify-center rounded-xl ${card.iconClass}`}

@@ -46,56 +46,64 @@ export function AboutHero({ customImages }: { customImages?: CarouselImage[] }) 
   }, [])
 
   return (
-    <section className="bg-white py-16 lg:py-20">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8 space-y-12">
-        <div className="text-center">
-          <Heading as="h1" size={{ base: '4xl', sm: '5xl', lg: '4xl' }} tone="navy" weight="bold" className="mt-2 tracking-tight">
+    <section className="relative min-h-[80vh] sm:min-h-[600px] w-full overflow-hidden bg-navy text-white flex flex-col justify-center">
+      {/* Background Images */}
+      <AnimatePresence mode="wait">
+        <motion.img
+          key={currentIndex}
+          src={activeImages[currentIndex]?.url || images[0].url}
+          alt={activeImages[currentIndex]?.alt || activeImages[currentIndex]?.caption || 'Carousel image'}
+          className="absolute inset-0 h-full w-full object-cover"
+          initial={{ opacity: 0, scale: 1.05 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.8, ease: "easeInOut" }}
+        />
+      </AnimatePresence>
+
+      {/* Overlays */}
+      <div className="absolute inset-0 bg-black/50 lg:bg-gradient-to-r lg:from-black/80 lg:via-black/50 lg:to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent lg:hidden" />
+
+      {/* Main Content Overlay */}
+      <div className="relative z-10 mx-auto flex h-full w-full max-w-7xl flex-col justify-center px-6 lg:px-8 py-24">
+        <div className="max-w-3xl text-left">
+          <Heading as="h1" size={{ base: '4xl', sm: '5xl', lg: '6xl' }} tone="white" weight="bold" className="tracking-tight drop-shadow-md">
             About CEGRAD
           </Heading>
-          <Text size={{ base: 'base', lg: 'lg' }} tone="muted" className="mx-auto mt-4 max-w-2xl">
+          <Text size={{ base: 'base', sm: 'lg', lg: 'xl' }} tone="white" className="mt-6 leading-relaxed opacity-95 drop-shadow">
             The Centre for Gender Research, Advocacy and Documentation (CEGRAD) at the University of Cape Coast is dedicated to promoting gender equality and women&apos;s rights through research, advocacy, and action.
           </Text>
         </div>
+      </div>
 
-        <div className="relative overflow-hidden rounded-3xl bg-gray-900 shadow-xl sm:h-[500px]">
-          <AnimatePresence mode="wait">
-            <motion.img
-              key={currentIndex}
-              src={activeImages[currentIndex]?.url || images[0].url}
-              alt={activeImages[currentIndex]?.alt || activeImages[currentIndex]?.caption || 'Carousel image'}
-              className="absolute inset-0 h-full w-full object-cover opacity-80"
-              initial={{ opacity: 0, scale: 1.05 }}
-              animate={{ opacity: 0.8, scale: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.8, ease: "easeInOut" }}
-            />
-          </AnimatePresence>
-
-          <div className="absolute inset-0 bg-gradient-to-t from-navy/80 via-transparent to-transparent" />
-
-          <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8">
+      {/* Bottom bar with caption and controls */}
+      <div className="absolute bottom-0 left-0 right-0 z-20 w-full pb-6 sm:pb-8 lg:pb-12">
+        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-6 sm:flex-row sm:items-end sm:justify-between lg:px-8">
+          <div className="max-w-xl">
             <AnimatePresence mode="wait">
               <Heading
                 as={motion.p}
                 key={currentIndex}
-                initial={{ y: 20, opacity: 0 }}
+                initial={{ y: 10, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                exit={{ y: -20, opacity: 0 }}
+                exit={{ y: -10, opacity: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                size={{ base: 'xl', sm: '2xl' }}
+                size={{ base: 'lg', sm: 'xl' }}
                 weight="semibold"
                 tone="white"
+                className="drop-shadow-md"
               >
                 {activeImages[currentIndex]?.caption}
               </Heading>
             </AnimatePresence>
           </div>
 
-          <div className="absolute bottom-6 right-6 flex gap-3 sm:bottom-8 sm:right-8">
+          <div className="flex shrink-0 gap-3">
             <Button
               variant="unstyled"
               onClick={handlePrev}
-              className="grid h-10 w-10 place-content-center rounded-full bg-white/20 text-white backdrop-blur-md transition hover:bg-white/40"
+              className="grid h-12 w-12 place-content-center rounded-full border border-white/20 bg-white/10 text-white backdrop-blur-md transition hover:bg-white/30"
               aria-label="Previous image"
             >
               <ChevronLeft className="h-6 w-6" />
@@ -103,7 +111,7 @@ export function AboutHero({ customImages }: { customImages?: CarouselImage[] }) 
             <Button
               variant="unstyled"
               onClick={handleNext}
-              className="grid h-10 w-10 place-content-center rounded-full bg-white/20 text-white backdrop-blur-md transition hover:bg-white/40"
+              className="grid h-12 w-12 place-content-center rounded-full border border-white/20 bg-white/10 text-white backdrop-blur-md transition hover:bg-white/30"
               aria-label="Next image"
             >
               <ChevronRight className="h-6 w-6" />

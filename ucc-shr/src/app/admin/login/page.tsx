@@ -1,8 +1,8 @@
 'use client'
 
 import { useSearchParams, useRouter } from 'next/navigation'
-import { Suspense, useState } from 'react'
-import { signIn } from 'next-auth/react'
+import { Suspense, useState, useEffect } from 'react'
+import { signOut, signIn } from 'next-auth/react'
 import Link from 'next/link'
 import { FormLayout } from '@/src/components/templates/form-layout'
 import { FormField } from '@/src/components/molecules/form-field'
@@ -19,7 +19,20 @@ function AdminLoginContent() {
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
+  const urlError = searchParams.get('error')
   const callbackUrl = searchParams.get('callbackUrl')
+
+  useEffect(() => {
+    if (urlError === 'Suspended') {
+      setError('Your account has been suspended by a Super Admin. Please contact support.')
+      signOut({ redirect: false }).then(() => {
+        router.replace('/admin/login')
+      })
+    } else if (urlError) {
+      setError(urlError)
+      router.replace('/admin/login')
+    }
+  }, [urlError, router])
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -35,7 +48,12 @@ function AdminLoginContent() {
       })
 
       if (result?.error) {
-        setError('Invalid admin credentials')
+        // NextAuth returns 'CredentialsSignin' when authorize returns null
+        if (result.error === 'CredentialsSignin') {
+          setError('Invalid admin credentials')
+        } else {
+          setError(result.error)
+        }
         setIsLoading(false)
         return
       }

@@ -4,9 +4,12 @@ import { usePathname } from 'next/navigation'
 import { Home, CalendarClock, Flag, BookText, UserRound, LayoutDashboard, FileText } from 'lucide-react'
 import { MobileNavItem } from '@/src/components/molecules/mobile-nav-item'
 import { ReportFab } from '@/src/components/atoms/report-fab'
+import { isAdminRole } from '@/src/lib/auth/roles'
 
 type UserInfo = {
   name?: string | null
+  email?: string | null
+  image?: string | null
   role?: string | null
 }
 
@@ -50,7 +53,7 @@ export function BottomNav({ user }: BottomNavProps) {
               icon={<Flag size={24} strokeWidth={2.5} />}
               active={path.startsWith('/report')}
             />
-            {user.role === 'ADMIN' || user.role === 'SUPER_ADMIN' ? (
+            {isAdminRole(user.role) ? (
               <>
                 <MobileNavItem
                   href="/admin"

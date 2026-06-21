@@ -2,9 +2,9 @@
 
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Suspense, useState } from 'react'
+import { Suspense, useState, useEffect } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
-import { signIn } from 'next-auth/react'
+import { signIn, signOut } from 'next-auth/react'
 import { AuthLayout } from '@/src/components/templates/auth-layout'
 import { FormField } from '@/src/components/molecules/form-field'
 import { Input } from '@/src/components/atoms/input'
@@ -25,6 +25,21 @@ function LoginContent() {
   const signupSuccess = searchParams.get('signup') === 'success'
   const emailVerified = searchParams.get('verified') === 'success'
   const alreadyVerified = searchParams.get('verified') === 'already'
+  const urlError = searchParams.get('error')
+
+  useEffect(() => {
+    if (urlError === 'Suspended') {
+      setError('Your account has been suspended. Please contact support.')
+      signOut({ redirect: false }).then(() => {
+        router.replace('/login')
+      })
+    } else if (urlError && urlError !== 'AccessDenied') {
+      // AccessDenied usually happens behind the scenes, we don't necessarily show it 
+      // directly unless needed, but we can if we want.
+      setError(urlError)
+      router.replace('/login')
+    }
+  }, [urlError, router])
 
   async function handleGoogleSignIn() {
     setGoogleLoading(true)

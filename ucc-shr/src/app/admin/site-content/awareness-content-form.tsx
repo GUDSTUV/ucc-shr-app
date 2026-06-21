@@ -6,7 +6,7 @@ import { updateSiteContentJson } from './actions'
 import { Button } from '@/src/components/atoms/button'
 import { Input } from '@/src/components/atoms/input'
 import { toast } from 'react-hot-toast'
-import { Video, Image as ImageIcon } from 'lucide-react'
+import { Video, Image as ImageIcon, Upload } from 'lucide-react'
 
 type Props = {
   initialData: {
@@ -22,20 +22,59 @@ export function AwarenessContentForm({ initialData }: Props) {
   const [banner, setBanner] = useState(initialData.awarenessBanner)
   const [video, setVideo] = useState(initialData.awarenessVideoUrl)
 
+  const [bannerFile, setBannerFile] = useState<File | null>(null)
+  const [videoFile, setVideoFile] = useState<File | null>(null)
+
+  async function uploadFile(file: File): Promise<string> {
+    const formData = new FormData()
+    formData.append('files', file)
+    
+    const response = await fetch('/api/uploads', {
+      method: 'POST',
+      body: formData,
+    })
+
+    const data = await response.json()
+    if (!response.ok) throw new Error(data?.error || 'Upload failed')
+    
+    const uploadedFiles: string[] = data.files || []
+    if (uploadedFiles.length === 0) throw new Error('No file returned')
+    
+    const uploadedFileString = uploadedFiles[0]
+    const colonIndex = uploadedFileString.indexOf(':')
+    const pathOnly = colonIndex !== -1 ? uploadedFileString.substring(colonIndex + 1) : uploadedFileString
+    return pathOnly
+  }
+
   async function handleSave() {
     setIsSubmitting(true)
     try {
-      const res1 = await updateSiteContentJson('awarenessBanner', banner)
-      const res2 = await updateSiteContentJson('awarenessVideoUrl', video)
+      let finalBannerUrl = banner
+      let finalVideoUrl = video
+
+      if (bannerFile) {
+        finalBannerUrl = await uploadFile(bannerFile)
+      }
+      
+      if (videoFile) {
+        finalVideoUrl = await uploadFile(videoFile)
+      }
+
+      const res1 = await updateSiteContentJson('awarenessBanner', finalBannerUrl)
+      const res2 = await updateSiteContentJson('awarenessVideoUrl', finalVideoUrl)
 
       if (res1.success && res2.success) {
         toast.success('Awareness content saved successfully')
+        setBanner(finalBannerUrl)
+        setVideo(finalVideoUrl)
+        setBannerFile(null)
+        setVideoFile(null)
         router.refresh()
       } else {
         toast.error('Failed to save content')
       }
-    } catch (error) {
-      toast.error('An unexpected error occurred')
+    } catch (error: any) {
+      toast.error(error.message || 'An unexpected error occurred')
     } finally {
       setIsSubmitting(false)
     }
@@ -53,17 +92,36 @@ export function AwarenessContentForm({ initialData }: Props) {
           </div>
         </div>
 
-        <div className="mt-6">
+        <div className="mt-6 space-y-4">
           <Input 
             label="Background Image URL" 
-            value={banner} 
-            onChange={(e) => setBanner(e.target.value)} 
+            value={bannerFile ? 'Will upload selected file...' : banner} 
+            onChange={(e) => {
+              setBanner(e.target.value)
+              setBannerFile(null)
+            }} 
+            disabled={!!bannerFile}
             placeholder="https://..."
-            helperText="Paste a direct image link or use an uploaded file URL."
           />
-          {banner && (
+          
+          <div className="flex items-center gap-4">
+            <span className="text-sm font-medium text-gray-500">OR</span>
+            <div className="relative flex-1">
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  if (file) setBannerFile(file)
+                }}
+                className="file:mr-4 file:rounded-md file:border-0 file:bg-navy-light file:px-4 file:py-2 file:text-sm file:font-semibold file:text-navy hover:file:bg-navy/10"
+              />
+            </div>
+          </div>
+
+          {(banner || bannerFile) && (
             <div className="mt-4 overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
-              <img src={banner} alt="Banner Preview" className="h-48 w-full object-cover" />
+              <img src={bannerFile ? URL.createObjectURL(bannerFile) : banner} alt="Banner Preview" className="h-48 w-full object-cover" />
             </div>
           )}
         </div>
@@ -79,22 +137,43 @@ export function AwarenessContentForm({ initialData }: Props) {
           </div>
         </div>
 
-        <div className="mt-6">
+        <div className="mt-6 space-y-4">
           <Input 
             label="Video URL (YouTube or MP4)" 
-            value={video} 
-            onChange={(e) => setVideo(e.target.value)} 
+            value={videoFile ? 'Will upload selected file...' : video} 
+            onChange={(e) => {
+              setVideo(e.target.value)
+              setVideoFile(null)
+            }} 
+            disabled={!!videoFile}
             placeholder="https://www.youtube.com/watch?v=..."
-            helperText="Paste a YouTube link for best performance, or a direct link to an .mp4 file."
+            helperText="Paste a YouTube link for best performance."
           />
+
+          <div className="flex items-center gap-4">
+            <span className="text-sm font-medium text-gray-500">OR</span>
+            <div className="relative flex-1">
+              <Input
+                type="file"
+                accept="video/mp4,video/webm"
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  if (file) setVideoFile(file)
+                }}
+                className="file:mr-4 file:rounded-md file:border-0 file:bg-navy-light file:px-4 file:py-2 file:text-sm file:font-semibold file:text-navy hover:file:bg-navy/10"
+              />
+              <p className="mt-1 text-xs text-gray-500">Upload a small MP4 file (Max 10MB).</p>
+            </div>
+          </div>
         </div>
       </div>
 
       <div className="flex justify-end">
         <Button onClick={handleSave} disabled={isSubmitting}>
-          {isSubmitting ? 'Saving...' : 'Save Awareness Content'}
+          {isSubmitting ? 'Uploading & Saving...' : 'Save Awareness Content'}
         </Button>
       </div>
     </div>
   )
 }
+

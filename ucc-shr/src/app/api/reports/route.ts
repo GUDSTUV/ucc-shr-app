@@ -12,6 +12,9 @@ type CreateReportPayload = {
   isAnonymous?: boolean
   witnesses?: string[]
   incidentDate?: string
+  offenderDescription?: string
+  priorReport?: { reported: boolean; where?: string }
+  confidentialityRequested?: boolean
 }
 
 const ALLOWED_REPORT_TYPES = new Set([
@@ -35,12 +38,8 @@ async function generateUniqueTrackingCode() {
       where: { code: candidate },
       select: { id: true },
     })
-
-    if (!exists) {
-      return candidate
-    }
+    if (!exists) return candidate
   }
-
   const fallback = randomBytes(3).toString('hex').toUpperCase()
   return `UCC-${new Date().getFullYear()}-${fallback}`
 }
@@ -67,7 +66,7 @@ export async function POST(request: NextRequest) {
 
     if (!contact && !reporterEmail) {
       return NextResponse.json(
-        { ok: false, error: 'A contact (email or phone) is required.' },
+        { ok: false, error: 'A contact email is required.' },
         { status: 400 }
       )
     }
@@ -93,12 +92,20 @@ export async function POST(request: NextRequest) {
       ? payload.witnesses.map((item) => item.trim()).filter(Boolean)
       : []
 
-    // Parse incident date if provided
-    const incidentDate = payload.incidentDate
-      ? new Date(payload.incidentDate)
+    const incidentDate = payload.incidentDate ? new Date(payload.incidentDate) : null
+
+    // Sanitise the offender description
+    const offenderDescription = payload.offenderDescription?.trim().slice(0, 1000) || null
+
+    // Sanitise prior report
+    const priorReport = payload.priorReport
+      ? {
+          reported: Boolean(payload.priorReport.reported),
+          where: payload.priorReport.where?.trim().slice(0, 300) || null,
+        }
       : null
 
-    const files: string[] = []
+    const confidentialityRequested = Boolean(payload.confidentialityRequested)
 
     const report = await prisma.report.create({
       data: {
@@ -107,23 +114,20 @@ export async function POST(request: NextRequest) {
         description,
         location: payload.location?.trim().slice(0, 180) || null,
         date: incidentDate ?? new Date(),
-        isAnonymous: payload.isAnonymous ?? true,
-        files,
-        notes:
-          normalizedContact || witnesses.length || reporterId || reporterEmail || phone
-            ? JSON.stringify({
-                reporterId,
-                reporterEmail,
-                contact: normalizedContact,
-                phone,
-                witnesses: witnesses.slice(0, 10),
-              })
-            : null,
+        isAnonymous: confidentialityRequested,
+        files: [],
+        notes: JSON.stringify({
+          reporterId,
+          reporterEmail,
+          contact: normalizedContact,
+          phone,
+          confidentialityRequested,
+          offenderDescription,
+          priorReport,
+          witnesses: witnesses.slice(0, 10),
+        }),
       },
-      select: {
-        id: true,
-        code: true,
-      },
+      select: { id: true, code: true },
     })
 
     return NextResponse.json({ ok: true, code: report.code, id: report.id })

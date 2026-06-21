@@ -2,22 +2,34 @@ import { randomUUID } from 'crypto'
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/src/lib/auth/auth'
 import { prisma } from '@/src/lib/prisma'
-import { parseReportNotes, type ReportAdminUpdate } from '@/src/lib/auth/report-access'
+import { logActivity } from '@/src/lib/audit'
+import {
+  parseReportNotes,
+  type ReportAdminUpdate,
+  type RiskLevel,
+  type InvestigationOutcome,
+  type ActionTaken,
+} from '@/src/lib/auth/report-access'
 
 type UpdatePayload = {
   status?: 'RECEIVED' | 'UNDER_REVIEW' | 'UNDER_INVESTIGATION' | 'CLOSED'
   message?: string
   counsellorId?: string | null
+  riskLevel?: RiskLevel | null
+  investigationOutcome?: InvestigationOutcome | null
+  actionsTaken?: ActionTaken[]
 }
  
 const ALLOWED_STATUSES = new Set(['RECEIVED', 'UNDER_REVIEW', 'UNDER_INVESTIGATION', 'CLOSED', 'CLOSED'])
 const MAX_UPDATE_MESSAGE_LENGTH = 1000
 const MAX_ADMIN_UPDATES = 100
 
+const ALLOWED_ROLES = new Set(['SUPER_ADMIN', 'ADMIN', 'STAFF'])
+
 export async function PATCH(request: NextRequest, context: { params: Promise<{ code: string }> }) {
   const session = await auth()
 
-  if (!session?.user || session.user.role !== 'SUPER_ADMIN') {
+  if (!session?.user || !ALLOWED_ROLES.has(session.user.role ?? '')) {
     return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -34,6 +46,9 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ c
     const message = payload.message?.trim()
     const hasCounsellorKey = Object.prototype.hasOwnProperty.call(payload, 'counsellorId')
     const counsellorId = hasCounsellorKey ? (payload.counsellorId?.trim() || null) : undefined
+    const riskLevel = payload.riskLevel ?? null
+    const investigationOutcome = payload.investigationOutcome ?? null
+    const actionsTaken = Array.isArray(payload.actionsTaken) ? payload.actionsTaken : undefined
 
     if (status && !ALLOWED_STATUSES.has(status)) {
       return NextResponse.json({ ok: false, error: 'Valid status is required.' }, { status: 400 })
@@ -89,7 +104,9 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ c
     const previousCounsellorId = notes.counsellorId ?? notes.investigatorId ?? null
     const counsellorChanged = nextCounsellorId !== previousCounsellorId
 
-    if (!statusChanged && !counsellorChanged && !message) {
+    const hasAssessmentChange = riskLevel !== undefined || investigationOutcome !== undefined || actionsTaken !== undefined
+
+    if (!statusChanged && !counsellorChanged && !message && !hasAssessmentChange) {
       return NextResponse.json({ ok: false, error: 'No changes were provided.' }, { status: 400 })
     }
 
@@ -114,6 +131,9 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ c
       counsellorName: nextCounsellorName,
       investigatorId: undefined,
       investigatorName: undefined,
+      ...(riskLevel !== undefined && { riskLevel }),
+      ...(investigationOutcome !== undefined && { investigationOutcome }),
+      ...(actionsTaken !== undefined && { actionsTaken }),
       adminUpdates: [updateEntry, ...adminUpdates].slice(0, MAX_ADMIN_UPDATES),
     }
 
@@ -122,6 +142,22 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ c
       data: {
         status: nextStatus,
         notes: JSON.stringify(updatedNotes),
+      },
+    })
+
+    // Audit log
+    logActivity({
+      userId: session.user.id!,
+      action: 'UPDATED',
+      resourceType: 'REPORT',
+      resourceId: reportCode,
+      details: {
+        previousStatus: report.status,
+        newStatus: nextStatus,
+        ...(counsellorChanged && { assignedTo: nextCounsellorName }),
+        ...(riskLevel !== undefined && { riskLevel }),
+        ...(investigationOutcome !== undefined && { investigationOutcome }),
+        message: updateMessage,
       },
     })
 

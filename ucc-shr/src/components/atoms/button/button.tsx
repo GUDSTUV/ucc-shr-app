@@ -4,7 +4,7 @@ import type { ButtonProps } from './button.types'
 const variants = {
   primary: 'bg-navy text-white hover:bg-navy-dark',
   secondary: 'bg-gray-100 text-gray-900 hover:bg-gray-200',
-  report:  'bg-red text-white hover:bg-red-dark shadow-md shadow-red/30',
+  report:  'bg-red text-white hover:bg-red-dark',
   outline: 'border-[1.5px] border-navy text-navy hover:bg-navy-light',
   ghost:   'text-navy hover:bg-navy-light',
   danger:  'bg-red-600 text-white hover:bg-red-700',
@@ -34,7 +34,7 @@ export function Button({
       className={
         variant === 'unstyled'
           ? className ?? ''
-          : `inline-flex items-center justify-center gap-2 rounded-[10px] font-semibold font-sans transition-all active:scale-[0.97] disabled:opacity-50 ${variants[variant]} ${sizes[size]} ${fullWidth ? 'w-full' : ''} ${className ?? ''}`.trim()
+          : `inline-flex items-center justify-center gap-2 rounded-md font-semibold font-sans transition-all active:scale-[0.97] disabled:opacity-50 ${variants[variant]} ${sizes[size]} ${fullWidth ? 'w-full' : ''} ${className ?? ''}`.trim()
       }
       {...rest}
     >

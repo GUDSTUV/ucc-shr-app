@@ -49,7 +49,7 @@ const itemVariants = {
 
 export function AwarenessPreviewSection() {
   return (
-    <section id="rights" className="bg-gray-50 py-16 lg:py-24">
+    <section id="rights" className="bg-gray-50 py-20 lg:py-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         {/* Heading row */}
         <motion.div
@@ -87,7 +87,7 @@ export function AwarenessPreviewSection() {
             <motion.div key={preview.title} variants={itemVariants}>
               <Link
                 href={preview.href}
-                className="group flex h-full flex-col rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:border-navy/20 hover:shadow-md"
+                className="group flex h-full flex-col rounded-xl border border-gray-200 bg-white p-6 sm:p-8 transition-colors hover:border-navy hover:bg-gray-50"
               >
                 <div
                   className={`inline-flex h-12 w-12 items-center justify-center rounded-xl ${preview.iconClass}`}

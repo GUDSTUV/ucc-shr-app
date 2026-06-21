@@ -19,6 +19,7 @@
     "@tiptap/react": "^3.20.4",
     "@tiptap/starter-kit": "^3.20.4",
     "bcryptjs": "^3.0.3",
+    "cloudinary": "^2.10.0",
     "dotenv": "^17.3.1",
     "framer-motion": "^12.40.0",
     "html2canvas": "^1.4.1",
