@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { ArrowLeft, Clock3, FileText, Mic, EyeOff } from 'lucide-react'
 import { AdminLayout } from '@/src/components/templates/admin-layout'
 import { requireAdmin } from '@/src/lib/auth/guards'
+import { isCaseOfficerRole } from '@/src/lib/auth/roles'
 import { auth } from '@/src/lib/auth/auth'
 import { prisma } from '@/src/lib/prisma'
 import { logActivity } from '@/src/lib/audit'
@@ -96,10 +97,10 @@ function HiddenField({ label }: { label: string }) {
 }
 
 export default async function AdminReportDetailsPage({ params }: PageProps) {
-  await requireAdmin()
-  const session = await auth()
+  const session = await requireAdmin()
   const currentUserId = session?.user?.id ?? ''
   const currentUserRole = session?.user?.role ?? ''
+  const isCaseOfficer = isCaseOfficerRole(currentUserRole)
 
   const { code } = await params
   const reportCode = decodeURIComponent(code).trim()
@@ -137,6 +138,13 @@ export default async function AdminReportDetailsPage({ params }: PageProps) {
   const evidenceFiles = report.files ?? []
   const assignedCounsellor = notes.counsellorName ?? null
   const currentCounsellorId = notes.counsellorId ?? null
+  const assignedId = notes.counsellorId ?? notes.investigatorId ?? null
+  const isAssigned = assignedId === currentUserId
+
+  // Case Officers can only view cases assigned to them
+  if (isCaseOfficer && !isAssigned) {
+    notFound()
+  }
 
   // ─── Privacy enforcement ───
   const canSeeConfidential = canViewConfidentialDetails(notes, currentUserId, currentUserRole)
@@ -400,9 +408,10 @@ export default async function AdminReportDetailsPage({ params }: PageProps) {
               currentRiskLevel={notes.riskLevel ?? null}
               currentOutcome={notes.investigationOutcome ?? null}
               currentActionsTaken={notes.actionsTaken ?? []}
+              userRole={currentUserRole}
             />
             <section>
-              <ReportChat reportCode={report.code} isAssignedCounsellor={true} />
+              <ReportChat reportCode={report.code} isAssignedCounsellor={isAssigned} />
             </section>
           </div>
         </div>

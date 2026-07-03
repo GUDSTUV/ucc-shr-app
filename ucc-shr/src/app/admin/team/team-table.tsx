@@ -121,7 +121,7 @@ export function TeamTable({ admins, currentUserId }: TeamTableProps) {
       {success && <div className="rounded-lg bg-green-50 p-3 text-sm text-green-700">{success}</div>}
 
       <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900">Create Admin Account</h2>
+        <h2 className="mb-4 text-lg font-semibold text-gray-900">Create Case Officer Account</h2>
         <form onSubmit={handleCreate} className="flex flex-col md:flex-row items-end gap-3 max-w-4xl">
           <div className="flex-1 w-full">
             <label className="mb-1 block text-sm font-medium text-gray-700">Full Name</label>
@@ -151,9 +151,7 @@ export function TeamTable({ admins, currentUserId }: TeamTableProps) {
               disabled={loading}
               className="flex h-11 w-full items-center rounded-xl border border-gray-200 bg-white px-4 text-sm font-medium text-gray-900 transition-all focus:border-navy focus:outline-none focus:ring-1 focus:ring-navy disabled:cursor-not-allowed disabled:opacity-50"
             >
-              <option value="ADMIN">Admin</option>
-              <option value="COUNSELOR">Case Coordinator / Counselor</option>
-              <option value="INVESTIGATOR">Investigator</option>
+              <option value="ADMIN">Case Officer</option>
             </select>
           </div>
           <div className="flex-1 w-full">
@@ -176,7 +174,7 @@ export function TeamTable({ admins, currentUserId }: TeamTableProps) {
 
       <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
         <div className="border-b border-gray-100 p-4">
-          <h2 className="text-lg font-semibold text-gray-900">Current Admins</h2>
+          <h2 className="text-lg font-semibold text-gray-900">Team Members</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-190 w-full text-left">
@@ -198,11 +196,11 @@ export function TeamTable({ admins, currentUserId }: TeamTableProps) {
                   <td className="px-4 py-4">
                     <Badge variant={
                       admin.role === 'SUPER_ADMIN' ? 'navy' : 
-                      admin.role === 'SUSPENDED' ? 'error' : 
-                      admin.role === 'COUNSELOR' ? 'success' :
-                      admin.role === 'INVESTIGATOR' ? 'warning' : 'warning'
+                      admin.role === 'SUSPENDED' ? 'error' : 'warning'
                     }>
-                      {admin.role.replace('_', ' ')}
+                      {admin.role === 'SUPER_ADMIN' ? 'Super Admin'
+                        : admin.role === 'SUSPENDED' ? 'Suspended'
+                        : 'Case Officer'}
                     </Badge>
                   </td>
                   <td className="px-4 py-4 text-sm text-gray-600">

@@ -7,6 +7,7 @@ import { NavItem } from '@/src/components/molecules/nav-item'
 import { Text } from '@/src/components/atoms/text/text'
 import { Button } from '@/src/components/atoms/button/button'
 
+/** Super Admin sees the full nav */
 const items = [
   { href: '/admin', label: 'Dashboard', icon: <LayoutDashboard size={16} /> },
   { href: '/admin/reports', label: 'Reports', icon: <Flag size={16} /> },
@@ -18,6 +19,12 @@ const items = [
   { href: '/admin/site-content', label: 'Site Content', icon: <Globe size={16} /> },
   { href: '/admin/team', label: 'Team', icon: <Users size={16} /> },
   { href: '/admin/logs', label: 'Activity Logs', icon: <ScrollText size={16} /> },
+]
+
+/** Case Officer sees only their cases and notifications */
+const caseOfficerItems = [
+  { href: '/admin/reports', label: 'My Cases', icon: <Flag size={16} /> },
+  { href: '/admin/notifications', label: 'Notifications', icon: <BellRing size={16} /> },
 ]
 
 const accountItems = [
@@ -32,15 +39,12 @@ type AdminSidebarProps = {
 
 export function AdminSidebar({ unreadNotificationsCount, userRole = 'ADMIN' }: AdminSidebarProps) {
   const pathname = usePathname()
+  const isSuperAdmin = userRole === 'SUPER_ADMIN'
 
-  const visibleItems = items.filter(item => {
-    if (userRole === 'SUPER_ADMIN') return true
-    // Standard ADMIN can only see Dashboard, Reports, Notifications
-    return ['/admin', '/admin/reports', '/admin/notifications'].includes(item.href)
-  })
+  const visibleItems = isSuperAdmin ? items : caseOfficerItems
 
   const visibleAccountItems = accountItems.filter(item => {
-    if (userRole === 'SUPER_ADMIN') return true
+    if (isSuperAdmin) return true
     return item.href === '/admin/profile'
   })
 
@@ -66,7 +70,9 @@ export function AdminSidebar({ unreadNotificationsCount, userRole = 'ADMIN' }: A
               </span>
               <div>
                 <Text size="xs" weight="semibold" tone="navy" className="uppercase tracking-[0.14em]">CEGRAD UCC</Text>
-                <Text size="base" weight="semibold" className="mt-1 text-navy-dark">Admin Console</Text>
+                <Text size="base" weight="semibold" className="mt-1 text-navy-dark">
+                  {isSuperAdmin ? 'Admin Console' : 'Case Officer'}
+                </Text>
               </div>
             </div>
           </div>

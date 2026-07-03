@@ -3,6 +3,7 @@ import { AdminLayout } from '@/src/components/templates/admin-layout'
 import { Badge } from '@/src/components/atoms/badge'
 import { Button } from '@/src/components/atoms/button'
 import { requireAdmin } from '@/src/lib/auth/guards'
+import { isCaseOfficerRole } from '@/src/lib/auth/roles'
 import { prisma } from '@/src/lib/prisma'
 import { parseReportNotes } from '@/src/lib/auth/report-access'
 import { ReportFilters } from './report-filters'
@@ -80,7 +81,8 @@ function sortReports(
 }
 
 export default async function AdminReportsPage({ searchParams }: PageProps) {
-  await requireAdmin()
+  const session = await requireAdmin()
+  const isCaseOfficer = isCaseOfficerRole(session.user.role)
 
   const params = (await searchParams) ?? {}
 
@@ -119,17 +121,25 @@ export default async function AdminReportsPage({ searchParams }: PageProps) {
     },
   })
 
-  const reportsWithAssignment = reportsRaw.map((report) => {
-    const notes = parseReportNotes(report.notes)
-    return {
-      code: report.code,
-      createdAt: report.createdAt,
-      updatedAt: report.updatedAt,
-      status: report.status,
-      type: report.type,
-      counsellorName: notes.counsellorName ?? notes.investigatorName ?? null,
-    }
-  })
+  const reportsWithAssignment = reportsRaw
+    .map((report) => {
+      const notes = parseReportNotes(report.notes)
+      const counsellorId = notes.counsellorId ?? notes.investigatorId ?? null
+      return {
+        code: report.code,
+        createdAt: report.createdAt,
+        updatedAt: report.updatedAt,
+        status: report.status,
+        type: report.type,
+        counsellorName: notes.counsellorName ?? notes.investigatorName ?? null,
+        counsellorId,
+      }
+    })
+    // Case Officers only see reports assigned to them
+    .filter((report) => {
+      if (!isCaseOfficer) return true
+      return report.counsellorId === session.user.id
+    })
 
   const availableTypes = Array.from(new Set(reportsWithAssignment.map((report) => report.type))).sort()
 
@@ -146,11 +156,15 @@ export default async function AdminReportsPage({ searchParams }: PageProps) {
   const reports = sortReports(filtered, sortBy)
 
   return (
-    <AdminLayout title="Case Management">
+    <AdminLayout title={isCaseOfficer ? 'My Cases' : 'Case Management'}>
       <section className="rounded-2xl border border-gray-200 bg-white shadow-sm">
         <div className="flex flex-col gap-3 border-b border-gray-100 p-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-base text-gray-700">Monitor and update all incident reports.</p>
+            <p className="text-base text-gray-700">
+              {isCaseOfficer
+                ? 'View and manage the cases assigned to you.'
+                : 'Monitor and update all incident reports.'}
+            </p>
             <Link href="/admin">
               <Button size="sm">Back to Dashboard</Button>
             </Link>

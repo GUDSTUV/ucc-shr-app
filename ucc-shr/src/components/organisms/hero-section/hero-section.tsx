@@ -85,7 +85,6 @@ export function HeroSection({ banners = [], customTitle, customSubtitle }: { ban
           as={motion.h1}
           variants={itemVariants}
           size={{ base: '3xl', sm: '4xl', lg: '5xl' }}
-          weight="bold"
           tone="white"
           className="leading-tight tracking-tight"
         >
