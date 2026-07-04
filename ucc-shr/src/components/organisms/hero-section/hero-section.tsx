@@ -91,15 +91,15 @@ export function HeroSection({ banners = [], customTitle, customSubtitle }: { ban
         </motion.div>
       </AnimatePresence>
 
-      <div className="absolute inset-0 bg-linear-to-b from-black/75 via-black/65 to-navy/90 sm:from-black/65 sm:via-black/55 sm:to-navy/85 lg:from-black/55 lg:via-black/45 lg:to-navy/80" aria-hidden="true" />
-      <div className="absolute inset-x-0 bottom-0 h-32 bg-linear-to-t from-navy to-transparent" aria-hidden="true" />
+      <div className="absolute inset-0 bg-linear-to-b from-black/75 via-black/65 to-black/90 sm:from-black/65 sm:via-black/55 sm:to-navy/85 lg:from-black/55 lg:via-black/45 lg:to-black/80" aria-hidden="true" />
+
 
       <div className="relative mx-auto flex min-h-160 max-w-7xl flex-col justify-center px-6 py-16 text-center sm:px-10 lg:px-8 lg:text-left">
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="mx-auto max-w-4xl rounded-xl bg-black/25 p-4 backdrop-blur-sm sm:bg-black/15 lg:mx-0 lg:max-w-3xl lg:bg-transparent lg:p-0 lg:backdrop-blur-0"
+          className="mx-auto max-w-4xl lg:mx-0 lg:max-w-3xl"
         >
           {/* <Text
             as={motion.span}
@@ -178,7 +178,7 @@ export function HeroSection({ banners = [], customTitle, customSubtitle }: { ban
             onClick={() => setActive(i)}
             aria-label={`Go to slide ${i + 1}`}
             className={`h-1.5 rounded-full transition-all duration-300 ${
-              i === active ? 'w-7 bg-red' : 'w-2 bg-white/45'
+              i === active ? 'w-7 bg-white/80' : 'w-2 bg-white/45'
             }`}
           />
         ))}
