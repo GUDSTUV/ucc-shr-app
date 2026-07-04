@@ -30,9 +30,15 @@ const socials = [
 ]
 
 export async function Footer() {
-  const contentRecords = await prisma.siteContent.findMany({
-    where: { key: { in: ['footerText', 'contactAddress', 'contactPhone'] } }
-  })
+  let contentRecords: Array<{ key: string; value: unknown }> = []
+
+  try {
+    contentRecords = await prisma.siteContent.findMany({
+      where: { key: { in: ['footerText', 'contactAddress', 'contactPhone'] } }
+    })
+  } catch (error) {
+    console.error('Footer DB fetch failed, using fallback content:', error)
+  }
   
   const contentMap = contentRecords.reduce((acc, record) => {
     acc[record.key] = record.value

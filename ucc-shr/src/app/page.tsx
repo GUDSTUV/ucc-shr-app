@@ -12,10 +12,25 @@ const ContactSection = dynamic(() => import('@/src/components/organisms/contact-
 const Footer = dynamic(() => import('@/src/components/organisms/Footer').then(mod => mod.Footer))
 
 export default async function HomePage() {
-  const activeBanners = await prisma.campaignBanner.findMany({
-    where: { isActive: true },
-    orderBy: { createdAt: 'desc' }
-  })
+  let activeBanners: Array<{ id: string; imageUrl: string; title: string; linkUrl: string | null }> = []
+  let contentRecords: Array<{ key: string; value: unknown }> = []
+
+  try {
+    const [bannersResult, contentResult] = await Promise.all([
+      prisma.campaignBanner.findMany({
+        where: { isActive: true },
+        orderBy: { createdAt: 'desc' }
+      }),
+      prisma.siteContent.findMany({
+        where: { key: { in: ['faqs', 'heroTitle', 'heroSubtitle'] } }
+      }),
+    ])
+
+    activeBanners = bannersResult
+    contentRecords = contentResult
+  } catch (error) {
+    console.error('Home page DB fetch failed, using fallback content:', error)
+  }
 
   const mappedBanners = activeBanners.map(b => ({
     id: b.id,
@@ -23,10 +38,6 @@ export default async function HomePage() {
     title: b.title,
     linkUrl: b.linkUrl,
   }))
-
-  const contentRecords = await prisma.siteContent.findMany({
-    where: { key: { in: ['faqs', 'heroTitle', 'heroSubtitle'] } }
-  })
   
   const contentMap = contentRecords.reduce((acc, record) => {
     acc[record.key] = record.value
@@ -55,4 +66,4 @@ export default async function HomePage() {
       <Footer />
     </>
   )
-}
+}

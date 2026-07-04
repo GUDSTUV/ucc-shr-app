@@ -50,20 +50,20 @@ export function EventsCampaignClient({ items }: { items: CampaignFeedItem[] }) {
           className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
         >
           <div>
-            <Text as="span" size="xs" weight="semibold" tone="navy" className="uppercase tracking-widest">
+            <Text as="span" size="xs" weight="medium" tone="navy" className="uppercase tracking-widest">
               Events &amp; Campaigns
             </Text>
-            <Heading as="h2" size={{ base: '3xl', lg: '4xl' }} tone="navy" weight="bold" className="mt-2">
+            <Heading as="h2" size={{ base: '3xl', lg: '4xl' }} tone="navy" weight="semibold" className="mt-2">
               Awareness in Action
             </Heading>
-            <Text size="sm" tone="muted" className="mt-3 max-w-xl leading-7">
+            <Text size="base" tone="muted" className="mt-3 max-w-xl leading-7">
               CEGRAD runs workshops, policy forums, and awareness campaigns throughout
               the year. Join us to learn, engage, and advocate.
             </Text>
           </div>
           <Link
             href="/events"
-            className="inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold text-navy transition-colors hover:text-navy-dark"
+            className="inline-flex shrink-0 items-center gap-1.5 text-sm font-medium text-navy transition-colors hover:text-navy-dark"
           >
             All Posts &amp; Events <ArrowRight size={15} />
           </Link>

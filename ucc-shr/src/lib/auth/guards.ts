@@ -3,6 +3,18 @@ import { auth } from './auth'
 import { isAdminRole, isCaseOfficerRole } from './roles'
 import { prisma } from '@/src/lib/prisma'
 
+async function findUserRoleSafely(userId: string, fallbackPath: string) {
+  try {
+    return await prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true }
+    })
+  } catch (error) {
+    console.error('Auth guard user lookup failed:', error)
+    redirect(fallbackPath)
+  }
+}
+
 export async function requireAdmin() {
   const session = await auth()
 
@@ -10,10 +22,7 @@ export async function requireAdmin() {
     redirect('/admin/login')
   }
 
-  const dbUser = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { role: true }
-  })
+  const dbUser = await findUserRoleSafely(session.user.id, '/admin/login')
 
   if (!dbUser || !isAdminRole(dbUser.role)) {
     redirect('/admin/login')
@@ -36,10 +45,7 @@ export async function requireSuperAdmin() {
     redirect('/admin/login')
   }
 
-  const dbUser = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { role: true }
-  })
+  const dbUser = await findUserRoleSafely(session.user.id, '/admin/login')
 
   if (dbUser?.role === 'SUSPENDED') {
     redirect('/admin/login?error=Suspended')
@@ -61,10 +67,7 @@ export async function requireStaff() {
     redirect('/login')
   }
 
-  const dbUser = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { role: true }
-  })
+  const dbUser = await findUserRoleSafely(session.user.id, '/login')
 
   if (!dbUser) {
     redirect('/login')
@@ -95,10 +98,7 @@ export async function requireCaseOfficer() {
     redirect('/admin/login')
   }
 
-  const dbUser = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { role: true }
-  })
+  const dbUser = await findUserRoleSafely(session.user.id, '/admin/login')
 
   if (!dbUser) {
     redirect('/admin/login')

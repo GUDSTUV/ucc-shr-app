@@ -45,8 +45,10 @@ export function Navbar({ user }: NavbarProps) {
 
   // Close dropdowns on route change
   useEffect(() => {
-    setDropdownOpen(false)
-    setMobileMenuOpen(false)
+    queueMicrotask(() => {
+      setDropdownOpen(false)
+      setMobileMenuOpen(false)
+    })
   }, [path])
 
   // Hide completely on auth and admin
@@ -86,9 +88,9 @@ export function Navbar({ user }: NavbarProps) {
             <Text as="span" size="xs" weight="semibold" tone="navy" className="mt-1 text-[10px] uppercase tracking-wider opacity-70 leading-none hidden sm:block">
               Sexual Harassment Reporting
             </Text>
-            <Text as="span" size="xs" weight="semibold" tone="navy" className="mt-1 text-[10px] uppercase tracking-wider opacity-70 leading-none sm:hidden">
+            {/* <Text as="span" size="xs" weight="semibold" tone="navy" className="mt-1 text-[10px] uppercase tracking-wider opacity-70 leading-none sm:hidden">
               SHR System
-            </Text>
+            </Text> */}
           </div>
         </Link>
 
@@ -103,8 +105,8 @@ export function Navbar({ user }: NavbarProps) {
                 aria-current={active ? 'page' : undefined}
                 className={`inline-flex h-10 items-center rounded-[10px] px-4 text-[15px] font-medium transition-colors
                   ${active
-                    ? 'bg-navy-light text-navy font-semibold'
-                    : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                    ? 'text-navy'
+                    : 'text-gray-700 hover:text-gray-900'
                   }`}
               >
                 {label}
@@ -135,7 +137,7 @@ export function Navbar({ user }: NavbarProps) {
                   <div className="grid h-8 w-8 place-items-center rounded-full bg-navy text-white">
                     <UserCircle2 size={16} />
                   </div>
-                  <Text as="span" size="sm" weight="medium" className="text-gray-700 max-w-[100px] truncate">
+                  <Text as="span" size="sm" weight="medium" className="text-gray-700 max-w-25 truncate">
                     {user.name || 'User'}
                   </Text>
                   <ChevronDown size={14} className="text-gray-400" />
@@ -192,9 +194,9 @@ export function Navbar({ user }: NavbarProps) {
           ) : (
             <Link
               href="/login"
-              className="inline-flex h-11 items-center gap-2 rounded-[10px] border border-navy/20 px-4 text-[15px] font-semibold text-navy transition hover:bg-navy-light"
+                className="inline-flex h-12 items-center gap-2 rounded-md border border-navy/20 px-4 text-[15px] font-medium text-navy transition hover:bg-navy-light"
             >
-              <LogIn size={15} />
+              <LogIn size={14} />
               Sign In
             </Link>
           )}
@@ -202,9 +204,9 @@ export function Navbar({ user }: NavbarProps) {
           {!isUserSection && !path.startsWith('/report') && (
             <Link
               href="/report"
-              className="inline-flex h-11 items-center gap-2 rounded-[10px] bg-navy px-5 text-[15px] font-semibold text-white shadow-sm shadow-navy/25 transition hover:bg-navy-dark"
+              className="inline-flex h-12 items-center gap-2 rounded-md bg-navy px-4 text-[15px] font-medium text-white shadow-sm shadow-navy/25 transition hover:bg-navy-dark"
             >
-              <Flag size={16} />
+              <Flag size={14} />
               Report Incident
             </Link>
           )}
@@ -301,7 +303,7 @@ export function Navbar({ user }: NavbarProps) {
                   <Link
                     key={href}
                     href={href}
-                    className="block rounded-md px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-50"
+                    className="block rounded-md px-3 py-2 text-base font-medium text-gray-900 hover:text-navy"
                   >
                     {label}
                   </Link>
@@ -309,7 +311,7 @@ export function Navbar({ user }: NavbarProps) {
                 <div className="mt-4 flex flex-col gap-2">
                   <Link
                     href="/login"
-                    className="flex w-full items-center justify-center rounded-md border border-navy px-4 py-2 text-base font-semibold text-navy"
+                    className="flex w-full items-center justify-center rounded-md border border-navy px-4 py-2 text-base font-medium text-navy"
                   >
                     Sign In
                   </Link>

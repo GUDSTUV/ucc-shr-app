@@ -55,13 +55,13 @@ export function WhyReportingSection() {
           transition={{ duration: 0.5 }}
           className="text-center"
         >
-          <Text as="span" size="xs" weight="semibold" tone="navy" className="uppercase tracking-widest">
+          <Text as="span" size="xs" weight="medium" tone="navy" className="uppercase tracking-widest">
             Why It Matters
           </Text>
-          <Heading as="h2" size={{ base: '3xl', lg: '4xl' }} tone="navy" weight="bold" className="mt-2">
+          <Heading as="h2" size={{ base: '3xl', lg: '4xl' }} tone="navy" weight="semibold" className="mt-2">
             Reporting Makes a Difference
           </Heading>
-          <Text size="base" tone="muted" className="mx-auto mt-3 max-w-2xl">
+          <Text size="lg" tone="muted" className="mx-auto mt-3 max-w-2xl">
             Every report contributes to a safer campus. Here is what happens
             when you speak up.
           </Text>
@@ -86,10 +86,10 @@ export function WhyReportingSection() {
               >
                 <card.Icon size={22} />
               </div>
-              <Text as="h3" size="lg" weight="semibold" className="mt-4 text-gray-900">
+              <Text as="h3" size="lg" weight="medium" className="mt-4 text-gray-900">
                 {card.title}
               </Text>
-              <Text size="sm" tone="muted" className="mt-2 leading-relaxed">
+              <Text size="base" tone="muted" className="mt-2 leading-relaxed">
                 {card.description}
               </Text>
             </motion.div>

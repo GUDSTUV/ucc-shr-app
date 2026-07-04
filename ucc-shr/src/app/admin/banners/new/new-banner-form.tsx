@@ -107,12 +107,12 @@ export function NewBannerForm() {
     <form onSubmit={handleSubmit} className="space-y-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
       {error && <AlertBox variant="danger" title="Error">{error}</AlertBox>}
 
-      <FormField label="Banner Title / Text" hint="This text will be overlaid on the image.">
+      <FormField label="Banner Subtitle Text" hint="This text rotates with this image and appears under the main hero heading.">
         <Input 
           value={title} 
           onChange={(e) => setTitle(e.target.value)} 
           required 
-          placeholder="e.g., Creating a Safe and Respectful Campus Environment"
+          placeholder="e.g., Confidential support for every student and staff member."
           disabled={loading}
         />
       </FormField>

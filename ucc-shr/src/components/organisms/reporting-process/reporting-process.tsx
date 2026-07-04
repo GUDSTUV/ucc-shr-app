@@ -62,13 +62,13 @@ export function ReportingProcessSection() {
           transition={{ duration: 0.5 }}
           className="text-center"
         >
-          <Text as="span" size="xs" weight="semibold" tone="navy" className="uppercase tracking-widest">
+          <Text as="span" size="xs" weight="medium" tone="navy" className="uppercase tracking-widest">
             Transparent Process
           </Text>
-          <Heading as="h2" size={{ base: '3xl', lg: '4xl' }} tone="navy" weight="bold" className="mt-2">
+          <Heading as="h2" size={{ base: '3xl', lg: '4xl' }} tone="navy" weight="semibold" className="mt-2">
             How Reporting Works
           </Heading>
-          <Text size="base" tone="muted" className="mx-auto mt-4 max-w-2xl">
+          <Text size="lg" tone="muted" className="mx-auto mt-4 max-w-2xl">
             We have made the reporting process simple, safe, and transparent.
             Here is exactly what to expect when you come forward.
           </Text>
@@ -90,7 +90,7 @@ export function ReportingProcessSection() {
                 
                 {/* Mobile vertical line */}
                 {index !== steps.length - 1 && (
-                  <div className="lg:hidden absolute top-14 left-6 bottom-[-40px] w-0.5 bg-gray-200" aria-hidden="true" />
+                  <div className="lg:hidden absolute top-14 left-6 -bottom-10 w-0.5 bg-gray-200" aria-hidden="true" />
                 )}
 
                 <div className="flex items-center gap-4 lg:flex-col lg:gap-6">
@@ -99,13 +99,13 @@ export function ReportingProcessSection() {
                   </div>
                   
                   <div className="flex-1 lg:mt-2">
-                    <Text as="span" size="sm" weight="bold" className="text-navy/50 tracking-wider">
+                    <Text as="span" size="sm" weight="semibold" className="text-navy/50 tracking-wider">
                       STEP {step.step}
                     </Text>
-                    <Heading as="h3" size="lg" weight="semibold" tone="navy" className="mt-1 lg:mt-2">
+                    <Heading as="h3" size="lg" weight="medium" tone="navy" className="mt-1 lg:mt-2">
                       {step.title}
                     </Heading>
-                    <Text size="sm" tone="muted" className="mt-2 leading-relaxed max-w-xs mx-auto lg:mx-0">
+                    <Text size="base" tone="muted" className="mt-2 leading-relaxed max-w-xs mx-auto lg:mx-0">
                       {step.description}
                     </Text>
                   </div>
@@ -124,7 +124,7 @@ export function ReportingProcessSection() {
         >
           <Link
             href="/report"
-            className="inline-flex h-14 items-center justify-center gap-2 rounded-md bg-navy px-8 text-base font-bold text-white transition-colors hover:bg-navy-dark active:scale-[0.98]"
+            className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-navy px-6 text-[15px] font-medium text-white transition-colors hover:bg-navy-dark active:scale-[0.98]"
           >
             <FileText size={18} />
             Start Your Report

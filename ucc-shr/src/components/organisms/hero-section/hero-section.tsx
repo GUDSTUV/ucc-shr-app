@@ -2,7 +2,6 @@
 
 import { AnimatePresence, motion } from 'framer-motion'
 import Image from 'next/image'
-import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { BookOpen, Flag } from 'lucide-react'
@@ -21,7 +20,7 @@ const fallbackSlides: BannerSlide[] = [
   {
     id: '1',
     imageUrl: '/images/hero/campus.jpg',
-    title: 'Creating a Safe and Respectful Campus Environment',
+    title: 'Creating a Safe and Respectful Campus Environment.',
   },
   {
     id: '2',
@@ -31,7 +30,7 @@ const fallbackSlides: BannerSlide[] = [
   {
     id: '3',
     imageUrl: '/images/hero/campus-3.jpg',
-    title: 'Report Sexual Harassment. Safely report harassment, intimidation, unwanted behaviour, and boundary violations with full confidence.',
+    title: 'Safely report harassment, intimidation, unwanted behaviour, and boundary violations with full confidence.',
   },
 ]
 
@@ -57,6 +56,10 @@ export function HeroSection({ banners = [], customTitle, customSubtitle }: { ban
   const reportHref = '/report'
 
   const slides = banners.length > 0 ? banners : fallbackSlides
+  const activeSlide = slides[active] ?? slides[0]
+  const slideSubtitle = activeSlide?.title?.trim()
+    || customSubtitle
+    || 'Confidential reporting, prompt review, and trained CEGRAD support for the University of Cape Coast community.'
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -66,164 +69,120 @@ export function HeroSection({ banners = [], customTitle, customSubtitle }: { ban
   }, [slides.length])
 
   return (
-    <section className="relative min-h-140 overflow-hidden bg-navy text-white lg:grid lg:min-h-160 lg:grid-cols-2 lg:items-center">
-
-      {/* ══ LEFT: text content ══ */}
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="relative flex flex-col justify-center px-6 py-14 text-center sm:px-10 lg:px-14 lg:py-24 lg:text-left"
-      >
-        {/* Subtle decorative circle */}
-        <div
-          className="pointer-events-none absolute -left-20 -top-20 h-72 w-72 rounded-full bg-white/5"
-          aria-hidden="true"
-        />
-
-        <Heading
-          as={motion.h1}
-          variants={itemVariants}
-          size={{ base: '3xl', sm: '4xl', lg: '5xl' }}
-          tone="white"
-          className="leading-tight tracking-tight"
-        >
-          {customTitle ? (
-            customTitle.split('. ').map((part, i, arr) => (
-              <span key={i}>
-                {i > 0 && <br />}
-                {i === arr.length - 1 ? <span>{part}</span> : part + '.'}
-              </span>
-            ))
-          ) : (
-            <>
-              You Are Heard.
-              <br />
-              <span>You Are Protected.</span>
-            </>
-          )}
-        </Heading>
-
-        {/* Sub-headline */}
-        <Text
-          as={motion.p}
-          variants={itemVariants}
-          size={{ base: 'base', lg: 'lg' }}
-          tone="white"
-          className="mx-auto mt-4 max-w-md leading-relaxed opacity-75 lg:mx-0 lg:mt-6"
-        >
-          {customSubtitle || "Safely report sexual harassment at the University of Cape Coast. Your report is confidential, taken seriously, and supported by trained CEGRAD staff."}
-        </Text>
-
-        {/* CTAs */}
+    <section className="relative min-h-160 overflow-hidden bg-navy text-white">
+      <AnimatePresence mode="wait">
         <motion.div
-          variants={itemVariants}
-          className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center lg:justify-start"
+          key={active}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 1.1 }}
+          className="absolute inset-0"
         >
-          <Button
-            variant="primary"
-            size="lg"
-            className="w-full sm:w-auto bg-navy-dark shadow-lg shadow-navy/30 border border-transparent hover:border-white hover:bg-navy-dark hover:shadow-navy/40"
-            onClick={() => router.push(reportHref)}
-          >
-            <Flag size={20} />
-            Report an Incident
-          </Button>
-          <Button
-            variant="unstyled"
-            className="inline-flex h-[54px] w-full sm:w-auto items-center justify-center gap-2 rounded-md border border-white/25 bg-white/10 px-6 text-[17px] font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/20 active:scale-[0.98]"
-            onClick={() => router.push('/hub')}
-          >
-            <BookOpen size={20} />
-            Know Your Rights
-          </Button>
+          <Image
+            src={slides[active].imageUrl}
+            alt={slides[active].title}
+            fill
+            loading="eager"
+            priority={active === 0}
+            sizes="100vw"
+            className="object-cover object-center"
+          />
         </motion.div>
+      </AnimatePresence>
 
-        <Text
-          as={motion.p}
-          variants={itemVariants}
-          size="xs"
-          tone="white"
-          className="mt-6 opacity-45"
+      <div className="absolute inset-0 bg-linear-to-b from-black/75 via-black/65 to-navy/90 sm:from-black/65 sm:via-black/55 sm:to-navy/85 lg:from-black/55 lg:via-black/45 lg:to-navy/80" aria-hidden="true" />
+      <div className="absolute inset-x-0 bottom-0 h-32 bg-linear-to-t from-navy to-transparent" aria-hidden="true" />
+
+      <div className="relative mx-auto flex min-h-160 max-w-7xl flex-col justify-center px-6 py-16 text-center sm:px-10 lg:px-8 lg:text-left">
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="mx-auto max-w-4xl rounded-xl bg-black/25 p-4 backdrop-blur-sm sm:bg-black/15 lg:mx-0 lg:max-w-3xl lg:bg-transparent lg:p-0 lg:backdrop-blur-0"
         >
-          Your report is confidential and securely handled by authorized CEGRAD personnel
-        </Text>
-      </motion.div>
-
-      {/* ══ RIGHT: image swiper — flush to right edge, curve on the left ══ */}
-      <motion.div
-        initial={{ opacity: 0, x: 40 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
-        className="relative h-64 overflow-hidden sm:h-80 lg:h-132 lg:[clip-path:ellipse(100%_80%_at_100%_50%)] xl:h-140"
-      >
-        {/* Slides */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={active}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 1.2 }}
-            className="absolute inset-0"
+          {/* <Text
+            as={motion.span}
+            variants={itemVariants}
+            size="xs"
+            weight="semibold"
+            className="inline-flex items-center rounded-full border border-white/25 bg-white/10 px-4 py-1.5 uppercase tracking-[0.2em] text-white/90"
           >
-            <Image
-              src={slides[active].imageUrl}
-              alt={slides[active].title}
-              fill
-              loading="eager"
-              priority={active === 0}
-              sizes="(max-width: 1024px) 100vw, 50vw"
-              className="object-cover object-center"
-            />
-          </motion.div>
-        </AnimatePresence>
+            CEGRAD Reporting Platform
+          </Text> */}
 
-        {/* Dark gradient for caption readability */}
-        <div
-          className="absolute inset-x-0 bottom-0 z-20 h-56 bg-linear-to-t from-black via-black/60 to-transparent"
-          aria-hidden="true"
-        />
+          <Heading
+            as={motion.h1}
+            variants={itemVariants}
+            size={{ base: '2xl', sm: '3xl', lg: '5xl' }}
+            tone="white"
+            className="mt-5 leading-tight tracking-tight drop-shadow-md"
+          >
+            {customTitle ? (
+              customTitle
+            ) : (
+              <>
+                A Safer Campus
+                <br />
+                Starts With Your Voice
+              </>
+            )}
+          </Heading>
 
-        {/* Mobile: top fade into navy */}
-        <div
-          className="absolute inset-x-0 top-0 z-20 h-24 bg-linear-to-b from-navy to-transparent lg:hidden"
-          aria-hidden="true"
-        />
-
-        {/* Sliding caption tag */}
-        <div className="absolute bottom-7 left-4 right-4 z-30 lg:bottom-14 lg:left-8 lg:right-8 xl:bottom-18">
           <AnimatePresence mode="wait">
-            <motion.div
-              key={active}
-              initial={{ opacity: 0, y: 10 }}
+            <Text
+              key={activeSlide.id}
+              as={motion.p}
+              initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.75 }}
-              className="mx-auto max-w-md text-center px-2 py-1 lg:ml-auto lg:text-left lg:px-4 lg:py-3"
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.35 }}
+              size={{ base: 'lg', lg: 'xl' }}
+              tone="white"
+              className="mx-auto mt-5 max-w-2xl leading-relaxed opacity-90 drop-shadow-sm lg:mx-0"
             >
-              <Text size={{ base: 'xs', lg: 'base' }} tone="white" className="leading-tight drop-shadow-md lg:leading-snug lg:opacity-90">
-                {slides[active].title}
-              </Text>
-            </motion.div>
+              {slideSubtitle}
+            </Text>
           </AnimatePresence>
-        </div>
 
-        {/* Dot indicators */}
-        <div className="absolute bottom-4 right-4 z-30 flex gap-1.5">
-          {slides.map((_, i) => (
+          <motion.div
+            variants={itemVariants}
+            className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row lg:items-start lg:justify-start"
+          >
+            <Button
+              variant="primary"
+              size="md"
+              className="w-full border border-transparent bg-red hover:bg-red-dark sm:w-auto"
+              onClick={() => router.push(reportHref)}
+            >
+              <Flag size={18} />
+              Report an Incident
+            </Button>
             <Button
               variant="unstyled"
-              key={i}
-              onClick={() => setActive(i)}
-              aria-label={`Go to slide ${i + 1}`}
-              className={`h-1.5 rounded-full transition-all duration-300 ${
-                i === active ? 'w-5 bg-white/40' : 'w-1.5 bg-white/40'
-              }`}
-            />
-          ))}
-        </div>
-      </motion.div>
+              className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-md border border-white/30 bg-white/10 px-5 text-[15px] text-white backdrop-blur-sm transition-all hover:bg-white/20 active:scale-[0.98] sm:w-auto"
+              onClick={() => router.push('/hub')}
+            >
+              <BookOpen size={18} />
+              Know Your Rights
+            </Button>
+          </motion.div>
+        </motion.div>
+      </div>
+
+      <div className="absolute bottom-6 left-1/2 z-30 flex -translate-x-1/2 items-center gap-2">
+        {slides.map((_, i) => (
+          <Button
+            variant="unstyled"
+            key={i}
+            onClick={() => setActive(i)}
+            aria-label={`Go to slide ${i + 1}`}
+            className={`h-1.5 rounded-full transition-all duration-300 ${
+              i === active ? 'w-7 bg-red' : 'w-2 bg-white/45'
+            }`}
+          />
+        ))}
+      </div>
 
     </section>
   )
