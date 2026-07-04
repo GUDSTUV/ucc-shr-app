@@ -17,18 +17,11 @@ export default async function DispatchPage() {
   const reportsRaw = await prisma.report.findMany({
     select: {
       notes: true,
-      reporterId: true,
-      reporterEmailSnapshot: true,
-      contactEmail: true,
     }
   })
 
   const hasReports = reportsRaw.some(r => 
-    belongsToUser(r.notes, session.user.id!, session.user.email ?? null, {
-      reporterId: r.reporterId,
-      reporterEmailSnapshot: r.reporterEmailSnapshot,
-      contactEmail: r.contactEmail,
-    })
+    belongsToUser(r.notes, session.user.id!, session.user.email ?? null)
   )
 
   if (hasReports) {

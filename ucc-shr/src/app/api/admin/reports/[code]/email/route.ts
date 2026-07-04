@@ -29,8 +29,6 @@ export async function POST(request: NextRequest, context: { params: Promise<{ co
         id: true,
         status: true,
         notes: true,
-        reporterEmailSnapshot: true,
-        contactEmail: true,
       },
     })
 
@@ -51,7 +49,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ co
       )
     }
 
-    const reporterEmail = report.reporterEmailSnapshot || report.contactEmail || notes.reporterEmail || null
+    const reporterEmail = notes.reporterEmail || notes.contact || null
 
     if (!reporterEmail) {
       return NextResponse.json({ ok: false, error: 'No email address available for the reporter.' }, { status: 400 })
@@ -84,26 +82,10 @@ export async function POST(request: NextRequest, context: { params: Promise<{ co
       adminUpdates: [newUpdate, ...adminUpdates],
     }
 
-    await prisma.$transaction([
-      prisma.report.update({
-        where: { id: report.id },
-        data: { notes: JSON.stringify(updatedNotes) },
-      }),
-      prisma.reportUpdate.create({
-        data: {
-          reportId: report.id,
-          authorId: session.user.id,
-          visibility: 'INTERNAL',
-          updateType: 'EMAIL',
-          statusAfter: report.status,
-          message: newUpdate.message,
-          meta: {
-            subject: subject.trim(),
-            target: reporterEmail,
-          },
-        },
-      }),
-    ])
+    await prisma.report.update({
+      where: { id: report.id },
+      data: { notes: JSON.stringify(updatedNotes) },
+    })
 
     return NextResponse.json({ ok: true })
   } catch (error) {

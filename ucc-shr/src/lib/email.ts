@@ -63,3 +63,12 @@ export async function sendVerificationEmail(to: string, name: string, token: str
     `,
   })
 }
+
+export async function sendDirectEmail(to: string, subject: string, html: string) {
+  await resend.emails.send({
+    from: FROM_ADDRESS,
+    to,
+    subject,
+    html,
+  })
+}

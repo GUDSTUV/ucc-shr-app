@@ -63,9 +63,6 @@ export default async function UserDashbard({
         status: true,
         createdAt: true,
         notes: true,
-        reporterId: true,
-        reporterEmailSnapshot: true,
-        contactEmail: true,
         Message: {
           select: {
             id: true,
@@ -86,9 +83,6 @@ export default async function UserDashbard({
     status: ReportStatus
     createdAt: Date
     notes: string | null
-    reporterId: string | null
-    reporterEmailSnapshot: string | null
-    contactEmail: string | null
     Message: { id: string; senderId: string; createdAt: Date }[]
   }
   const reports = reportsRaw as unknown as ReportRow[]
@@ -99,11 +93,7 @@ export default async function UserDashbard({
   )
 
   const userReports = reports.filter(r =>
-    belongsToUser(r.notes, userId, email ?? null, {
-      reporterId: r.reporterId,
-      reporterEmailSnapshot: r.reporterEmailSnapshot,
-      contactEmail: r.contactEmail,
-    })
+    belongsToUser(r.notes, userId, email ?? null)
   )
   const activeReports = userReports.filter(r => ['RECEIVED', 'UNDER_REVIEW', 'UNDER_INVESTIGATION'].includes(r.status))
   const latestActiveReport = activeReports[0]
