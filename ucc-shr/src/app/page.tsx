@@ -29,7 +29,7 @@ export default async function HomePage() {
     activeBanners = bannersResult
     contentRecords = contentResult
   } catch (error) {
-    console.error('Home page DB fetch failed, using fallback content:', error)
+    console.warn('Home page DB fetch failed (Neon DB might be sleeping), using fallback content:', error)
   }
 
   const mappedBanners = activeBanners.map(b => ({

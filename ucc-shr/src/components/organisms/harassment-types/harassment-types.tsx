@@ -1,131 +1,127 @@
 'use client'
 
-import { motion } from 'framer-motion'
-import Link from 'next/link'
-import { Eye, Hand, MessageSquare, Smartphone } from 'lucide-react'
+import { useState } from 'react'
+import Image from 'next/image'
+import { motion, AnimatePresence } from 'framer-motion'
+import { X } from 'lucide-react'
 import { Heading } from '@/src/components/atoms/heading/heading'
 import { Text } from '@/src/components/atoms/text/text'
+import { FadeIn } from '@/src/components/atoms/fade-in'
+import { harassmentTypes } from '@/src/app/hub/constants'
 
-const types = [
-  {
-    Icon: MessageSquare,
-    title: 'Verbal Harassment',
-    description:
-      'Unwanted comments, sexual demands, threats, and derogatory language targeting individuals.',
-    examples: ['Inappropriate jokes', 'Sexual remarks', 'Verbal threats'],
-  },
-  {
-    Icon: Eye,
-    title: 'Non-Verbal Harassment',
-    description:
-      'Unwanted gestures, intrusive staring, stalking, or displaying offensive material.',
-    examples: ['Leering or staring', 'Offensive gestures', 'Stalking behaviour'],
-  },
-  {
-    Icon: Hand,
-    title: 'Physical Harassment',
-    description:
-      'Any unwanted physical contact or physical intimidation, from touching to assault.',
-    examples: ['Unwanted touching', 'Blocking movement', 'Physical assault'],
-  },
-  {
-    Icon: Smartphone,
-    title: 'Digital Harassment',
-    description:
-      'Harassment carried out through messages, social media, images, or online platforms.',
-    examples: ['Explicit messages', 'Non-consensual images', 'Online abuse'],
-  },
-]
-
-const containerVariants = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.1 } },
-}
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 24 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] as const },
-  },
-}
+type HarassmentType = typeof harassmentTypes[0]
 
 export function HarassmentTypesSection() {
+  const [selectedType, setSelectedType] = useState<HarassmentType | null>(null)
+
   return (
-    <section id="awareness" className="bg-navy-light py-16 lg:py-24">
+    <section id="awareness" className="bg-gray-50 py-16 lg:py-24 overflow-hidden relative">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        {/* Heading */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="text-center"
-        >
-          <Text as="span" size="xs" weight="semibold" tone="navy" className="uppercase tracking-widest">
-            Know the Signs
-          </Text>
-          <Heading as="h2" size={{ base: '3xl', lg: '4xl' }} tone="navy" weight="bold" className="mt-2">
-            Understanding Sexual Harassment
-          </Heading>
-          <Text size="base" tone="muted" className="mx-auto mt-3 max-w-2xl">
-            Sexual harassment takes many forms. Recognising it is the first step
-            toward ending it.
-          </Text>
-        </motion.div>
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+          
+          {/* Left Column */}
+          <FadeIn>
+            <Text as="span" size="xs" weight="medium" tone="navy" className="uppercase tracking-widest">
+              Know the Signs
+            </Text>
+            <Heading as="h2" size={{ base: '3xl', lg: '4xl' }} tone="navy" weight="semibold" className="mt-2 mb-6">
+              Understanding <span className="text-red">Sexual Harassment</span>
+            </Heading>
+            <Text size="lg" tone="muted" className="mb-10 leading-relaxed max-w-2xl">
+              Sexual harassment takes many forms. Recognising it is the first step toward ending it.
+            </Text>
 
-        {/* Type cards */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-80px' }}
-          className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4"
-        >
-          {types.map((type) => (
-            <motion.div
-              key={type.title}
-              variants={itemVariants}
-              className="rounded-2xl border border-white bg-white p-5 shadow-sm transition-shadow hover:shadow-md"
-            >
-              <div className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-navy-light text-navy">
-                <type.Icon size={20} />
-              </div>
-              <Text as="h3" size="base" weight="semibold" className="mt-4 text-gray-900">
-                {type.title}
-              </Text>
-              <Text size="sm" tone="muted" className="mt-1.5 leading-relaxed">
-                {type.description}
-              </Text>
-              <ul className="mt-3 space-y-1">
-                {type.examples.map((ex) => (
-                  <li key={ex} className="flex items-center gap-2 text-xs text-gray-500">
-                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-navy" />
-                    {ex}
-                  </li>
+            <div>
+              {/* Interactive grid of forms */}
+              <div className="flex flex-wrap gap-3">
+                {harassmentTypes.map((type) => (
+                  <button
+                    key={type.title}
+                    onClick={() => setSelectedType(type)}
+                    className="px-5 py-3 rounded-md border border-gray-300 bg-white text-[15px] font-medium text-gray-800 transition-all hover:border-navy hover:text-navy hover:shadow-sm active:scale-[0.98]"
+                  >
+                    {type.title}
+                  </button>
                 ))}
-              </ul>
-            </motion.div>
-          ))}
-        </motion.div>
+              </div>
+            </div>
+          </FadeIn>
 
-        {/* Link to hub */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.4, delay: 0.3 }}
-          className="mt-8 text-center"
-        >
-          <Link
-            href="/hub"
-            className="inline-flex items-center gap-1 text-sm font-semibold text-navy transition-colors hover:text-navy-dark"
-          >
-            Explore full awareness resources →
-          </Link>
-        </motion.div>
+          {/* Right Column (Illustration) */}
+          <FadeIn delay={0.2} className="relative flex justify-center lg:justify-end">
+            <div className="relative aspect-[4/3] w-full max-w-md lg:max-w-lg mix-blend-multiply">
+               <Image 
+                 src="/images/awareness/aw1.png" 
+                 alt="Illustration representing support and conversation" 
+                 fill 
+                 className="object-contain" 
+                 priority
+               />
+            </div>
+          </FadeIn>
+          
+        </div>
       </div>
+
+      {/* Modal Popup */}
+      <AnimatePresence>
+        {selectedType && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedType(null)}
+              className="absolute inset-0 bg-navy/40 backdrop-blur-sm"
+            />
+            
+            {/* Modal Content */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-lg overflow-hidden rounded-2xl bg-white p-6 shadow-xl sm:p-8"
+            >
+              <button
+                onClick={() => setSelectedType(null)}
+                className="absolute right-4 top-4 rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+                aria-label="Close"
+              >
+                <X size={20} />
+              </button>
+
+              <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-xl bg-navy-light text-navy">
+                <selectedType.Icon size={24} />
+              </div>
+              
+              <Heading as="h3" size="2xl" tone="navy" weight="bold" className="mb-3">
+                {selectedType.title}
+              </Heading>
+              
+              <Text size="base" tone="muted" className="mb-6 leading-relaxed">
+                {selectedType.description}
+              </Text>
+
+              {selectedType.examples && selectedType.examples.length > 0 && (
+                <div className="rounded-xl bg-gray-50 p-5 border border-gray-100">
+                  <Text as="p" size="sm" weight="bold" tone="navy" className="mb-3 uppercase tracking-wider">
+                    Examples include:
+                  </Text>
+                  <ul className="space-y-2.5">
+                    {selectedType.examples.map((ex, i) => (
+                      <li key={i} className="flex items-start gap-3 text-sm text-gray-600">
+                        <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-red"></span>
+                        <span className="leading-relaxed">{ex}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </section>
   )
 }

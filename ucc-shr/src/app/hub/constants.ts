@@ -12,7 +12,7 @@ import {
 } from 'lucide-react'
 
 export const stats = [
-	{ icon: AlertTriangle, value: '4 Types', label: 'of harassment recognized by UCC policy' },
+	{ icon: AlertTriangle, value: '4 + types', label: 'of harassment recognized by UCC policy' },
 	{ icon: Lock, value: '100%', label: 'Confidential reporting guaranteed' },
 	{ icon: ShieldCheck, value: 'Expert', label: 'Counseling and guidance available' },
 	{ icon: Users, value: '3 Steps', label: 'Simple reporting process' },
@@ -42,6 +42,12 @@ export const harassmentTypes = [
 		title: 'Digital Harassment',
 		description: 'Harassment carried out through messages, social media, images, or online platforms.',
 		examples: ['Sending explicit messages or images', 'Non-consensual sharing of images', 'Online threats or cyberstalking'],
+	},
+	{
+		Icon: AlertTriangle,
+		title: 'Quid Pro Quo',
+		description: 'When an authority figure demands sexual favours in exchange for grades, promotion, or other academic/professional benefits.',
+		examples: ['Demanding sex for good grades', 'Promising a job promotion for sexual acts', 'Threatening to fail a student who refuses advances'],
 	},
 ]
 

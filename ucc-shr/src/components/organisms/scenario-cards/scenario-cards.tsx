@@ -86,7 +86,7 @@ function ScenarioCard({
           </span>
           <Text as="span" size="xs" weight="semibold" tone="navy" className="uppercase tracking-wider opacity-60">Scenario</Text>
         </div>
-        <Text as="p" size="sm" className="leading-relaxed text-gray-700">
+        <Text as="p" size="lg" className="leading-relaxed text-gray-800">
           {scenario.situation}
         </Text>
       </div>
@@ -101,7 +101,7 @@ function ScenarioCard({
       >
         <div className="flex items-center gap-2">
           <HelpCircle size={16} className="text-navy" />
-          <Text as="span" size="sm" weight="semibold" tone="navy">{scenario.question}</Text>
+          <Heading as="span" size="xl" weight="semibold" tone="navy">{scenario.question}</Heading>
         </div>
         <ChevronDown
           size={16}
@@ -124,7 +124,7 @@ function ScenarioCard({
             <div className="border-t border-gray-100 px-6 pb-6 pt-5">
               {/* Verdict */}
               <div
-                className={`mb-4 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold ${
+                className={`mb-4 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-lg font-bold ${
                   scenario.isHarassment
                     ? 'bg-red/10 text-red'
                     : 'bg-green-50 text-green-700'
@@ -139,22 +139,22 @@ function ScenarioCard({
               </div>
 
               {/* Explanation */}
-              <Text size="sm" tone="muted" className="leading-relaxed">
+              <Text size="base" tone="muted" className="leading-relaxed">
                 {scenario.explanation}
               </Text>
 
               {/* What to do */}
-              <div className="mt-4">
-                <Text as="h4" size="xs" weight="bold" tone="navy" className="mb-2 uppercase tracking-wider">
+              <div className="mt-6">
+                <Text as="h4" size="sm" weight="bold" tone="navy" className="mb-3 uppercase tracking-wider">
                   What should you do?
                 </Text>
-                <ul className="space-y-2">
+                <ul className="space-y-3">
                   {scenario.whatToDo.map((step, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-gray-600">
-                      <span className="mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-navy text-[10px] font-bold text-white">
+                    <li key={i} className="flex items-start gap-3 text-base text-gray-700">
+                      <span className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-navy text-[11px] font-bold text-white">
                         {i + 1}
                       </span>
-                      {step}
+                      <span className="leading-relaxed">{step}</span>
                     </li>
                   ))}
                 </ul>
@@ -172,13 +172,13 @@ export function ScenarioCards() {
     <section className="bg-gray-50 py-16 lg:py-20">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="text-center">
-          <Text as="span" size="xs" weight="semibold" tone="navy" className="uppercase tracking-widest">
+          <Text as="span" size="xs" weight="medium" tone="navy" className="uppercase tracking-widest">
             Real-Life Situations
           </Text>
-          <Heading as="h2" size={{ base: '3xl', lg: '4xl' }} tone="navy" weight="bold" className="mt-2">
+          <Heading as="h2" size={{ base: '3xl', lg: '4xl' }} tone="navy" weight="semibold" className="mt-2">
             What Would You Do?
           </Heading>
-          <Text size="base" tone="muted" className="mx-auto mt-3 max-w-2xl">
+          <Text size="lg" tone="muted" className="mx-auto mt-3 max-w-2xl">
             Read through these campus scenarios and test your understanding. Click each question to see the answer and learn how to respond.
           </Text>
         </div>

@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { Facebook, Instagram, Linkedin, Mail, MapPin, Phone, Twitter, Clock } from 'lucide-react'
+import { Facebook, Instagram, Linkedin, Mail, MapPin, Phone, Twitter, Clock, PhoneForwarded } from 'lucide-react'
 import { Text } from '@/src/components/atoms/text/text'
 import { prisma } from '@/src/lib/prisma'
 
@@ -159,6 +159,13 @@ export async function Footer() {
                 <span>
                   Mon - Fri: 8:00 AM - 5:00 PM
                 </span>
+              </li>
+              <li className="flex items-start gap-2 text-sm text-white/60">
+                <PhoneForwarded size={15} className="mt-0.5 shrink-0 text-red" />
+                <div className="flex flex-col gap-1">
+                  <Text as="span" size="xs" tone="white" className="opacity-60 uppercase tracking-wider">Toll-Free Hotline</Text>
+                  <a href="tel:0800100114" className="font-semibold text-white transition hover:text-red-light">0800-100-114</a>
+                </div>
               </li>
               <li className="flex items-start gap-2 text-sm text-white/60">
                 <Phone size={15} className="mt-0.5 shrink-0 text-red" />
