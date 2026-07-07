@@ -9,9 +9,14 @@ export const metadata: Metadata = {
 }
 
 export default async function HelpPage() {
-  const contentRecords = await prisma.siteContent.findMany({
-    where: { key: { in: ['faqs', 'contactEmail', 'contactPhone', 'contactAddress'] } }
-  })
+  let contentRecords: Array<{ key: string; value: unknown }> = []
+  try {
+    contentRecords = await prisma.siteContent.findMany({
+      where: { key: { in: ['faqs', 'contactEmail', 'contactPhone', 'contactAddress'] } }
+    })
+  } catch (error) {
+    console.error('Database connection failed in HelpPage, using fallback content:', error)
+  }
   
   const contentMap = contentRecords.reduce((acc, record) => {
     acc[record.key] = record.value

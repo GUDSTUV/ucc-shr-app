@@ -3,9 +3,9 @@ import { Footer } from '@/src/components/organisms/Footer'
 export default function TermsOfServicePage() {
   return (
     <>
-      <div className="bg-gray-50 py-16 lg:py-24">
+      <div className="py-16 lg:py-24">
         <div className="mx-auto max-w-4xl px-6 lg:px-8">
-          <div className="rounded-3xl bg-white p-8 shadow-sm sm:p-12">
+          <div className="sm:p-12">
             <h1 className="mb-2 text-3xl font-bold text-navy md:text-4xl">Terms of Service</h1>
             <p className="mb-8 text-sm text-gray-500">Last updated: {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</p>
 

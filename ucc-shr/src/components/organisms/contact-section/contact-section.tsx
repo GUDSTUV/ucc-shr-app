@@ -39,8 +39,7 @@ export function ContactSection() {
               We Are Here to Help
             </Heading>
             <Text size="lg" tone="white" className="mt-3 max-w-xl opacity-70">
-              If you need guidance before reporting, or just want to talk to
-              someone, reach out to CEGRAD directly.
+              If you need guidance before reporting, want to speak with someone, or have an enquiry please reach out to CEGRAD directly.
             </Text>
           </motion.div>
 
@@ -57,13 +56,19 @@ export function ContactSection() {
                 <Text as="label" htmlFor="name" size="sm" weight="regular" tone="white" className="mb-1 block opacity-80">
                   Name <span className="text-red-300">*</span>
                 </Text>
-                <Input type="text" id="name" required placeholder="Your full name" className="text-navy placeholder:text-gray-500" />
+                <Input type="text" id="name" required placeholder="Your name" className="text-navy placeholder:text-gray-500" />
               </div>
               <div>
                 <Text as="label" htmlFor="email" size="sm" weight="regular" tone="white" className="mb-1 block opacity-80">
                   Email Address <span className="text-red-300">*</span>
                 </Text>
                 <Input type="email" id="email" required placeholder="you@example.com" className="text-navy placeholder:text-gray-500" />
+              </div>
+              <div>
+                <Text as="label" htmlFor="phone" size="sm" weight="regular" tone="white" className="mb-1 block opacity-80">
+                  Phone Number (Optional)
+                </Text>
+                <Input type="tel" id="phone" placeholder="e.g., 020 123 4567" className="text-navy placeholder:text-gray-500" />
               </div>
               <div>
                 <Text as="label" htmlFor="message" size="sm" weight="regular" tone="white" className="mb-1 block opacity-80">

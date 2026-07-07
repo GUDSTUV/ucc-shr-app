@@ -66,7 +66,7 @@ export default async function HubPage() {
 							{stats.map((stat) => (
 								<div key={stat.value} className="flex flex-col items-center p-8 sm:p-10 text-center">
 									<stat.icon className="h-6 w-6 text-navy" />
-									<Text as="span" size="3xl" weight="bold" tone="navy" className="mt-5 tracking-tight">
+									<Text as="span" size="2xl" weight="semibold" tone="navy" className="mt-5 tracking-tight">
 										<AnimatedCounter value={stat.value} />
 									</Text>
 									<Text as="span" size="sm" weight="medium" tone="muted" className="mt-2">
@@ -135,13 +135,14 @@ export default async function HubPage() {
 						</FadeInStagger>
 
 						<FadeIn delay={0.3} className="mt-16 text-center">
-							<Link
+							<a
 								href="/documents/UCC_Anti_Sexual_Harassment_Policy.pdf"
 								target="_blank"
+								download
 								className="inline-flex items-center justify-center gap-2 rounded-xl bg-red px-8 py-4 text-base font-semibold text-white transition-all hover:bg-red-dark hover:-translate-y-0.5"
 							>
 								Download Full Policy PDF
-							</Link>
+							</a>
 						</FadeIn>
 					</div>
 				</section>

@@ -161,7 +161,7 @@ export function HeroSection({ banners = [], customTitle, customSubtitle }: { ban
             <Button
               variant="unstyled"
               className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-md border border-white/30 bg-white/10 px-5 text-[15px] text-white backdrop-blur-sm transition-all hover:bg-white/20 active:scale-[0.98] sm:w-auto"
-              onClick={() => router.push('/hub')}
+              onClick={() => router.push('/rights')}
             >
               <BookOpen size={18} />
               Know Your Rights

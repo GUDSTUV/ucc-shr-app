@@ -2,13 +2,14 @@
 
 import { useState } from "react"
 import { FaqSection } from "@/src/components/organisms/faq-section"
-import { Mail, Phone, MapPin, PhoneForwarded } from "lucide-react"
+import { Mail, Phone, MapPin, PhoneForwarded, ArrowRight, X } from "lucide-react"
 import { EmailModal } from "@/src/components/molecules/email-modal/email-modal"
 import { Button } from '@/src/components/atoms/button'
 import { Heading } from '@/src/components/atoms/heading'
 import { Text } from '@/src/components/atoms/text'
 import { FadeIn, FadeInStagger, FadeInItem } from '@/src/components/atoms/fade-in'
 import Image from 'next/image'
+import { motion, AnimatePresence } from 'framer-motion'
 
 type HelpClientProps = {
   customFaqs?: any[]
@@ -19,15 +20,16 @@ type HelpClientProps = {
 
 export function HelpClient({ customFaqs, customEmail, customPhone, customAddress }: HelpClientProps) {
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false)
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false)
 
   const emailText = customEmail || 'cegrad@ucc.edu.gh'
   const addressText = customAddress || 'Second Floor, C.A Ackah lecture Theatre Complex, UCC Campus'
-  
+
   const phoneText = customPhone || '+233 235 383 415'
   const phoneLines = phoneText.split(',').map(p => p.trim()).filter(Boolean)
   if (phoneLines.length === 0) phoneLines.push('+233 235 383 415')
   const primaryPhone = phoneLines[0]
-  
+
   const tollFreeNumber = '0800-100-114'
 
   return (
@@ -39,7 +41,7 @@ export function HelpClient({ customFaqs, customEmail, customPhone, customAddress
             <Text as="span" size="sm" weight="bold" tone="navy" className="uppercase tracking-widest text-red">
               Help & Support
             </Text>
-            <Heading size={{ base: '4xl', lg: '6xl' }} tone="navy" weight="bold" className="mt-4 tracking-tight">
+            <Heading size={{ base: '4xl', lg: '6xl' }} tone="navy" weight="semibold" className="mt-4 tracking-tight">
               We're Here to Listen.
             </Heading>
             <Text size="lg" tone="muted" className="mx-auto mt-6 max-w-2xl leading-relaxed">
@@ -50,8 +52,8 @@ export function HelpClient({ customFaqs, customEmail, customPhone, customAddress
 
         {/* Contact Cards */}
         <section className="mx-auto max-w-7xl px-6 lg:px-8">
-          <FadeInStagger className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            
+          <FadeInStagger className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+
             {/* Toll-Free Hotline */}
             <FadeInItem>
               <a
@@ -62,7 +64,7 @@ export function HelpClient({ customFaqs, customEmail, customPhone, customAddress
                   <PhoneForwarded size={28} />
                 </div>
                 <div>
-                  <Heading as="h3" size="xl" weight="bold" tone="navy">Toll-Free Hotline</Heading>
+                  <Heading as="h3" size="xl" weight="semibold" tone="navy">Toll-Free Hotline</Heading>
                   <Text size="sm" tone="muted" className="mt-1">Free to call from any network:</Text>
                   <Text size="xl" weight="bold" className="mt-2 text-red">{tollFreeNumber}</Text>
                 </div>
@@ -79,7 +81,7 @@ export function HelpClient({ customFaqs, customEmail, customPhone, customAddress
                   <Phone size={28} />
                 </div>
                 <div>
-                  <Heading as="h3" size="xl" weight="bold" tone="navy">Emergency Hotline</Heading>
+                  <Heading as="h3" size="xl" weight="semibold" tone="navy">Emergency Hotline</Heading>
                   <Text size="sm" tone="muted" className="mt-1">Call us immediately at:</Text>
                   <div className="mt-2 flex flex-col font-semibold text-navy">
                     <span>024 476 6862</span>
@@ -99,7 +101,7 @@ export function HelpClient({ customFaqs, customEmail, customPhone, customAddress
                   <Mail size={28} />
                 </div>
                 <div>
-                  <Heading as="h3" size="xl" weight="bold" tone="navy">Direct Message</Heading>
+                  <Heading as="h3" size="xl" weight="semibold" tone="navy">Direct Message</Heading>
                   <Text size="sm" tone="muted" className="mt-1">Send us a secure message.</Text>
                   <Text size="base" weight="semibold" tone="navy" className="mt-2">{emailText}</Text>
                 </div>
@@ -116,7 +118,7 @@ export function HelpClient({ customFaqs, customEmail, customPhone, customAddress
                   <Phone size={28} />
                 </div>
                 <div>
-                  <Heading as="h3" size="xl" weight="bold" tone="navy">General Office</Heading>
+                  <Heading as="h3" size="xl" weight="semibold" tone="navy">General Office</Heading>
                   <Text size="sm" tone="muted" className="mt-1">For non-emergencies:</Text>
                   <div className="mt-2 flex flex-col font-semibold text-navy">
                     {phoneLines.map((phone, idx) => (
@@ -127,37 +129,62 @@ export function HelpClient({ customFaqs, customEmail, customPhone, customAddress
               </a>
             </FadeInItem>
 
-            {/* Office Location (Interactive Hover Card spanning 2 columns) */}
-            <FadeInItem className="sm:col-span-2">
-              <a 
-                href="https://maps.app.goo.gl/9RxyyZ5j6N2Tz3mX9" // Placeholder map link to UCC
+          </FadeInStagger>
+        </section>
+
+        {/* Location Section */}
+        <section className="mx-auto max-w-7xl px-6 lg:px-8 mt-16 lg:mt-24">
+          <FadeIn className="grid lg:grid-cols-[1fr,1.2fr] gap-12 lg:gap-16 items-center">
+            {/* Left side */}
+            <div className="max-w-xl">
+              <Heading size={{ base: '3xl', lg: '4xl' }} tone="navy" weight="semibold">Find the CeGRAD Office</Heading>
+              <Text size="lg" className="mt-4 leading-relaxed">
+                We are located on the University of Cape Coast campus. Click on the map to view the CeGRAD office building and get directions.
+              </Text>
+              <a
+                href="https://maps.app.goo.gl/9RxyyZ5j6N2Tz3mX9"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative flex h-full min-h-[250px] w-full flex-col items-center justify-center overflow-hidden rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-sm transition-all hover:-translate-y-1 hover:border-navy hover:shadow-lg"
+                className="mt-8 inline-flex items-center justify-center gap-2   px-6 py-3 font-semibold text-navy transition-all hover:text-red "
               >
-                {/* Default State */}
-                <div className="z-10 flex flex-col items-center transition-opacity duration-500 group-hover:opacity-0">
-                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gray-100 text-gray-700">
-                    <MapPin size={28} />
-                  </div>
-                  <Heading as="h3" size="xl" weight="bold" tone="navy" className="mt-4">Visit Us</Heading>
-                  <Text size="sm" weight="semibold" tone="navy" className="mt-1">CEGRAD Office</Text>
-                  <Text size="sm" tone="muted" className="mt-1">{addressText}</Text>
-                  <Text size="xs" weight="medium" className="mt-4 text-red">Hover to view building</Text>
-                </div>
-
-                {/* Hover Reveal State */}
-                <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-navy/90 p-8 text-white opacity-0 transition-opacity duration-500 group-hover:opacity-100">
-                   {/* We will just use a CSS generic background for the building thumbnail until they upload one, or a placeholder */}
-                   <div className="absolute inset-0 z-0 bg-[url('https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&q=80&w=800')] bg-cover bg-center opacity-40 mix-blend-overlay transition-transform duration-700 group-hover:scale-110" />
-                   <MapPin size={48} className="z-10 mb-4 text-red-light drop-shadow-md" />
-                   <Heading as="h3" size="2xl" weight="bold" tone="white" className="z-10 drop-shadow-md">CEGRAD Building</Heading>
-                   <Text size="base" tone="white" className="z-10 mt-2 font-medium tracking-wide drop-shadow-md">Click to view on Google Maps</Text>
-                </div>
+                <MapPin size={20} className="text-red" />
+                Second Floor, C.A. Ackah Lecture Theatre Complex
               </a>
-            </FadeInItem>
+            </div>
 
-          </FadeInStagger>
+            {/* Right side (Map Card) */}
+            <div className="relative h-[450px] w-full rounded-3xl overflow-hidden bg-[#e6e2d6] shadow-sm group">
+              {/* Interactive Google Map iframe */}
+              <iframe 
+                src="https://maps.google.com/maps?q=Faculty+of+Education+Lecture+Theatre(FELT),+University+of+Cape+Coast&t=&z=17&ie=UTF8&output=embed" 
+                width="100%" 
+                height="100%" 
+                style={{ border: 0 }} 
+                allowFullScreen 
+                loading="lazy" 
+                referrerPolicy="no-referrer-when-downgrade"
+                className="absolute inset-0"
+              />
+              
+              {/* Center Map Location Images (acting as the pin) */}
+              <div className="absolute top-[40%] lg:top-[40%] left-1/2 -translate-x-1/2 -translate-y-full z-10 flex flex-row items-center gap-3">
+                <button 
+                  onClick={() => setIsGalleryOpen(true)}
+                  className="relative h-16 w-16 md:h-20 md:w-20 overflow-hidden rounded-xl border-2 border-white shadow-xl transition-transform duration-300 hover:scale-110 hover:z-20 focus:outline-none focus:ring-2 focus:ring-navy"
+                  aria-label="View Building Exterior"
+                >
+                  <Image src="/images/cegrad_building.jpg" alt="Building" fill className="object-cover" />
+                </button>
+                <button 
+                  onClick={() => setIsGalleryOpen(true)}
+                  className="relative h-16 w-16 md:h-20 md:w-20 overflow-hidden rounded-xl border-2 border-white shadow-xl transition-transform duration-300 hover:scale-110 hover:z-20 focus:outline-none focus:ring-2 focus:ring-navy"
+                  aria-label="View Office Entrance"
+                >
+                  <Image src="/images/cegrad_office.jpg" alt="Office" fill className="object-cover" />
+                </button>
+              </div>
+            </div>
+          </FadeIn>
         </section>
 
         {/* FAQ Section */}
@@ -168,6 +195,64 @@ export function HelpClient({ customFaqs, customEmail, customPhone, customAddress
 
       {/* Email Form Modal */}
       <EmailModal isOpen={isEmailModalOpen} onClose={() => setIsEmailModalOpen(false)} />
+
+      {/* Location Gallery Modal */}
+      <AnimatePresence>
+        {isGalleryOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 text-left">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-navy/80 backdrop-blur-sm"
+              onClick={() => setIsGalleryOpen(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-4xl overflow-hidden rounded-3xl bg-white shadow-2xl flex flex-col max-h-[90vh] z-10"
+            >
+              <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
+                <Heading size="xl" weight="semibold" tone="navy">CeGRAD Location Photos</Heading>
+                <button
+                  onClick={() => setIsGalleryOpen(false)}
+                  className="rounded-full p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="p-6 overflow-y-auto">
+                <div className="grid gap-6 md:grid-cols-2">
+                  <div className="flex flex-col gap-3">
+                    <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl ring-1 ring-black/5 bg-gray-100">
+                      <Image 
+                        src="/images/cegrad_building.jpg" 
+                        alt="CeGRAD Building Exterior" 
+                        fill 
+                        className="object-cover"
+                      />
+                    </div>
+                    <Text size="sm" tone="muted" className="text-center font-medium">Building Exterior</Text>
+                  </div>
+                  <div className="flex flex-col gap-3">
+                    <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl ring-1 ring-black/5 bg-gray-100">
+                      <Image 
+                        src="/images/cegrad_office.jpg" 
+                        alt="CeGRAD Office Front" 
+                        fill 
+                        className="object-cover"
+                      />
+                    </div>
+                    <Text size="sm" tone="muted" className="text-center font-medium">Office Entrance: Second Floor, C.A. Ackah Lecture Theatre Complex</Text>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </>
   )
 }

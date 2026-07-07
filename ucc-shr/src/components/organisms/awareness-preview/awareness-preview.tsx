@@ -12,7 +12,7 @@ const previews = [
     title: 'Know Your Rights',
     description:
       'Students and staff have legal and institutional protections. Learn exactly what they are and how to invoke them.',
-    href: '/hub',
+    href: '/rights',
   },
   {
     title: 'Prevention Tips',

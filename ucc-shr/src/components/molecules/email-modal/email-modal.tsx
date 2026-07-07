@@ -89,6 +89,14 @@ export function EmailModal({ isOpen, onClose }: EmailModalProps) {
                     />
                   </div>
                   <div>
+                    <Text as="label" htmlFor="phone" size="sm" weight="medium" className="mb-1 block text-gray-700">Phone Number (Optional)</Text>
+                    <Input
+                      type="tel"
+                      id="phone"
+                      placeholder="e.g., 020 123 4567"
+                    />
+                  </div>
+                  <div>
                     <Text as="label" htmlFor="message" size="sm" weight="medium" className="mb-1 block text-gray-700">Message <span className="text-red">*</span></Text>
                     <Textarea
                       id="message"

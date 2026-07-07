@@ -15,7 +15,7 @@ const quickLinks = [
 ]
 
 const resources = [
-  { href: '/hub', label: 'Know Your Rights' },
+  { href: '/rights', label: 'Know Your Rights' },
   { href: '/hub', label: 'Prevention Guide' },
   { href: '/hub', label: 'Support Services' },
   { href: '/hub', label: 'Campus Policy' },
@@ -55,7 +55,7 @@ export async function Footer() {
     
   const phoneText = typeof contentMap['contactPhone'] === 'string'
     ? contentMap['contactPhone']
-    : '+233 235 383 415'
+    : '+233 235 383 415, +233 205 383 415, +233 575 383 415'
     
   const phoneLines = phoneText.split(',').map(p => p.trim()).filter(Boolean)
   if (phoneLines.length === 0) phoneLines.push('+233 235 383 415')
@@ -164,7 +164,7 @@ export async function Footer() {
                 <PhoneForwarded size={15} className="mt-0.5 shrink-0 text-red" />
                 <div className="flex flex-col gap-1">
                   <Text as="span" size="xs" tone="white" className="opacity-60 uppercase tracking-wider">Toll-Free Hotline</Text>
-                  <a href="tel:0800100114" className="font-semibold text-white transition hover:text-red-light">0800-100-114</a>
+                  <a href="tel:0800100114" className="transition hover:text-red-light">0800-100-114</a>
                 </div>
               </li>
               <li className="flex items-start gap-2 text-sm text-white/60">
