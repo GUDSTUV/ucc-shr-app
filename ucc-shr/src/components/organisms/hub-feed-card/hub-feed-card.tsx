@@ -83,7 +83,7 @@ export function HubFeedCard({
           ) : null}
         </div>
 
-        <Heading as="h2" size="xl" weight="semibold" className="leading-tight text-gray-900">{title}</Heading>
+        <Heading as="h2" size={{ base: 'lg', lg: 'xl' }} weight="semibold" tone="default" leading="tight">{title}</Heading>
         <Text size="sm" tone="muted">{excerpt}</Text>
 
         {isRegistration ? (

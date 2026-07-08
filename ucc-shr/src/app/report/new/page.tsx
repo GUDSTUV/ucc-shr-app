@@ -15,7 +15,7 @@ export default async function NewReportPage() {
   return (
     <FormLayout title="New Report" hideTopBar>
       <div className="mb-2">
-        <Heading as="h1" size="xl" weight="bold" tone="navy">New Report</Heading>
+        <Heading as="h1" size="xl" weight="semibold" tone="navy">New Report</Heading>
       </div>
       <ReportForm initialContact={initialContact} />
     </FormLayout>

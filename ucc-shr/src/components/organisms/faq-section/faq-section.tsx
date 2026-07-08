@@ -74,7 +74,7 @@ function FaqAccordionItem({
         aria-expanded={open}
         className="group flex w-full items-center justify-between gap-4 py-6 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-4"
       >
-        <Text as="span" size="lg" weight="medium" className="text-gray-900 transition-colors group-hover:text-navy">{question}</Text>
+        <Text as="span" size={{ base: 'base', lg: 'lg' }} weight="medium" tone="default" className="transition-colors group-hover:text-navy">{question}</Text>
         <ChevronDown
           size={20}
           className={`shrink-0 text-gray-400 transition-transform duration-300 group-hover:text-navy ${open ? 'rotate-180 text-navy' : ''}`}
@@ -90,7 +90,7 @@ function FaqAccordionItem({
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
             className="overflow-hidden"
           >
-            <Text size="lg" tone="muted" className="pb-8 pr-12 leading-relaxed">
+            <Text size={{ base: 'base', lg: 'lg' }} tone="muted" leading="relaxed" className="pb-8 pr-12">
               {answer}
             </Text>
           </motion.div>
@@ -122,7 +122,7 @@ export function FaqSection({ showHelpLink = true, featuredOnly = false, customFa
           <Heading as="h2" size={{ base: '3xl', lg: '4xl' }} tone="navy" weight="semibold" className="mt-2">
             Frequently Asked Questions
           </Heading>
-          <Text size="lg" tone="muted" className="mx-auto mt-4 max-w-2xl">
+          <Text size={{ base: 'base', lg: 'lg' }} tone="muted" className="mx-auto mt-4 max-w-2xl">
             Answers to the most common concerns about reporting, privacy, and
             the support process.
           </Text>
@@ -157,7 +157,7 @@ export function FaqSection({ showHelpLink = true, featuredOnly = false, customFa
             transition={{ duration: 0.5, delay: 0.2 }}
             className="mt-16 text-center"
           >
-            <Text size="lg" tone="muted" className="text-gray-500">
+            <Text size={{ base: 'base', lg: 'lg' }} tone="subtle">
               Still have questions?{' '}
               <Link
                 href="/help"

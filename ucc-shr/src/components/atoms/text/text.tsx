@@ -1,8 +1,9 @@
 import type { ComponentPropsWithoutRef, ElementType } from 'react'
 
 type TextSize = 'xs' | 'sm' | 'base' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl'
-type TextTone = 'default' | 'muted' | 'navy' | 'light' | 'white'
-type TextWeight = 'regular' | 'medium' | 'semibold' | 'bold'
+type TextTone = 'default' | 'muted' | 'subtle' | 'dark' | 'navy' | 'light' | 'white' | 'red'
+type TextWeight = 'regular' | 'medium' | 'semibold' | 'bold' | 'extrabold' | 'black'
+type TextLeading = 'none' | 'tight' | 'snug' | 'normal' | 'relaxed' | 'loose'
 
 type ResponsiveTextSize = TextSize | {
   base?: TextSize
@@ -18,6 +19,7 @@ type TextProps<T extends ElementType = 'p'> = {
   size?: ResponsiveTextSize
   tone?: TextTone
   weight?: TextWeight
+  leading?: TextLeading
 } & ComponentPropsWithoutRef<T>
 
 const responsiveTextSizes: Record<TextSize, Record<'base' | 'sm' | 'md' | 'lg' | 'xl' | '2xl', string>> = {
@@ -36,9 +38,12 @@ const responsiveTextSizes: Record<TextSize, Record<'base' | 'sm' | 'md' | 'lg' |
 const textTones: Record<TextTone, string> = {
   default: 'text-gray-900',
   muted: 'text-gray-600',
+  subtle: 'text-gray-500',
+  dark: 'text-gray-700',
   navy: 'text-navy',
   light: 'text-navy-light',
   white: 'text-white',
+  red: 'text-red',
 }
 
 const textWeights: Record<TextWeight, string> = {
@@ -46,6 +51,17 @@ const textWeights: Record<TextWeight, string> = {
   medium: 'font-medium',
   semibold: 'font-semibold',
   bold: 'font-bold',
+  extrabold: 'font-extrabold',
+  black: 'font-black',
+}
+
+const textLeadings: Record<TextLeading, string> = {
+  none: 'leading-none',
+  tight: 'leading-tight',
+  snug: 'leading-snug',
+  normal: 'leading-normal',
+  relaxed: 'leading-relaxed',
+  loose: 'leading-loose',
 }
 
 function getTextSizeClasses(size: ResponsiveTextSize): string {
@@ -61,15 +77,17 @@ function getTextSizeClasses(size: ResponsiveTextSize): string {
 }
 
 export function Text<T extends ElementType = 'p'>(props: TextProps<T>) {
-  const { as, size = 'base', tone = 'default', weight = 'regular', className, ...rest } = props
+  const { as, size = 'base', tone = 'default', weight = 'regular', leading, className, ...rest } = props
   const Component = as ?? 'p'
+
+  const leadingClass = leading ? textLeadings[leading] : ''
 
   return (
     <Component
-      className={`font-sans ${getTextSizeClasses(size)} ${textWeights[weight]} ${textTones[tone]} ${className ?? ''}`.trim()}
+      className={`font-sans ${getTextSizeClasses(size)} ${textWeights[weight]} ${leadingClass} ${textTones[tone]} ${className ?? ''}`.trim().replace(/\s+/g, ' ')}
       {...rest}
     />
   )
 }
 
-export type { TextProps, TextSize, ResponsiveTextSize, TextTone, TextWeight }
+export type { TextProps, TextSize, ResponsiveTextSize, TextTone, TextWeight, TextLeading }

@@ -40,7 +40,7 @@ export function HelpClient({ customFaqs }: HelpClientProps) {
             <Heading size={{ base: '4xl', lg: '6xl' }} tone="navy" weight="semibold" className="mt-4 tracking-tight">
               We're Here to Listen.
             </Heading>
-            <Text size="lg" tone="muted" className="mx-auto mt-6 max-w-2xl leading-relaxed">
+            <Text size="lg" tone="muted" leading="relaxed" className="mx-auto mt-6 max-w-2xl">
               Whether you have questions about the reporting process, need immediate assistance, or want to reach out to our support staff, we provide multiple ways for you to connect with us safely.
             </Text>
           </FadeIn>
@@ -134,7 +134,7 @@ export function HelpClient({ customFaqs }: HelpClientProps) {
             {/* Left side */}
             <div className="max-w-xl">
               <Heading size={{ base: '3xl', lg: '4xl' }} tone="navy" weight="semibold">Find the CeGRAD Office</Heading>
-              <Text size="lg" className="mt-4 leading-relaxed">
+              <Text size="lg" tone="dark" leading="relaxed" className="mt-4">
                 We are located on the University of Cape Coast campus. Click on the map to view the CeGRAD office building and get directions.
               </Text>
               <a
@@ -230,7 +230,7 @@ export function HelpClient({ customFaqs }: HelpClientProps) {
                         className="object-cover"
                       />
                     </div>
-                    <Text size="sm" tone="muted" className="text-center font-medium">Building Exterior</Text>
+                    <Text size="sm" tone="muted" weight="medium" className="text-center">Building Exterior</Text>
                   </div>
                   <div className="flex flex-col gap-3">
                     <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl ring-1 ring-black/5 bg-gray-100">
@@ -241,7 +241,7 @@ export function HelpClient({ customFaqs }: HelpClientProps) {
                         className="object-cover"
                       />
                     </div>
-                    <Text size="sm" tone="muted" className="text-center font-medium">Office Entrance: Second Floor, C.A. Ackah Lecture Theatre Complex</Text>
+                    <Text size="sm" tone="muted" weight="medium" className="text-center">Office Entrance: Second Floor, C.A. Ackah Lecture Theatre Complex</Text>
                   </div>
                 </div>
               </div>

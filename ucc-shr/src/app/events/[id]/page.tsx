@@ -2,6 +2,8 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowLeft, CalendarClock, MapPin } from 'lucide-react'
 import { PublicLayout } from '@/src/components/templates/public-layout'
+import { Heading } from '@/src/components/atoms/heading/heading'
+import { Text } from '@/src/components/atoms/text/text'
 import { prisma } from '@/src/lib/prisma'
 
 type PageProps = {
@@ -32,13 +34,13 @@ export default async function EventDetailPage({ params }: PageProps) {
   return (
     <PublicLayout>
       <section className="space-y-4">
-        <Link href="/hub" className="inline-flex items-center gap-2 text-sm font-semibold text-navy hover:text-navy-dark">
+        <Link href="/events" className="inline-flex items-center gap-2 text-sm font-semibold text-navy hover:text-navy-dark">
           <ArrowLeft size={16} />
-          Back to Hub
+          Back to Posts & Events
         </Link>
 
         <p className="inline-flex rounded-full bg-navy-light px-3 py-1 text-xs font-semibold text-navy">Event</p>
-        <h1 className="text-2xl font-bold leading-tight text-gray-900">{event.title}</h1>
+        <Heading as="h1" size={{ base: 'xl', lg: '2xl' }} weight="semibold" tone="default" leading="tight">{event.title}</Heading>
       </section>
 
       <article className="mt-5 space-y-4 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
@@ -75,7 +77,7 @@ export default async function EventDetailPage({ params }: PageProps) {
           <span>{event.venue}</span>
         </div>
 
-        <p className="whitespace-pre-wrap text-sm leading-7 text-gray-700">{event.description}</p>
+        <Text as="p" size={{ base: 'sm', lg: 'base' }} tone="dark" leading="relaxed" className="whitespace-pre-wrap">{event.description}</Text>
       </article>
     </PublicLayout>
   )

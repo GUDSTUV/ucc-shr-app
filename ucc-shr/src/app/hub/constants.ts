@@ -12,7 +12,7 @@ import {
 } from 'lucide-react'
 
 export const stats = [
-	{ icon: AlertTriangle, value: '4 + types', label: 'of harassment recognized by UCC policy' },
+	{ icon: AlertTriangle, value: '4 + ', label: 'types of harassment recognized by UCC policy' },
 	{ icon: Lock, value: '100%', label: 'Confidential reporting guaranteed' },
 	{ icon: ShieldCheck, value: 'Expert', label: 'Counseling and guidance available' },
 	{ icon: Users, value: '3 Steps', label: 'Simple reporting process' },

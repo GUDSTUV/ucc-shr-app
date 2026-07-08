@@ -22,8 +22,8 @@ export function AboutPartners() {
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center mb-16 lg:mb-20">
           <Text as="span" size="xs" weight="semibold" tone="navy" className="uppercase tracking-widest">Collaboration</Text>
-          <Heading as="h2" size="4xl" tone="navy" weight="bold" className="mt-2">Our Partners</Heading>
-          <Text size="lg" tone="muted" className="mx-auto mt-4 leading-relaxed">
+          <Heading as="h2" size={{ base: '3xl', lg: '4xl' }} tone="navy" weight="semibold" className="mt-2">Our Partners</Heading>
+          <Text size={{ base: 'base', lg: 'lg' }} tone="muted" leading="relaxed" className="mx-auto mt-4">
             We collaborate at every level to ensure a safe, equitable, and highly supportive environment for the entire university community.
           </Text>
         </div>
@@ -31,14 +31,14 @@ export function AboutPartners() {
         <div className="mx-auto max-w-4xl grid gap-12 sm:grid-cols-3">
           {partnerGroups.map((group, index) => (
             <div key={index} className="flex flex-col">
-              <Heading as="h3" size="lg" weight="bold" tone="navy" className="mb-4">
+              <Heading as="h3" size={{ base: 'base', md: 'lg' }} weight="semibold" tone="navy" className="mb-4">
                 {group.category}
               </Heading>
               <div className="mb-6 h-0.5 w-12 bg-red-light" />
               <ul className="space-y-4">
                 {group.partners.map((partner, i) => (
                   <li key={i}>
-                    <Text size="base" className="text-gray-700 leading-snug font-medium">
+                    <Text size="base" tone="dark" leading="snug" weight="medium">
                       {partner}
                     </Text>
                   </li>

@@ -43,7 +43,7 @@ export function AboutBoard({ customMembers }: { customMembers?: BoardMember[] })
         <div className="mx-auto">
           <div className="mb-12 text-center">
             <Text as="span" size="xs" weight="semibold" tone="navy" className="uppercase tracking-widest">Leadership</Text>
-            <Heading as="h2" size={{ base: '3xl', lg: '4xl' }} tone="navy" weight="bold" className="mt-2">Our Board Members</Heading>
+            <Heading as="h2" size={{ base: '3xl', lg: '4xl' }} tone="navy" weight="semibold" className="mt-2">Our Board Members</Heading>
             <Text size="base" tone="muted" className="mx-auto mt-3 max-w-2xl">
               Meet the dedicated team leading CEGRAD&apos;s mission and initiatives.
             </Text>
@@ -70,8 +70,8 @@ export function AboutBoard({ customMembers }: { customMembers?: BoardMember[] })
                 </div>
                 
                 <div className="mt-auto flex flex-col items-center justify-center">
-                  <Text as="h3" size="xl" weight="bold" tone="navy" className="mb-1">{member.name}</Text>
-                  <Text size="sm" weight="semibold" className="text-red uppercase tracking-widest">{member.role}</Text>
+                  <Text as="h3" size={{ base: 'lg', lg: 'xl' }} weight="semibold" tone="navy" className="mb-1">{member.name}</Text>
+                  <Text size="sm" weight="semibold" tone="red" className="uppercase tracking-widest">{member.role}</Text>
                 </div>
               </div>
             ))}

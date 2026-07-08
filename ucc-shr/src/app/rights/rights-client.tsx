@@ -10,22 +10,22 @@ export function RightsClient() {
       <div className="mx-auto max-w-4xl px-6 lg:px-8">
         <div className="sm:p-12">
           
-          <Heading as="h1" size={{ base: '3xl', md: '4xl' }} weight="bold" tone="navy" className="mb-6">
+          <Heading as="h1" size={{ base: '3xl', md: '4xl' }} weight="semibold" tone="navy" className="mb-6">
             Know Your Rights and Responsibilities
           </Heading>
-          <Text size="lg" className="mb-10 leading-relaxed text-gray-600">
+          <Text size={{ base: 'base', lg: 'lg' }} tone="muted" leading="relaxed" className="mb-10">
             The University of Cape Coast is committed to providing a safe, respectful, and inclusive environment for all students, staff, and visitors. Sexual harassment in any form is not tolerated. Every member of the university community has the right to learn, work, and participate in university life free from harassment, intimidation, discrimination, or abuse.
           </Text>
 
           <div className="space-y-8 text-gray-600">
             
             <section>
-              <Heading as="h2" size="2xl" weight="bold" tone="navy" className="mb-4">What is Sexual Harassment?</Heading>
+              <Heading as="h2" size={{ base: 'xl', lg: '2xl' }} weight="semibold" tone="navy" className="mb-4">What is Sexual Harassment?</Heading>
               <Text className="mb-6">
                 Sexual harassment refers to any unwelcome sexual advance, request for sexual favours, or verbal, physical, written, digital, or visual conduct of a sexual nature that causes discomfort, humiliation, intimidation, embarrassment, or interferes with a person's academic or work environment.
               </Text>
               
-              <Heading as="h3" size="xl" weight="semibold" tone="navy" className="mb-3">Examples of Sexual Harassment</Heading>
+              <Heading as="h3" size={{ base: 'lg', lg: 'xl' }} weight="semibold" tone="navy" className="mb-3">Examples of Sexual Harassment</Heading>
               
               <div className="space-y-6 pl-4">
                 <div>
@@ -71,31 +71,31 @@ export function RightsClient() {
             <hr className="border-gray-200" />
 
             <section>
-              <Heading as="h2" size="2xl" weight="bold" tone="navy" className="mb-6">Your Rights</Heading>
+              <Heading as="h2" size={{ base: 'xl', lg: '2xl' }} weight="semibold" tone="navy" className="mb-6">Your Rights</Heading>
               
               <div className="space-y-6">
                 <div>
-                  <Heading as="h3" size="lg" weight="bold" tone="navy" className="mb-1">Right to a Safe Environment</Heading>
+                  <Heading as="h3" size={{ base: 'base', lg: 'lg' }} weight="semibold" tone="navy" className="mb-1">Right to a Safe Environment</Heading>
                   <Text>You have the right to study, work, and participate in university activities without fear of sexual harassment or discrimination.</Text>
                 </div>
 
                 <div>
-                  <Heading as="h3" size="lg" weight="bold" tone="navy" className="mb-1">Right to Report</Heading>
+                  <Heading as="h3" size={{ base: 'base', lg: 'lg' }} weight="semibold" tone="navy" className="mb-1">Right to Report</Heading>
                   <Text>Any student or staff member who experiences or witnesses sexual harassment has the right to report the incident and seek assistance.</Text>
                 </div>
 
                 <div>
-                  <Heading as="h3" size="lg" weight="bold" tone="navy" className="mb-1">Right to Confidentiality</Heading>
+                  <Heading as="h3" size={{ base: 'base', lg: 'lg' }} weight="semibold" tone="navy" className="mb-1">Right to Confidentiality</Heading>
                   <Text>Information disclosed during reporting and investigations will be handled confidentially to the extent permitted by university policy and the law.</Text>
                 </div>
 
                 <div>
-                  <Heading as="h3" size="lg" weight="bold" tone="navy" className="mb-1">Right to Protection from Retaliation</Heading>
+                  <Heading as="h3" size={{ base: 'base', lg: 'lg' }} weight="semibold" tone="navy" className="mb-1">Right to Protection from Retaliation</Heading>
                   <Text>No person should be intimidated, threatened, punished, or treated unfairly because they reported sexual harassment or participated in an investigation.</Text>
                 </div>
 
                 <div>
-                  <Heading as="h3" size="lg" weight="bold" tone="navy" className="mb-1">Right to Support</Heading>
+                  <Heading as="h3" size={{ base: 'base', lg: 'lg' }} weight="semibold" tone="navy" className="mb-1">Right to Support</Heading>
                   <Text>Survivors are entitled to counselling, guidance, and other support services throughout the reporting and resolution process.</Text>
                 </div>
               </div>
@@ -104,10 +104,10 @@ export function RightsClient() {
             <hr className="border-gray-200" />
 
             <section>
-              <Heading as="h2" size="2xl" weight="bold" tone="navy" className="mb-4">Understanding Consent</Heading>
+              <Heading as="h2" size={{ base: 'xl', lg: '2xl' }} weight="semibold" tone="navy" className="mb-4">Understanding Consent</Heading>
               <Text className="mb-4">Consent means freely agreeing to engage in a specific activity.</Text>
               
-              <Heading as="h3" size="lg" weight="bold" tone="navy" className="mb-3">Important Things to Know</Heading>
+              <Heading as="h3" size={{ base: 'base', lg: 'lg' }} weight="semibold" tone="navy" className="mb-3">Important Things to Know</Heading>
               <ul className="list-disc pl-5 space-y-2">
                 <li><Text>Consent must be voluntary and informed.</Text></li>
                 <li><Text>Silence does not automatically mean consent.</Text></li>
@@ -120,7 +120,7 @@ export function RightsClient() {
             <hr className="border-gray-200" />
 
             <section>
-              <Heading as="h2" size="2xl" weight="bold" tone="navy" className="mb-4">What UCC Does Not Tolerate</Heading>
+              <Heading as="h2" size={{ base: 'xl', lg: '2xl' }} weight="semibold" tone="navy" className="mb-4">What UCC Does Not Tolerate</Heading>
               <ul className="list-disc pl-5 space-y-2">
                 <li><Text>Sexual Harassment</Text></li>
                 <li><Text>Sexual Imposition</Text></li>
@@ -135,7 +135,7 @@ export function RightsClient() {
             <hr className="border-gray-200" />
 
             <section>
-              <Heading as="h2" size="2xl" weight="bold" tone="navy" className="mb-4">Possible Consequences for Violations</Heading>
+              <Heading as="h2" size={{ base: 'xl', lg: '2xl' }} weight="semibold" tone="navy" className="mb-4">Possible Consequences for Violations</Heading>
               <Text className="mb-4">Individuals found responsible for violating the Sexual Harassment Policy may face disciplinary action, including:</Text>
               <ul className="list-disc pl-5 space-y-2">
                 <li><Text>Formal warnings or reprimands</Text></li>
@@ -152,7 +152,7 @@ export function RightsClient() {
             <hr className="border-gray-200" />
 
             <section>
-              <Heading as="h2" size="2xl" weight="bold" tone="navy" className="mb-4">Support and Help</Heading>
+              <Heading as="h2" size={{ base: 'xl', lg: '2xl' }} weight="semibold" tone="navy" className="mb-4">Support and Help</Heading>
               <Text className="mb-4">If you experience or witness sexual harassment, support is available. You may seek assistance from:</Text>
               <ul className="list-disc pl-5 space-y-2">
                 <li><Text>CeGRAD</Text></li>
@@ -168,7 +168,7 @@ export function RightsClient() {
             <hr className="border-gray-200" />
 
             <section className="pt-4">
-              <Heading as="h2" size="2xl" weight="bold" tone="navy" className="mb-4">Need More Information?</Heading>
+              <Heading as="h2" size={{ base: 'xl', lg: '2xl' }} weight="semibold" tone="navy" className="mb-4">Need More Information?</Heading>
               <Text className="mb-8">
                 This page provides a summary of the University's Sexual Harassment Policy. For complete details, reporting procedures, definitions, and policy provisions, please download and review the full policy document.
               </Text>

@@ -22,7 +22,7 @@ export function AboutMission() {
                 <Target className="h-6 w-6 text-navy" />
               </div>
               <Text as="span" size="xs" weight="semibold" tone="navy" className="mb-2 block uppercase tracking-widest">Purpose</Text>
-              <Heading as="h2" size={{ base: '2xl', lg: '3xl' }} tone="navy" weight="bold">Our Mission</Heading>
+              <Heading as="h2" size={{ base: '2xl', lg: '3xl' }} tone="navy" weight="semibold">Our Mission</Heading>
               <Text size="base" tone="muted" className="mt-4 leading-relaxed">
                 To engage in theory and practice to position the University of Cape Coast as a leader in gender equality and women&apos;s rights within the academy and beyond.
               </Text>
@@ -34,7 +34,7 @@ export function AboutMission() {
                 <Eye className="h-6 w-6 text-red" />
               </div>
               <Text as="span" size="xs" weight="semibold" tone="navy" className="mb-2 block uppercase tracking-widest">Future State</Text>
-              <Heading as="h2" size={{ base: '2xl', lg: '3xl' }} tone="navy" weight="bold">Our Vision</Heading>
+              <Heading as="h2" size={{ base: '2xl', lg: '3xl' }} tone="navy" weight="semibold">Our Vision</Heading>
               <Text size="base" tone="muted" className="mt-4 leading-relaxed">
                 Create a safe, creative and inclusive space where gender and women&apos;s rights are fully protected.
               </Text>
@@ -45,7 +45,7 @@ export function AboutMission() {
           <div className="mt-12 rounded-3xl bg-navy px-8 py-12 text-white sm:px-12 lg:py-16">
             <div className="text-center">
               <Text as="span" size="xs" weight="semibold" tone="white" className="uppercase tracking-widest opacity-70">Guiding Principles</Text>
-              <Heading as="h2" size={{ base: '3xl', lg: '4xl' }} weight="bold" tone="white" className="mt-2">Our Core Values</Heading>
+              <Heading as="h2" size={{ base: '3xl', lg: '4xl' }} weight="semibold" tone="white" className="mt-2">Our Core Values</Heading>
             </div>
             <div className="mt-10 flex flex-wrap justify-center gap-6">
               {coreValues.map((value, i) => (

@@ -119,7 +119,7 @@ export default async function HubPage() {
 										<right.Icon size={22} />
 									</div>
 									<Heading as="h3" size="xl" tone="white" weight="semibold" className="mt-6">{right.title}</Heading>
-									<Text size="lg" tone="white" className="mt-3 flex-1 leading-relaxed opacity-80">{right.description}</Text>
+									<Text size="lg" tone="white" leading="relaxed" className="mt-3 flex-1 opacity-80">{right.description}</Text>
 								</FadeInItem>
 							))}
 						</FadeInStagger>

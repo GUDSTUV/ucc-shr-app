@@ -4,6 +4,8 @@ import { auth } from '@/src/lib/auth/auth'
 import dynamic from 'next/dynamic'
 
 const HubClient = dynamic(() => import('@/src/components/organisms/hub-client').then(m => m.HubClient))
+import { Heading } from '@/src/components/atoms/heading/heading'
+import { Text } from '@/src/components/atoms/text/text'
 
 const DEFAULT_ARTICLE_IMAGE = '/icons/default-article.svg'
 const DEFAULT_EVENT_IMAGE = '/icons/default-event.svg'
@@ -117,10 +119,10 @@ export default async function EventsPage() {
 	return (
 		<PublicLayout>
 			<section className="space-y-3">
-				<h1 className="text-2xl font-bold text-navy lg:text-3xl">Posts & Events</h1>
-				<p className="text-sm text-gray-600">
+				<Heading as="h1" size={{ base: '2xl', lg: '3xl' }} weight="semibold" tone="navy">Posts & Events</Heading>
+				<Text size="sm" tone="muted">
 					Read the latest articles, find upcoming events, and access educational resources from CEGRAD.
-				</p>
+				</Text>
 			</section>
 
 			<section className="mt-8">

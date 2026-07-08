@@ -50,14 +50,14 @@ const itemVariants = {
   },
 }
 
-export function HeroSection({ banners = [], customTitle }: { banners?: BannerSlide[], customTitle?: string }) {
+export function HeroSection({ banners = [], customTitle, customSubtitle }: { banners?: BannerSlide[], customTitle?: string, customSubtitle?: string }) {
   const [active, setActive] = useState(0)
   const router = useRouter()
   const reportHref = '/report'
 
   const slides = banners.length > 0 ? banners : fallbackSlides
   const activeSlide = slides[active] ?? slides[0]
-  const slideSubtitle = activeSlide?.title?.trim()
+  const slideSubtitle = customSubtitle || activeSlide?.title?.trim()
     || 'Confidential reporting, prompt review, and trained CEGRAD support for the University of Cape Coast community.'
 
   useEffect(() => {

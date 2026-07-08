@@ -68,7 +68,7 @@ export function ReportingProcessSection() {
           <Heading as="h2" size={{ base: '3xl', lg: '4xl' }} tone="navy" weight="semibold" className="mt-2">
             How Reporting Works
           </Heading>
-          <Text size="lg" tone="muted" className="mx-auto mt-4 max-w-2xl">
+          <Text size={{ base: 'base', lg: 'lg' }} tone="muted" className="mx-auto mt-4 max-w-2xl">
             We have made the reporting process simple, safe, and transparent.
             Here is exactly what to expect when you come forward.
           </Text>
@@ -99,13 +99,13 @@ export function ReportingProcessSection() {
                   </div>
                   
                   <div className="flex-1 lg:mt-2">
-                    <Text as="span" size="sm" weight="semibold" className="text-navy/50 tracking-wider">
+                    <Text as="span" size="sm" weight="semibold" tone="navy" className="opacity-50 tracking-wider">
                       STEP {step.step}
                     </Text>
-                    <Heading as="h3" size="lg" weight="medium" tone="navy" className="mt-1 lg:mt-2">
+                    <Heading as="h3" size={{ base: 'base', md: 'lg' }} weight="medium" tone="navy" className="mt-1 lg:mt-2">
                       {step.title}
                     </Heading>
-                    <Text size="base" tone="muted" className="mt-2 leading-relaxed max-w-xs mx-auto lg:mx-0">
+                    <Text size="base" tone="muted" leading="relaxed" className="mt-2 max-w-xs mx-auto lg:mx-0">
                       {step.description}
                     </Text>
                   </div>

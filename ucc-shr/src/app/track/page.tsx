@@ -116,8 +116,8 @@ export default function TrackPage() {
             <Text size="sm" tone="muted"><Text as="span" weight="semibold">Location:</Text> {result.location || 'Not specified'}</Text>
           </div>
           <div className="pt-2">
-            <Text as="p" size="xs" weight="semibold" tone="muted" className="mb-1 uppercase tracking-wider text-gray-400">Description</Text>
-            <Text size="sm" tone="default" className="leading-relaxed">{result.description}</Text>
+            <Text as="p" size="xs" weight="semibold" tone="subtle" className="mb-1 uppercase tracking-wider">Description</Text>
+            <Text size="sm" tone="default" leading="relaxed">{result.description}</Text>
           </div>
           <div className="pt-4 mt-4 flex flex-col sm:flex-row sm:justify-between border-t border-gray-100 space-y-1 sm:space-y-0">
             <Text size="xs" tone="muted">Submitted: {formatDate(result.createdAt)}</Text>

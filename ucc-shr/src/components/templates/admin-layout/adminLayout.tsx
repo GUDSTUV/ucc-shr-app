@@ -37,7 +37,7 @@ export async function AdminLayout({
           <header className="mb-5 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-5 print:hidden">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <Heading as="h1" size={{ base: '2xl', sm: '3xl' }} weight="bold" tone="navy" className="tracking-tight">{title}</Heading>
+                <Heading as="h1" size={{ base: '2xl', sm: '3xl' }} weight="semibold" tone="navy" className="tracking-tight">{title}</Heading>
                 {description ? <Text as="p" size="base" tone="muted" className="mt-1 max-w-3xl leading-relaxed text-gray-700">{description}</Text> : null}
               </div>
               {actions ? <div className="flex shrink-0 items-center gap-2">{actions}</div> : null}

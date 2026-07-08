@@ -145,7 +145,7 @@ export function ReportForm({ initialContact = '' }: ReportFormProps) {
           <div className="flex h-14 w-14 items-center justify-center rounded-full bg-green-50">
             <Shield className="h-7 w-7 text-green-600" />
           </div>
-          <Heading as="h3" size="lg" weight="bold" tone="navy" className="mt-4">
+          <Heading as="h3" size="lg" weight="semibold" tone="navy" className="mt-4">
             Report Submitted Successfully
           </Heading>
           <Text size="sm" tone="muted" className="mt-2 leading-relaxed">

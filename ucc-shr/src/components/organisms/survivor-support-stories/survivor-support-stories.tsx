@@ -98,7 +98,7 @@ export function SurvivorSupportStories({ showSubmissionForm = true }: SurvivorSu
           transition={{ duration: 0.5 }}
         >
     
-          <Heading as="h2" size={{ base: '3xl', lg: '4xl' }} tone="navy" weight="bold" className="mt-2">
+          <Heading as="h2" size={{ base: '3xl', lg: '4xl' }} tone="navy" weight="semibold" className="mt-2">
             Survivor Support Stories
           </Heading>
           <Text size="sm" tone="muted" className="mt-3 max-w-xl leading-7">

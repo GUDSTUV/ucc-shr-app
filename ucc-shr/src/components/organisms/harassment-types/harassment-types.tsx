@@ -27,7 +27,7 @@ export function HarassmentTypesSection() {
             <Heading as="h2" size={{ base: '3xl', lg: '4xl' }} tone="navy" weight="semibold" className="mt-2 mb-6">
               Understanding <span className="text-red">Sexual Harassment</span>
             </Heading>
-            <Text size="lg" tone="muted" className="mb-10 leading-relaxed max-w-2xl">
+            <Text size={{ base: 'base', lg: 'lg' }} tone="muted" className="mb-10 leading-relaxed max-w-2xl">
               Sexual harassment takes many forms. Recognising it is the first step toward ending it.
             </Text>
 
@@ -95,7 +95,7 @@ export function HarassmentTypesSection() {
                 <selectedType.Icon size={24} />
               </div>
               
-              <Heading as="h3" size="2xl" tone="navy" weight="bold" className="mb-3">
+              <Heading as="h3" size={{ base: 'xl', lg: '2xl' }} tone="navy" weight="semibold" className="mb-3">
                 {selectedType.title}
               </Heading>
               

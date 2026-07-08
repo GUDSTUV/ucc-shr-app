@@ -63,8 +63,9 @@ export function AwarenessPreviewSection() {
             <Heading as="h2" size={{ base: '3xl', lg: '4xl' }} tone="navy" weight="semibold" className="mt-2">
               Awareness & Education
             </Heading>
-            <Text size="base" tone="muted" className="mx-auto mt-3 max-w-2xl leading-7 sm:mx-0">
-              Explore rights, prevention guidance, and support pathways designed for the UCC community.
+            <Text size="base" tone="muted" leading="relaxed" className="mx-auto mt-3 max-w-2xl sm:mx-0">
+              Explore essential knowledge, identify different forms of harassment,
+              and understand your rights within the UCC community.
             </Text>
           </div>
           {/* <Link
@@ -92,10 +93,10 @@ export function AwarenessPreviewSection() {
             />
             <div className="absolute inset-0 bg-linear-to-t from-navy-dark/70 via-navy/30 to-transparent" aria-hidden="true" />
             <div className="absolute inset-x-0 bottom-0 p-6">
-              <Text as="span" size="xs" weight="medium" className="uppercase tracking-widest text-red">
+              <Text as="span" size="xs" weight="medium" tone="red" className="uppercase tracking-widest">
                 Featured Guide
               </Text>
-              <Text size="xl" tone="white" weight="medium" className="mt-1 leading-tight">
+              <Text size={{ base: 'lg', lg: 'xl' }} tone="white" weight="medium" leading="tight" className="mt-1">
                 Understand your rights and reporting options before an incident escalates.
               </Text>
             </div>
@@ -118,10 +119,10 @@ export function AwarenessPreviewSection() {
                     <ArrowRight size={18} />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <Text as="h3" size="lg" weight="medium" className="text-gray-900 transition-colors group-hover:text-navy">
+                    <Text as="h3" size="lg" weight="medium" tone="default" className="transition-colors group-hover:text-navy">
                       {preview.title}
                     </Text>
-                    <Text size="lg" tone="muted" className="mt-1 leading-7">
+                    <Text size={{ base: 'base', lg: 'lg' }} tone="muted" leading="relaxed" className="mt-1">
                       {preview.description}
                     </Text>
                   </div>

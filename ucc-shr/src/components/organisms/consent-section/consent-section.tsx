@@ -13,7 +13,7 @@ export function ConsentSection() {
         <FadeIn className="text-center">
           <Text as="span" size="xs" weight="medium" tone="navy" className="uppercase tracking-widest">Clear Boundaries</Text>
           <Heading as="h2" size={{ base: '3xl', lg: '4xl' }} tone="navy" weight="semibold" className="mt-2">Understanding Consent</Heading>
-          <Text size="lg" tone="muted" className="mx-auto mt-3 max-w-2xl">
+          <Text size={{ base: 'base', lg: 'lg' }} tone="muted" className="mx-auto mt-3 max-w-2xl">
             Consent is a clear, unambiguous, and voluntary agreement. It must be present in every interaction. Remember the F.R.I.E.S framework:
           </Text>
         </FadeIn>
@@ -26,11 +26,11 @@ export function ConsentSection() {
                 {/* Left Column: Term */}
                 <div className="flex md:w-[35%] items-center gap-5 shrink-0">
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-navy-light transition-colors group-hover:bg-navy">
-                    <Heading as="span" size="xl" tone="navy" weight="semibold" className="transition-colors group-hover:text-white">
+                    <Heading as="span" size={{ base: 'lg', lg: 'xl' }} tone="navy" weight="semibold" className="transition-colors group-hover:text-white">
                       {item.letter}
                     </Heading>
                   </div>
-                  <Text as="h3" size="xl" tone="navy" weight="semibold">
+                  <Text as="h3" size={{ base: 'lg', lg: 'xl' }} tone="navy" weight="semibold">
                     {item.title}
                   </Text>
                 </div>
@@ -42,7 +42,7 @@ export function ConsentSection() {
 
                 {/* Right Column: Description */}
                 <div className="md:flex-1 md:pl-4">
-                  <Text size="lg" tone="muted" className="leading-relaxed group-hover:text-gray-800 transition-colors">
+                  <Text size={{ base: 'base', lg: 'lg' }} tone="muted" className="leading-relaxed group-hover:text-gray-800 transition-colors">
                     {item.desc}
                   </Text>
                 </div>

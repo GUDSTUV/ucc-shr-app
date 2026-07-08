@@ -48,7 +48,7 @@ export function EmailModal({ isOpen, onClose }: EmailModalProps) {
             className="relative w-full max-w-lg overflow-hidden rounded-3xl bg-white shadow-2xl"
           >
             <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
-              <Heading size="xl" weight="bold" tone="navy">Send a Message</Heading>
+              <Heading size="xl" weight="semibold" tone="navy">Send a Message</Heading>
               <Button
                 variant="unstyled"
                 onClick={onClose}
@@ -64,7 +64,7 @@ export function EmailModal({ isOpen, onClose }: EmailModalProps) {
                   <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-green-600">
                     <CheckCircle2 size={32} />
                   </div>
-                  <Heading as="h3" size="xl" weight="bold" tone="navy" className="mt-4">Message Sent</Heading>
+                  <Heading as="h3" size="xl" weight="semibold" tone="navy" className="mt-4">Message Sent</Heading>
                   <Text tone="muted" className="mt-2 text-center">
                     Thank you for reaching out. A CEGRAD representative will review your message and get back to you shortly.
                   </Text>

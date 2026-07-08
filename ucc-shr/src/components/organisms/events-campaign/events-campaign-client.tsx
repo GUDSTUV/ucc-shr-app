@@ -56,7 +56,7 @@ export function EventsCampaignClient({ items }: { items: CampaignFeedItem[] }) {
             <Heading as="h2" size={{ base: '3xl', lg: '4xl' }} tone="navy" weight="semibold" className="mt-2">
               Awareness in Action
             </Heading>
-            <Text size="base" tone="muted" className="mt-3 max-w-xl leading-7">
+            <Text size="base" tone="muted" leading="relaxed" className="mt-3 max-w-xl">
               CEGRAD runs workshops, policy forums, and awareness campaigns throughout
               the year. Join us to learn, engage, and advocate.
             </Text>

@@ -1,8 +1,9 @@
 import type { ComponentPropsWithoutRef, ElementType } from 'react'
 
 type HeadingSize = 'sm' | 'base' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl'
-type HeadingTone = 'default' | 'navy' | 'light' | 'white'
-type HeadingWeight = 'medium' | 'semibold' | 'bold'
+type HeadingTone = 'default' | 'muted' | 'subtle' | 'dark' | 'navy' | 'light' | 'white' | 'red'
+type HeadingWeight = 'medium' | 'semibold' | 'bold' | 'extrabold' | 'black'
+type HeadingLeading = 'none' | 'tight' | 'snug' | 'normal' | 'relaxed' | 'loose'
 
 type ResponsiveHeadingSize = HeadingSize | {
   base?: HeadingSize
@@ -18,6 +19,7 @@ type HeadingProps<T extends ElementType = 'h2'> = {
   size?: ResponsiveHeadingSize
   tone?: HeadingTone
   weight?: HeadingWeight
+  leading?: HeadingLeading
 } & ComponentPropsWithoutRef<T>
 
 const responsiveHeadingSizes: Record<HeadingSize, Record<'base' | 'sm' | 'md' | 'lg' | 'xl' | '2xl', string>> = {
@@ -34,15 +36,30 @@ const responsiveHeadingSizes: Record<HeadingSize, Record<'base' | 'sm' | 'md' | 
 
 const headingTones: Record<HeadingTone, string> = {
   default: 'text-gray-900',
+  muted: 'text-gray-600',
+  subtle: 'text-gray-500',
+  dark: 'text-gray-700',
   navy: 'text-navy',
   light: 'text-navy-light',
   white: 'text-white',
+  red: 'text-red',
 }
 
 const headingWeights: Record<HeadingWeight, string> = {
   medium: 'font-medium',
   semibold: 'font-semibold',
   bold: 'font-bold',
+  extrabold: 'font-extrabold',
+  black: 'font-black',
+}
+
+const headingLeadings: Record<HeadingLeading, string> = {
+  none: 'leading-none',
+  tight: 'leading-tight',
+  snug: 'leading-snug',
+  normal: 'leading-normal',
+  relaxed: 'leading-relaxed',
+  loose: 'leading-loose',
 }
 
 function getHeadingSizeClasses(size: ResponsiveHeadingSize): string {
@@ -58,15 +75,17 @@ function getHeadingSizeClasses(size: ResponsiveHeadingSize): string {
 }
 
 export function Heading<T extends ElementType = 'h2'>(props: HeadingProps<T>) {
-  const { as, size = '2xl', tone = 'default', weight = 'semibold', className, ...rest } = props
+  const { as, size = '2xl', tone = 'default', weight = 'semibold', leading, className, ...rest } = props
   const Component = as ?? 'h2'
+
+  const leadingClass = leading ? headingLeadings[leading] : ''
 
   return (
     <Component
-      className={`font-sans ${getHeadingSizeClasses(size)} ${headingWeights[weight]} ${headingTones[tone]} ${className ?? ''}`.trim()}
+      className={`font-sans ${getHeadingSizeClasses(size)} ${headingWeights[weight]} ${leadingClass} ${headingTones[tone]} ${className ?? ''}`.trim().replace(/\s+/g, ' ')}
       {...rest}
     />
   )
 }
 
-export type { HeadingProps, HeadingSize, ResponsiveHeadingSize, HeadingTone, HeadingWeight }
+export type { HeadingProps, HeadingSize, ResponsiveHeadingSize, HeadingTone, HeadingWeight, HeadingLeading }

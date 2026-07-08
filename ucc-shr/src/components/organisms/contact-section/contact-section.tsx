@@ -38,7 +38,7 @@ export function ContactSection() {
             <Heading as="h2" size={{ base: '3xl', lg: '4xl' }} weight="semibold" tone="white" className="mt-2">
               We Are Here to Help
             </Heading>
-            <Text size="lg" tone="white" className="mt-3 max-w-xl opacity-70">
+            <Text size={{ base: 'base', lg: 'lg' }} tone="white" className="mt-3 max-w-xl opacity-70">
               If you need guidance before reporting, want to speak with someone, or have an enquiry please reach out to CEGRAD directly.
             </Text>
           </motion.div>

@@ -86,7 +86,7 @@ function ScenarioCard({
           </span>
           <Text as="span" size="xs" weight="semibold" tone="navy" className="uppercase tracking-wider opacity-60">Scenario</Text>
         </div>
-        <Text as="p" size="lg" className="leading-relaxed text-gray-800">
+        <Text as="p" size={{ base: 'base', lg: 'lg' }} tone="dark" leading="relaxed">
           {scenario.situation}
         </Text>
       </div>
@@ -101,7 +101,7 @@ function ScenarioCard({
       >
         <div className="flex items-center gap-2">
           <HelpCircle size={16} className="text-navy" />
-          <Heading as="span" size="xl" weight="semibold" tone="navy">{scenario.question}</Heading>
+          <Heading as="span" size={{ base: 'lg', lg: 'xl' }} weight="semibold" tone="navy">{scenario.question}</Heading>
         </div>
         <ChevronDown
           size={16}
@@ -139,7 +139,7 @@ function ScenarioCard({
               </div>
 
               {/* Explanation */}
-              <Text size="base" tone="muted" className="leading-relaxed">
+              <Text size="base" tone="muted" leading="relaxed">
                 {scenario.explanation}
               </Text>
 
@@ -150,11 +150,11 @@ function ScenarioCard({
                 </Text>
                 <ul className="space-y-3">
                   {scenario.whatToDo.map((step, i) => (
-                    <li key={i} className="flex items-start gap-3 text-base text-gray-700">
+                    <li key={i} className="flex items-start gap-3">
                       <span className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-navy text-[11px] font-bold text-white">
                         {i + 1}
                       </span>
-                      <span className="leading-relaxed">{step}</span>
+                      <Text as="span" size="base" tone="dark" leading="relaxed">{step}</Text>
                     </li>
                   ))}
                 </ul>
@@ -178,7 +178,7 @@ export function ScenarioCards() {
           <Heading as="h2" size={{ base: '3xl', lg: '4xl' }} tone="navy" weight="semibold" className="mt-2">
             What Would You Do?
           </Heading>
-          <Text size="lg" tone="muted" className="mx-auto mt-3 max-w-2xl">
+          <Text size={{ base: 'base', lg: 'lg' }} tone="muted" className="mx-auto mt-3 max-w-2xl">
             Read through these campus scenarios and test your understanding. Click each question to see the answer and learn how to respond.
           </Text>
         </div>

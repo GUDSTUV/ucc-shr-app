@@ -51,7 +51,7 @@ export function AboutHero({ customImages }: { customImages?: CarouselImage[] }) 
       {/* Main Content Overlay */}
       <div className="relative z-10 mx-auto flex h-full w-full max-w-7xl flex-col justify-center px-6 lg:px-8 py-24">
         <div className="max-w-3xl text-left">
-          <Heading as="h1" size={{ base: '4xl', sm: '5xl', lg: '6xl' }} tone="white" weight="bold" className="tracking-tight drop-shadow-md">
+          <Heading as="h1" size={{ base: '4xl', sm: '5xl', lg: '6xl' }} tone="white" weight="semibold" className="tracking-tight drop-shadow-md">
             About CEGRAD
           </Heading>
           <Text size={{ base: 'base', sm: 'lg', lg: 'xl' }} tone="white" className="mt-6 leading-relaxed opacity-95 drop-shadow">
