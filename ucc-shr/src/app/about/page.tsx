@@ -5,12 +5,22 @@ import { AboutPartners } from '@/src/components/organisms/about-partners'
 import { Footer } from '@/src/components/organisms/Footer'
 import { prisma } from '@/src/lib/prisma'
 
+const CAROUSEL = [
+  {
+    url: "/images/about/about-1.jpg",
+    caption: "",
+  },
+  {
+    url: "/images/about/about-2.jpg",
+    caption: "",
+  }
+]
+
 export default async function AboutPage() {
   const contentRecords = await prisma.siteContent.findMany({
-    where: { key: { in: ['aboutCarousel', 'aboutBoard'] } }
+    where: { key: { in: ['aboutBoard'] } }
   })
 
-  type CarouselImage = { url: string; caption: string; alt?: string }
   type BoardMember = { name: string; role: string; bio: string; initials: string; imageUrl?: string }
 
   const contentMap = contentRecords.reduce(
@@ -20,15 +30,6 @@ export default async function AboutPage() {
     },
     {} as Record<string, unknown>,
   )
-
-  const rawCarousel = contentMap['aboutCarousel']
-  const carousel = Array.isArray(rawCarousel)
-    ? (rawCarousel as unknown[]).filter((i): i is CarouselImage => {
-        if (typeof i !== 'object' || i === null) return false
-        const r = i as Record<string, unknown>
-        return typeof r.url === 'string' && typeof r.caption === 'string'
-      })
-    : undefined
 
   const rawBoard = contentMap['aboutBoard']
   const board = Array.isArray(rawBoard)
@@ -42,7 +43,7 @@ export default async function AboutPage() {
   return (
     <>
       <div className="bg-gray-50 pb-16">
-        <AboutHero customImages={carousel} />
+        <AboutHero customImages={CAROUSEL} />
         <AboutMission />
         <AboutBoard customMembers={board} />
         <AboutPartners />

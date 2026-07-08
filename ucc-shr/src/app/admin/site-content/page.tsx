@@ -29,12 +29,7 @@ export default async function SiteContentPage() {
     footerText: typeof contentMap['footerText'] === 'string' ? contentMap['footerText'] : '© 2026 CEGRAD UCC. All rights reserved. Providing a safe and confidential reporting environment for the university community.',
 
     // Arrays and JSON — keep as unknown[] but provide sensible defaults
-    aboutCarousel: Array.isArray(contentMap['aboutCarousel']) ? (contentMap['aboutCarousel'] as unknown[]) : [
-      {
-        url: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=2070&auto=format&fit=crop",
-        caption: "UCC Campus - Empowering the community"
-      }
-    ],
+
     aboutBoard: Array.isArray(contentMap['aboutBoard']) ? (contentMap['aboutBoard'] as unknown[]) : [
       {
         name: "Prof. Jane Doe",
@@ -44,7 +39,6 @@ export default async function SiteContentPage() {
         initials: "JD",
       }
     ],
-    awarenessBanner: typeof contentMap['awarenessBanner'] === 'string' ? contentMap['awarenessBanner'] : '',
     awarenessVideoUrl: typeof contentMap['awarenessVideoUrl'] === 'string' ? contentMap['awarenessVideoUrl'] : '',
     faqs: Array.isArray(contentMap['faqs']) ? (contentMap['faqs'] as unknown[]) : [
       {

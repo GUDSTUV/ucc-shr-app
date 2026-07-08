@@ -53,20 +53,26 @@ export function AboutBoard({ customMembers }: { customMembers?: BoardMember[] })
             {activeMembers.map((member, i) => (
               <div
                 key={member.id || i}
-                className="group flex flex-col items-center rounded-xl border border-gray-200 bg-white p-8 text-center transition-colors hover:border-navy hover:bg-gray-50"
+                className="group flex flex-col items-center p-4 text-center transition-all duration-300 hover:-translate-y-1"
               >
-                {member.imageUrl ? (
-                  <img src={member.imageUrl} alt={member.name} className="mb-4 h-24 w-24 rounded-full object-cover border-2 border-navy/20" />
-                ) : (
-                  <div className="mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-navy-light/20 text-2xl font-bold text-navy transition-colors group-hover:bg-navy group-hover:text-white">
-                    {member.initials}
-                  </div>
-                )}
-                <Text as="h3" size="lg" weight="bold" tone="navy">{member.name}</Text>
-                <Text size="sm" weight="medium" className="text-red">{member.role}</Text>
-                <Text size="sm" tone="muted" className="mt-3 leading-relaxed text-gray-500">
-                  {member.bio}
-                </Text>
+                <div className="relative mb-6 h-48 w-48 overflow-hidden rounded-full shadow-md ring-4 ring-gray-50 transition-all duration-500 group-hover:ring-navy/20 group-hover:shadow-lg">
+                  {member.imageUrl ? (
+                    <img 
+                      src={member.imageUrl} 
+                      alt={member.name} 
+                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-navy-light/10 text-5xl font-bold text-navy transition-colors duration-500 group-hover:bg-navy group-hover:text-white">
+                      {member.initials}
+                    </div>
+                  )}
+                </div>
+                
+                <div className="mt-auto flex flex-col items-center justify-center">
+                  <Text as="h3" size="xl" weight="bold" tone="navy" className="mb-1">{member.name}</Text>
+                  <Text size="sm" weight="semibold" className="text-red uppercase tracking-widest">{member.role}</Text>
+                </div>
               </div>
             ))}
           </div>

@@ -14,6 +14,7 @@ import { ConsentSection } from '@/src/components/organisms/consent-section/conse
 import { HarassmentTypesSection } from '@/src/components/organisms/harassment-types'
 const ScenarioCards = dynamic(() => import('@/src/components/organisms/scenario-cards/scenario-cards').then(m => m.ScenarioCards))
 const CampaignVideoPlayer = dynamic(() => import('@/src/components/organisms/campaign-video-player').then(m => m.CampaignVideoPlayer))
+import { PageHero } from '@/src/components/organisms/page-hero/page-hero'
 
 /* ─── Page ─── */
 
@@ -21,7 +22,7 @@ export default async function HubPage() {
 	let contentRecords: { key: string, value: unknown }[] = []
 	try {
 		contentRecords = await prisma.siteContent.findMany({
-			where: { key: { in: ['awarenessBanner', 'awarenessVideoUrl'] } }
+			where: { key: { in: ['awarenessVideoUrl'] } }
 		})
 	} catch (error) {
 		console.warn('Hub page DB fetch failed (Neon DB might be sleeping), using defaults.', error)
@@ -35,29 +36,18 @@ export default async function HubPage() {
 		return acc;
 	}, {} as Record<string, string>);
 
-	const customBanner = contentMap['awarenessBanner'];
 	const customVideo = contentMap['awarenessVideoUrl'];
 
 	return (
 		<>
 			<div className="bg-gray-50">
-				{/* ═══ Section 1: Awareness Banner ═══ */}
-				<div className={`relative h-64 sm:h-80 lg:h-120 w-full ${!customBanner ? 'bg-gradient-to-br from-navy to-navy-light' : ''}`}>
-					{customBanner && (
-						<>
-							<img src={customBanner} alt="Awareness Campaign Banner" className="absolute inset-0 h-full w-full object-cover" />
-							<div className="absolute inset-0 bg-black/40" />
-						</>
-					)}
-					<div className="absolute inset-0 flex items-center justify-center p-6 text-center">
-						<div>
-							<Text as="span" size="sm" weight="bold" tone="white" className="uppercase tracking-widest text-red-light drop-shadow-md">CEGRAD Campaigns</Text>
-							<Heading as="h1" size={{ base: '4xl', sm: '5xl', lg: '6xl' }} tone="white" weight="bold" className="mt-4 drop-shadow-lg">
-								Awareness & Prevention
-							</Heading>
-						</div>
-					</div>
-				</div>
+				{/* ═══ Section 1: Typography-Driven Awareness Hero ═══ */}
+				<PageHero 
+					title="Awareness & Prevention"
+					subtitle="Creating a safer campus starts with awareness. Learn to recognize sexual harassment, understand your rights, and access confidential support and reporting resources."
+					buttonText="Get Help"
+					buttonLink="/help"
+				/>
 
 				{/* ═══ Section 2: Quick Stats ═══ */}
 				<section className="border-b border-gray-100 bg-white">
@@ -146,9 +136,6 @@ export default async function HubPage() {
 						</FadeIn>
 					</div>
 				</section>
-
-				{/* ═══ Section 6: What Would You Do? Scenarios ═══ */}
-
 			</div>
 
 			<Footer />

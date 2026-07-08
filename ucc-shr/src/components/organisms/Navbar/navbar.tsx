@@ -85,12 +85,6 @@ export function Navbar({ user }: NavbarProps) {
             <Text as="span" size={{ base: 'sm', md: 'base' }} weight="bold" tone="navy" className="tracking-tight leading-none">
               CEGRAD-UCC
             </Text>
-            <Text as="span" size="xs" weight="semibold" tone="navy" className="mt-1 text-[10px] uppercase tracking-wider opacity-70 leading-none hidden sm:block">
-              Sexual Harassment Reporting
-            </Text>
-            {/* <Text as="span" size="xs" weight="semibold" tone="navy" className="mt-1 text-[10px] uppercase tracking-wider opacity-70 leading-none sm:hidden">
-              SHR System
-            </Text> */}
           </div>
         </Link>
 
@@ -207,7 +201,7 @@ export function Navbar({ user }: NavbarProps) {
               className="inline-flex h-12 items-center gap-2 rounded-md bg-navy px-4 text-[15px] font-medium text-white shadow-sm shadow-navy/25 transition hover:bg-navy-dark"
             >
               <Flag size={14} />
-              Report Incident
+              Report Harassment
             </Link>
           )}
         </div>

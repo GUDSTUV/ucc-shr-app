@@ -50,7 +50,7 @@ const itemVariants = {
   },
 }
 
-export function HeroSection({ banners = [], customTitle, customSubtitle }: { banners?: BannerSlide[], customTitle?: string, customSubtitle?: string }) {
+export function HeroSection({ banners = [], customTitle }: { banners?: BannerSlide[], customTitle?: string }) {
   const [active, setActive] = useState(0)
   const router = useRouter()
   const reportHref = '/report'
@@ -58,7 +58,6 @@ export function HeroSection({ banners = [], customTitle, customSubtitle }: { ban
   const slides = banners.length > 0 ? banners : fallbackSlides
   const activeSlide = slides[active] ?? slides[0]
   const slideSubtitle = activeSlide?.title?.trim()
-    || customSubtitle
     || 'Confidential reporting, prompt review, and trained CEGRAD support for the University of Cape Coast community.'
 
   useEffect(() => {
@@ -101,15 +100,6 @@ export function HeroSection({ banners = [], customTitle, customSubtitle }: { ban
           animate="visible"
           className="mx-auto max-w-4xl lg:mx-0 lg:max-w-3xl"
         >
-          {/* <Text
-            as={motion.span}
-            variants={itemVariants}
-            size="xs"
-            weight="semibold"
-            className="inline-flex items-center rounded-full border border-white/25 bg-white/10 px-4 py-1.5 uppercase tracking-[0.2em] text-white/90"
-          >
-            CEGRAD Reporting Platform
-          </Text> */}
 
           <Heading
             as={motion.h1}
@@ -156,7 +146,7 @@ export function HeroSection({ banners = [], customTitle, customSubtitle }: { ban
               onClick={() => router.push(reportHref)}
             >
               <Flag size={18} />
-              Report an Incident
+              Report Harassment
             </Button>
             <Button
               variant="unstyled"
@@ -177,9 +167,8 @@ export function HeroSection({ banners = [], customTitle, customSubtitle }: { ban
             key={i}
             onClick={() => setActive(i)}
             aria-label={`Go to slide ${i + 1}`}
-            className={`h-1.5 rounded-full transition-all duration-300 ${
-              i === active ? 'w-7 bg-white/80' : 'w-2 bg-white/45'
-            }`}
+            className={`h-1.5 rounded-full transition-all duration-300 ${i === active ? 'w-7 bg-white/80' : 'w-2 bg-white/45'
+              }`}
           />
         ))}
       </div>

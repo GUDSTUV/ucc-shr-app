@@ -20,6 +20,9 @@ export async function logActivity({
   resourceId,
   details = null,
 }: LogActivityParams): Promise<void> {
+  // PAUSED for development
+  return;
+  
   try {
     await prisma.auditLog.create({
       data: {

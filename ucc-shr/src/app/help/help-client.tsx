@@ -13,21 +13,17 @@ import { motion, AnimatePresence } from 'framer-motion'
 
 type HelpClientProps = {
   customFaqs?: any[]
-  customEmail?: string
-  customPhone?: string
-  customAddress?: string
 }
 
-export function HelpClient({ customFaqs, customEmail, customPhone, customAddress }: HelpClientProps) {
+export function HelpClient({ customFaqs }: HelpClientProps) {
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false)
   const [isGalleryOpen, setIsGalleryOpen] = useState(false)
 
-  const emailText = customEmail || 'cegrad@ucc.edu.gh'
-  const addressText = customAddress || 'Second Floor, C.A Ackah lecture Theatre Complex, UCC Campus'
+  const emailText = 'cegrad@ucc.edu.gh'
+  const addressText = 'Second Floor, C.A Ackah lecture Theatre Complex, UCC Campus'
 
-  const phoneText = customPhone || '+233 235 383 415'
+  const phoneText = '+233 235 383 415, +233 205 383 415, +233 575 383 415'
   const phoneLines = phoneText.split(',').map(p => p.trim()).filter(Boolean)
-  if (phoneLines.length === 0) phoneLines.push('+233 235 383 415')
   const primaryPhone = phoneLines[0]
 
   const tollFreeNumber = '0800-100-114'

@@ -77,37 +77,10 @@ export function SiteContentForm({ initialData }: Props) {
               defaultValue={initialData.heroTitle}
               required
             />
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-gray-700">Hero Subtitle</label>
-              <textarea 
-                name="heroSubtitle"
-                defaultValue={initialData.heroSubtitle}
-                rows={3}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-navy focus:outline-none focus:ring-1 focus:ring-navy sm:text-sm"
-                required
-              />
-            </div>
           </div>
         </div>
 
-        <hr className="border-gray-200" />
 
-        <div>
-          <h2 className="text-lg font-medium text-navy">Global Footer</h2>
-          <p className="mt-1 text-sm text-gray-500">Copyright and description in the footer.</p>
-          <div className="mt-4">
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-gray-700">Footer Text</label>
-              <textarea 
-                name="footerText"
-                defaultValue={initialData.footerText}
-                rows={2}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-navy focus:outline-none focus:ring-1 focus:ring-navy sm:text-sm"
-                required
-              />
-            </div>
-          </div>
-        </div>
 
         <div className="flex justify-end pt-4">
           <Button type="submit" disabled={isSubmitting}>

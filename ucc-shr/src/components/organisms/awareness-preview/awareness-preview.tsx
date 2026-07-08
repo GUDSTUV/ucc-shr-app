@@ -111,8 +111,7 @@ export function AwarenessPreviewSection() {
           >
             {previews.map((preview) => (
               <motion.div key={preview.title} variants={itemVariants}>
-                <Link
-                  href={preview.href}
+                <div
                   className="group flex items-start gap-4 border-b border-gray-100 px-1 py-4 transition-colors hover:border-navy/25 last:border-0"
                 >
                   <div className="inline-flex h-10 w-10 shrink-0 items-center justify-center text-navy">
@@ -126,7 +125,7 @@ export function AwarenessPreviewSection() {
                       {preview.description}
                     </Text>
                   </div>
-                </Link>
+                </div>
               </motion.div>
             ))}
           </motion.div>

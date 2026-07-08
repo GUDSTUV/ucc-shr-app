@@ -12,7 +12,7 @@ export default async function HelpPage() {
   let contentRecords: Array<{ key: string; value: unknown }> = []
   try {
     contentRecords = await prisma.siteContent.findMany({
-      where: { key: { in: ['faqs', 'contactEmail', 'contactPhone', 'contactAddress'] } }
+      where: { key: { in: ['faqs'] } }
     })
   } catch (error) {
     console.error('Database connection failed in HelpPage, using fallback content:', error)
@@ -29,17 +29,10 @@ export default async function HelpPage() {
     ? (rawFaqs as unknown[]).filter((f): f is FAQType => typeof f === 'object' && f !== null && typeof (f as any).question === 'string' && typeof (f as any).answer === 'string')
     : undefined
 
-  const customEmail = typeof contentMap['contactEmail'] === 'string' ? contentMap['contactEmail'] : undefined
-  const customPhone = typeof contentMap['contactPhone'] === 'string' ? contentMap['contactPhone'] : undefined
-  const customAddress = typeof contentMap['contactAddress'] === 'string' ? contentMap['contactAddress'] : undefined
-
   return (
     <>
       <HelpClient 
         customFaqs={customFaqs} 
-        customEmail={customEmail}
-        customPhone={customPhone}
-        customAddress={customAddress}
       />
       <Footer />
     </>

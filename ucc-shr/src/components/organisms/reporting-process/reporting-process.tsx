@@ -31,7 +31,7 @@ const steps = [
   {
     Icon: CheckCircle,
     step: '04',
-    title: 'Action & Support',
+    title: 'Resolution & Support',
     description:
       'Resolution is pursued. Support services like counseling and legal guidance are provided to you throughout.',
   },

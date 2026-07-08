@@ -8,12 +8,10 @@ import { Input } from '@/src/components/atoms/input'
 import { toast } from 'react-hot-toast'
 import { Plus, Trash2, GripVertical } from 'lucide-react'
 
-type CarouselImage = { url: string; caption: string }
 type BoardMember = { name: string; role: string; bio: string; imageUrl: string; initials: string }
 
 type Props = {
   initialData: {
-    aboutCarousel: CarouselImage[]
     aboutBoard: BoardMember[]
   }
 }
@@ -21,18 +19,9 @@ type Props = {
 export function AboutContentForm({ initialData }: Props) {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [uploadingIndex, setUploadingIndex] = useState<number | null>(null)
 
-  const [carousel, setCarousel] = useState<CarouselImage[]>(initialData.aboutCarousel)
   const [board, setBoard] = useState<BoardMember[]>(initialData.aboutBoard)
-
-  // Carousel Handlers
-  const addCarouselImage = () => setCarousel([...carousel, { url: '', caption: '' }])
-  const removeCarouselImage = (index: number) => setCarousel(carousel.filter((_, i) => i !== index))
-  const updateCarousel = (index: number, field: keyof CarouselImage, value: string) => {
-    const newCarousel = [...carousel]
-    newCarousel[index][field] = value
-    setCarousel(newCarousel)
-  }
 
   // Board Handlers
   const addBoardMember = () => setBoard([...board, { name: '', role: '', bio: '', imageUrl: '', initials: '' }])
@@ -43,13 +32,42 @@ export function AboutContentForm({ initialData }: Props) {
     setBoard(newBoard)
   }
 
+  async function handleImageUpload(index: number, file: File) {
+    if (!file) return
+    setUploadingIndex(index)
+    try {
+      const formData = new FormData()
+      formData.append('files', file)
+      formData.append('kinds', 'board')
+
+      const res = await fetch('/api/uploads', {
+        method: 'POST',
+        body: formData
+      })
+      const data = await res.json()
+
+      if (data.ok && data.files && data.files.length > 0) {
+        // Expected format: "board:URL"
+        const uploadedStr = data.files[0]
+        const uploadedUrl = uploadedStr.includes('board:') ? uploadedStr.split('board:')[1] : uploadedStr
+        updateBoard(index, 'imageUrl', uploadedUrl)
+        toast.success('Image uploaded successfully')
+      } else {
+        toast.error(data.error || 'Failed to upload image')
+      }
+    } catch (error) {
+      toast.error('An error occurred during upload')
+    } finally {
+      setUploadingIndex(null)
+    }
+  }
+
   async function handleSave() {
     setIsSubmitting(true)
     try {
-      const res1 = await updateSiteContentJson('aboutCarousel', carousel)
       const res2 = await updateSiteContentJson('aboutBoard', board)
 
-      if (res1.success && res2.success) {
+      if (res2.success) {
         toast.success('About content saved successfully')
         router.refresh()
       } else {
@@ -64,44 +82,6 @@ export function AboutContentForm({ initialData }: Props) {
 
   return (
     <div className="space-y-8">
-      {/* CAROUSEL SECTION */}
-      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-lg font-medium text-navy">About Page Carousel</h2>
-            <p className="mt-1 text-sm text-gray-500">Manage the sliding images and captions on the About page.</p>
-          </div>
-          <Button type="button" onClick={addCarouselImage} variant="outline" size="sm" className="gap-2">
-            <Plus size={16} /> Add Image
-          </Button>
-        </div>
-
-        <div className="space-y-4">
-          {carousel.map((item, index) => (
-            <div key={index} className="flex gap-4 items-start rounded-lg border border-gray-100 bg-gray-50 p-4">
-              <div className="mt-2 text-gray-400 cursor-move"><GripVertical size={20} /></div>
-              <div className="flex-1 space-y-3">
-                <Input 
-                  label="Image URL" 
-                  value={item.url} 
-                  onChange={(e) => updateCarousel(index, 'url', e.target.value)} 
-                  placeholder="https://..."
-                />
-                <Input 
-                  label="Caption" 
-                  value={item.caption} 
-                  onChange={(e) => updateCarousel(index, 'caption', e.target.value)} 
-                />
-              </div>
-              <button onClick={() => removeCarouselImage(index)} className="mt-8 text-red hover:text-red-dark">
-                <Trash2 size={20} />
-              </button>
-            </div>
-          ))}
-          {carousel.length === 0 && <p className="text-sm text-gray-500 italic">No images added. Click "Add Image" above.</p>}
-        </div>
-      </div>
-
       {/* BOARD MEMBERS SECTION */}
       <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
         <div className="flex items-center justify-between mb-4">
@@ -134,12 +114,34 @@ export function AboutContentForm({ initialData }: Props) {
                   value={member.initials} 
                   onChange={(e) => updateBoard(index, 'initials', e.target.value)} 
                 />
-                <Input 
-                  label="Image URL (optional)" 
-                  value={member.imageUrl} 
-                  onChange={(e) => updateBoard(index, 'imageUrl', e.target.value)} 
-                  placeholder="https://..."
-                />
+                <div className="space-y-1">
+                  <Input 
+                    label="Image URL (optional)" 
+                    value={member.imageUrl} 
+                    onChange={(e) => updateBoard(index, 'imageUrl', e.target.value)} 
+                    placeholder="https://..."
+                  />
+                  {member.imageUrl && (
+                    <div className="pt-2">
+                      <img src={member.imageUrl} alt="Preview" className="h-12 w-12 rounded-full object-cover border border-gray-200" />
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2 pt-1">
+                    <label className={`text-xs font-medium cursor-pointer hover:underline ${uploadingIndex === index ? 'text-gray-400 cursor-not-allowed' : 'text-navy'}`}>
+                      {uploadingIndex === index ? 'Uploading...' : 'Or upload image from computer'}
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        className="hidden" 
+                        onChange={(e) => {
+                          const file = e.target.files?.[0]
+                          if (file) handleImageUpload(index, file)
+                        }}
+                        disabled={uploadingIndex === index}
+                      />
+                    </label>
+                  </div>
+                </div>
                 <div className="col-span-2 space-y-1">
                   <label className="text-sm font-medium text-gray-700">Bio</label>
                   <textarea 

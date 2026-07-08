@@ -11,14 +11,11 @@ const quickLinks = [
   { href: '/about', label: 'About CEGRAD' },
   { href: '/help', label: 'Help & FAQ' },
   { href: '/report', label: 'Report Incident' },
-  { href: '/track', label: 'Track Report' },
 ]
 
 const resources = [
-  { href: '/rights', label: 'Know Your Rights' },
+  { href: '/rights', label: 'Campus Policies' },
   { href: '/hub', label: 'Prevention Guide' },
-  { href: '/hub', label: 'Support Services' },
-  { href: '/hub', label: 'Campus Policy' },
   { href: '/events', label: 'Events & Workshops' },
 ]
 
@@ -29,44 +26,18 @@ const socials = [
   { href: 'https://linkedin.com', label: 'LinkedIn', Icon: Linkedin },
 ]
 
-export async function Footer() {
-  let contentRecords: Array<{ key: string; value: unknown }> = []
-
-  try {
-    contentRecords = await prisma.siteContent.findMany({
-      where: { key: { in: ['footerText', 'contactAddress', 'contactPhone'] } }
-    })
-  } catch (error) {
-    console.error('Footer DB fetch failed, using fallback content:', error)
-  }
-  
-  const contentMap = contentRecords.reduce((acc, record) => {
-    acc[record.key] = record.value
-    return acc
-  }, {} as Record<string, unknown>)
-  
-  const footerText = typeof contentMap['footerText'] === 'string' 
-    ? contentMap['footerText'] 
-    : 'Creating a safe, inclusive, and respectful academic community free from sexual harassment and discrimination.'
-    
-  const addressText = typeof contentMap['contactAddress'] === 'string'
-    ? contentMap['contactAddress']
-    : 'Second Floor, C.A Ackah lecture Theatre Complex, UCC Campus'
-    
-  const phoneText = typeof contentMap['contactPhone'] === 'string'
-    ? contentMap['contactPhone']
-    : '+233 235 383 415, +233 205 383 415, +233 575 383 415'
-    
-  const phoneLines = phoneText.split(',').map(p => p.trim()).filter(Boolean)
-  if (phoneLines.length === 0) phoneLines.push('+233 235 383 415')
+export function Footer() {
+  const footerText = 'Providing a safe and confidential reporting environment for the university community.'
+  const addressText = 'Second Floor, C.A Ackah lecture Theatre Complex, UCC Campus'
+  const phoneLines = ['+233 235 383 415', '+233 205 383 415', '+233 575 383 415']
 
   return (
     <footer className="border-t border-navy/40 bg-navy-dark text-navy-light">
       {/* Main grid */}
       <div className="mx-auto max-w-7xl px-6 py-12 lg:px-8">
-        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-12">
           {/* ── Col 1: Brand ── */}
-          <div className="space-y-4">
+          <div className="space-y-4 lg:col-span-4 lg:pr-4">
             <div className="flex items-center gap-3">
               <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-navy">
                 <Image
@@ -79,7 +50,7 @@ export async function Footer() {
               </span>
               <div className="leading-tight">
                 <Text size="sm" weight="bold" tone="white">CEGRAD-UCC</Text>
-                <Text size="xs" tone="white" className="opacity-60">Centre for Gender Research</Text>
+                <Text size="xs" tone="white" className="opacity-60">Centre for Gender Research,<br/> Advocacy and Documentation</Text>
               </div>
             </div>
 
@@ -105,11 +76,11 @@ export async function Footer() {
           </div>
 
           {/* ── Col 2: Quick Links ── */}
-          <div className="space-y-3">
+          <div className="space-y-3 lg:col-span-2">
             <Text as="h3" size="xs" weight="bold" tone="white" className="uppercase tracking-wider">
               Quick Links
             </Text>
-            <ul className="space-y-2">
+            <ul className="space-y-3">
               {quickLinks.map(({ href, label }) => (
                 <li key={href + label}>
                   <Link
@@ -124,11 +95,11 @@ export async function Footer() {
           </div>
 
           {/* ── Col 3: Resources ── */}
-          <div className="space-y-3">
+          <div className="space-y-3 lg:col-span-2">
             <Text as="h3" size="xs" weight="bold" tone="white" className="uppercase tracking-wider">
               Resources
             </Text>
-            <ul className="space-y-2">
+            <ul className="space-y-3">
               {resources.map(({ href, label }) => (
                 <li key={label}>
                   <Link
@@ -143,7 +114,7 @@ export async function Footer() {
           </div>
 
           {/* ── Col 4: Contact ── */}
-          <div className="space-y-3">
+          <div className="space-y-3 lg:col-span-4">
             <Text as="h3" size="xs" weight="bold" tone="white" className="uppercase tracking-wider">
               Contact
             </Text>

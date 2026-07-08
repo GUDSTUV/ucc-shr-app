@@ -7,30 +7,13 @@ import { Heading } from "../../atoms/heading/heading"
 import { Text } from "../../atoms/text/text"
 import { Button } from "../../atoms/button/button"
 
-const images = [
-  {
-    url: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=2070&auto=format&fit=crop",
-    alt: "University Campus",
-    caption: "UCC Campus - Empowering the community"
-  },
-  {
-    url: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=2070&auto=format&fit=crop",
-    alt: "Students studying",
-    caption: "Fostering a safe and inclusive environment"
-  },
-  {
-    url: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2070&auto=format&fit=crop",
-    alt: "Group discussion",
-    caption: "Working together for gender equality"
-  }
-]
 
 type CarouselImage = { url: string; caption: string; alt?: string }
 
 export function AboutHero({ customImages }: { customImages?: CarouselImage[] }) {
   const [currentIndex, setCurrentIndex] = useState(0)
 
-  const activeImages = customImages && customImages.length > 0 ? customImages : images
+  const activeImages = customImages && customImages.length > 0 ? customImages : []
 
   const handleNext = () => {
     setCurrentIndex((prev) => (prev + 1) % activeImages.length)
@@ -41,7 +24,7 @@ export function AboutHero({ customImages }: { customImages?: CarouselImage[] }) 
   }
 
   useEffect(() => {
-    const timer = setInterval(handleNext, 5000)
+    const timer = setInterval(handleNext, 10000)
     return () => clearInterval(timer)
   }, [])
 
@@ -51,19 +34,19 @@ export function AboutHero({ customImages }: { customImages?: CarouselImage[] }) 
       <AnimatePresence mode="wait">
         <motion.img
           key={currentIndex}
-          src={activeImages[currentIndex]?.url || images[0].url}
+          src={activeImages[currentIndex]?.url || ''}
           alt={activeImages[currentIndex]?.alt || activeImages[currentIndex]?.caption || 'Carousel image'}
           className="absolute inset-0 h-full w-full object-cover"
           initial={{ opacity: 0, scale: 1.05 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.8, ease: "easeInOut" }}
+          transition={{ duration: 1.2, ease: "easeInOut" }}
         />
       </AnimatePresence>
 
       {/* Overlays */}
-      <div className="absolute inset-0 bg-black/50 lg:bg-gradient-to-r lg:from-black/80 lg:via-black/50 lg:to-transparent" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent lg:hidden" />
+      <div className="absolute inset-0 bg-black/30 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/20 to-transparent pointer-events-none" />
 
       {/* Main Content Overlay */}
       <div className="relative z-10 mx-auto flex h-full w-full max-w-7xl flex-col justify-center px-6 lg:px-8 py-24">
