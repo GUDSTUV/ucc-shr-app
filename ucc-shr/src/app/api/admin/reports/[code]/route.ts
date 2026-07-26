@@ -11,6 +11,7 @@ import {
   type InvestigationOutcome,
   type ActionTaken,
 } from '@/src/lib/auth/report-access'
+import { sendDirectEmail } from '@/src/lib/email'
 
 type UpdatePayload = {
   status?: 'RECEIVED' | 'UNDER_REVIEW' | 'UNDER_INVESTIGATION' | 'CLOSED'
@@ -144,14 +145,40 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ c
         : `ESCALATED: ${escalationReason || 'Requires Super Admin attention.'}`
     }
 
-    const updateMessage = message || autoMessage || 'Case details updated.'
+    const updatesToAdd: ReportAdminUpdate[] = []
 
-    const updateEntry: ReportAdminUpdate = {
-      id: randomUUID(),
-      at: new Date().toISOString(),
-      by: session.user.name || session.user.email || (isCaseOfficer ? 'Case Officer' : 'Admin'),
-      status: nextStatus,
-      message: updateMessage,
+    if (autoMessage) {
+      updatesToAdd.push({
+        id: randomUUID(),
+        at: new Date().toISOString(),
+        by: session.user.name || session.user.email || 'System',
+        status: nextStatus,
+        message: autoMessage,
+        isInternal: false,
+      })
+    }
+
+    if (message) {
+      updatesToAdd.push({
+        id: randomUUID(),
+        at: new Date().toISOString(),
+        by: session.user.name || session.user.email || (isCaseOfficer ? 'Case Officer' : 'Admin'),
+        status: nextStatus,
+        message: message,
+        isInternal: true,
+      })
+    }
+
+    // Fallback if neither exists but we are saving
+    if (updatesToAdd.length === 0) {
+      updatesToAdd.push({
+        id: randomUUID(),
+        at: new Date().toISOString(),
+        by: session.user.name || session.user.email || 'System',
+        status: nextStatus,
+        message: 'Case details updated.',
+        isInternal: true,
+      })
     }
 
     const updatedNotes = {
@@ -168,7 +195,7 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ c
         escalationReason: escalationReason || 'Requires Super Admin attention.',
         escalatedBy: session.user.name || session.user.email || 'Case Officer',
       }),
-      adminUpdates: [updateEntry, ...adminUpdates].slice(0, MAX_ADMIN_UPDATES),
+      adminUpdates: [...updatesToAdd, ...adminUpdates].slice(0, MAX_ADMIN_UPDATES),
     }
 
     await prisma.report.update({
@@ -191,11 +218,22 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ c
         ...(counsellorChanged && { assignedTo: nextCounsellorName }),
         ...(riskLevel !== undefined && { riskLevel }),
         ...(investigationOutcome !== undefined && { investigationOutcome }),
-        message: updateMessage,
+        message: message || autoMessage || 'Case details updated.',
       },
     })
 
-    return NextResponse.json({ ok: true, update: updateEntry })
+    if (statusChanged) {
+      const emailTo = notes.reporterEmail || notes.contact
+      if (emailTo) {
+        sendDirectEmail(
+          emailTo,
+          `Update on your report: ${reportCode}`,
+          `<p>The status of your report (<strong>${reportCode}</strong>) has been updated to <strong>${nextStatus}</strong>.</p><p>Please log in to your dashboard to view the latest updates or reply to any messages.</p>`
+        ).catch((err) => console.error('[EMAIL_ERROR]', err))
+      }
+    }
+
+    return NextResponse.json({ ok: true, update: updatesToAdd[0] })
   } catch {
     return NextResponse.json(
       { ok: false, error: 'Unable to update report right now. Please try again.' },

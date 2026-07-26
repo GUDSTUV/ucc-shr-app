@@ -24,6 +24,17 @@ export type ReportNotes = {
   offenderDescription?: string | null
   priorReport?: PriorReport | null
   witnesses?: string[]
+  // New Complainant Details
+  complainantName?: string | null
+  complainantGender?: string | null
+  complainantUserType?: string | null
+  complainantStudentId?: string | null
+  complainantDepartment?: string | null
+  // New Respondent Details
+  respondentName?: string | null
+  respondentPosition?: string | null
+  respondentDepartment?: string | null
+  respondentRelationship?: string | null
   // Assignment
   counsellorId?: string | null
   counsellorName?: string | null
@@ -43,6 +54,7 @@ export type ReportAdminUpdate = {
   by: string
   status: 'RECEIVED' | 'UNDER_REVIEW' | 'UNDER_INVESTIGATION' | 'CLOSED'
   message: string
+  isInternal?: boolean
 }
 
 export function parseReportNotes(value: string | null): ReportNotes {

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { HubHeader } from '@/src/components/organisms/hub-header/hub-header'
 import { HubFilterChips } from '@/src/components/molecules/hub-filter-chips/hub-filter-chips'
 import { HubFeedCard } from '@/src/components/organisms/hub-feed-card/hub-feed-card'
+import { saveResource, unsaveResource } from '@/src/app/actions/savedResources'
 
 type HubCategory = 'All' | 'Awareness' | 'Events' | 'Rights'
 
@@ -19,7 +20,7 @@ type HubItem = {
   imageUrl?: string
   dateLabel?: string
   timeLabel?: string
-  isRegistration?: boolean
+  googleCalendarUrl?: string
   imageTheme: string
   isSaved: boolean
 }
@@ -65,28 +66,17 @@ export function HubClient({ items, isAuthenticated }: HubClientProps) {
     setFeedback(null)
 
     try {
-      const response = await fetch('/api/user/saved', {
-        method: item.isSaved ? 'DELETE' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          resourceType: item.resourceType,
-          resourceId: item.resourceId,
-        }),
-      })
+      const result = item.isSaved
+        ? await unsaveResource(item.resourceType, item.resourceId)
+        : await saveResource(item.resourceType, item.resourceId)
 
-      const data = await response.json().catch(() => null)
-      if (!response.ok) {
-        throw new Error(data?.error ?? 'Unable to update saved resources right now.')
+      if (!result.ok) {
+        throw new Error(result.error ?? 'Unable to update saved resources right now.')
       }
 
       setFeedItems((current) =>
         current.map((entry) =>
-          entry.id === item.id
-            ? {
-                ...entry,
-                isSaved: !item.isSaved,
-              }
-            : entry,
+          entry.id === item.id ? { ...entry, isSaved: !item.isSaved } : entry,
         ),
       )
       setFeedback(item.isSaved ? 'Resource removed from your saved items.' : 'Resource saved to your account.')
@@ -122,12 +112,16 @@ export function HubClient({ items, isAuthenticated }: HubClientProps) {
       />
 
       {feedback ? (
-        <div className="mt-4 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700">
+        <div className={`mt-4 rounded-xl border px-4 py-3 text-sm ${
+          feedback.toLowerCase().includes('saved') || feedback.toLowerCase().includes('removed')
+            ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+            : 'border-red-200 bg-red-50 text-red-700'
+        }`}>
           {feedback}
         </div>
       ) : null}
 
-      <section className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <section className="mt-6 grid items-stretch gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {filteredItems.map((item) => (
           <HubFeedCard
             key={item.id}
@@ -139,12 +133,13 @@ export function HubClient({ items, isAuthenticated }: HubClientProps) {
             imageUrl={item.imageUrl}
             dateLabel={item.dateLabel}
             timeLabel={item.timeLabel}
-            isRegistration={item.isRegistration}
             imageTheme={item.imageTheme}
             categoryBadgeClass={categoryBadgeStyles[item.category]}
+            showBookmark={item.category !== 'Events'}
+            googleCalendarUrl={item.googleCalendarUrl}
             isSaved={item.isSaved}
             isSaving={savingItemId === item.id}
-            onToggleSave={() => toggleSave(item)}
+            onToggleSave={item.category === 'Events' ? undefined : () => toggleSave(item)}
           />
         ))}
 

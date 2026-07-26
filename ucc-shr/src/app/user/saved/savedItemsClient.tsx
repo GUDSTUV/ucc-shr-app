@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { Bookmark, Calendar, BookOpen, ArrowRight, X } from 'lucide-react'
 import type { SavedResourceItem } from './savedTypes'
 import { Button } from '@/src/components/atoms/button'
+import { unsaveResource } from '@/src/app/actions/savedResources'
 
 type SavedItemsClientProps = {
   initialItems: SavedResourceItem[]
@@ -28,18 +29,10 @@ export function SavedItemsClient({ initialItems }: SavedItemsClientProps) {
     setRemovingId(item.id)
 
     try {
-      const response = await fetch('/api/user/saved', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          resourceType: item.resourceType,
-          resourceId: item.resourceId,
-        }),
-      })
+      const result = await unsaveResource(item.resourceType, item.resourceId)
 
-      const data = await response.json().catch(() => null)
-      if (!response.ok) {
-        throw new Error(data?.error ?? 'Unable to remove saved resource right now.')
+      if (!result.ok) {
+        throw new Error(result.error ?? 'Unable to remove saved resource right now.')
       }
 
       setItems((current) => current.filter((entry) => entry.id !== item.id))

@@ -14,7 +14,6 @@ async function ensurePublishedResource(resourceType: ResourceType, resourceId: s
       where: { id: resourceId },
       select: { id: true, published: true },
     })
-
     return Boolean(article?.published)
   }
 
@@ -22,25 +21,20 @@ async function ensurePublishedResource(resourceType: ResourceType, resourceId: s
     where: { id: resourceId },
     select: { id: true, published: true },
   })
-
   return Boolean(event?.published)
 }
 
 export async function GET() {
   const session = await auth()
 
-  if (!session?.user) {
+  if (!session?.user?.id) {
     return NextResponse.json({ ok: false, error: 'Authentication required.' }, { status: 401 })
   }
 
   const saved = await prisma.savedResource.findMany({
     where: { userId: session.user.id },
     orderBy: { createdAt: 'desc' },
-    select: {
-      resourceType: true,
-      resourceId: true,
-      createdAt: true,
-    },
+    select: { resourceType: true, resourceId: true, createdAt: true },
   })
 
   return NextResponse.json({ ok: true, saved })
@@ -49,7 +43,9 @@ export async function GET() {
 export async function POST(request: Request) {
   const session = await auth()
 
-  if (!session?.user) {
+  console.log('[saved POST] session:', session?.user?.id ?? 'NO SESSION')
+
+  if (!session?.user?.id) {
     return NextResponse.json({ ok: false, error: 'Please log in to save resources.' }, { status: 401 })
   }
 
@@ -58,38 +54,47 @@ export async function POST(request: Request) {
     resourceId?: unknown
   } | null
 
+  console.log('[saved POST] body:', JSON.stringify(body))
+
   if (!body || !isResourceType(body.resourceType) || typeof body.resourceId !== 'string' || body.resourceId.length < 8) {
     return NextResponse.json({ ok: false, error: 'Invalid save request.' }, { status: 400 })
   }
 
   const exists = await ensurePublishedResource(body.resourceType, body.resourceId)
+  console.log('[saved POST] resource exists & published:', exists)
+
   if (!exists) {
-    return NextResponse.json({ ok: false, error: 'Resource not found.' }, { status: 404 })
+    return NextResponse.json({ ok: false, error: 'Resource not found or not published.' }, { status: 404 })
   }
 
-  await prisma.savedResource.upsert({
-    where: {
-      userId_resourceType_resourceId: {
+  try {
+    await prisma.savedResource.upsert({
+      where: {
+        userId_resourceType_resourceId: {
+          userId: session.user.id,
+          resourceType: body.resourceType,
+          resourceId: body.resourceId,
+        },
+      },
+      update: {},
+      create: {
         userId: session.user.id,
         resourceType: body.resourceType,
         resourceId: body.resourceId,
       },
-    },
-    update: {},
-    create: {
-      userId: session.user.id,
-      resourceType: body.resourceType,
-      resourceId: body.resourceId,
-    },
-  })
-
-  return NextResponse.json({ ok: true })
+    })
+    console.log('[saved POST] upsert success')
+    return NextResponse.json({ ok: true })
+  } catch (err) {
+    console.error('[saved POST] DB error:', err)
+    return NextResponse.json({ ok: false, error: 'Failed to save resource.' }, { status: 500 })
+  }
 }
 
 export async function DELETE(request: Request) {
   const session = await auth()
 
-  if (!session?.user) {
+  if (!session?.user?.id) {
     return NextResponse.json({ ok: false, error: 'Authentication required.' }, { status: 401 })
   }
 

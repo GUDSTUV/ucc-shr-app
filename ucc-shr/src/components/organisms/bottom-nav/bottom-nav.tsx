@@ -1,7 +1,7 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
-import { Home, CalendarClock, Flag, BookText, UserRound, LayoutDashboard, FileText } from 'lucide-react'
+import { Home, CalendarClock, Flag, BookText, UserRound, LayoutDashboard, FileText, Bookmark } from 'lucide-react'
 import { MobileNavItem } from '@/src/components/molecules/mobile-nav-item'
 import { ReportFab } from '@/src/components/atoms/report-fab'
 import { isAdminRole } from '@/src/lib/auth/roles'
@@ -65,10 +65,10 @@ export function BottomNav({ user }: BottomNavProps) {
             ) : (
               <>
                 <MobileNavItem
-                  href="/user/userDashboard"
-                  label="Dashboard"
-                  icon={<LayoutDashboard size={20} strokeWidth={2.3} />}
-                  active={path === '/user/userDashboard'}
+                  href="/user/saved"
+                  label="Saved"
+                  icon={<Bookmark size={20} strokeWidth={2.3} />}
+                  active={path === '/user/saved'}
                 />
                 <MobileNavItem
                   href="/user/userReports"

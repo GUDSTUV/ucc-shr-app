@@ -40,7 +40,7 @@ export default function SignupPage() {
 
   async function handleGoogleSignIn() {
     setGoogleLoading(true)
-    await signIn('google', { callbackUrl: '/user/userDashboard' })
+    await signIn('google', { callbackUrl: '/user/dispatch' })
   }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {

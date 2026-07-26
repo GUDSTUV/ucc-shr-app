@@ -106,20 +106,31 @@ export default function TrackPage() {
       </form>
 
       {result ? (
-        <section className="space-y-3 rounded-xl border border-gray-200 bg-white p-6 sm:p-8">
-          <div className="flex items-center justify-between gap-2 border-b border-gray-100 pb-3">
-            <Heading as="h3" size="lg" weight="semibold" tone="navy">{result.code}</Heading>
+        <section className="space-y-6 rounded-xl border border-gray-200 bg-white p-6 sm:p-8 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 pb-4">
+            <div>
+              <Text as="p" size="xs" weight="semibold" tone="subtle" className="uppercase tracking-wider mb-1 text-gray-500">Report Tracking Code</Text>
+              <Heading as="h3" size="lg" weight="bold" tone="navy">{result.code}</Heading>
+            </div>
             <StatusBadge status={result.status} />
           </div>
-          <div className="pt-2 space-y-1">
-            <Text size="sm" tone="muted"><Text as="span" weight="semibold">Type:</Text> {result.type}</Text>
-            <Text size="sm" tone="muted"><Text as="span" weight="semibold">Location:</Text> {result.location || 'Not specified'}</Text>
+          
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <div>
+              <Text as="p" size="xs" weight="semibold" tone="subtle" className="uppercase tracking-wider mb-1 text-gray-500">Type</Text>
+              <Text size="base" tone="default" className="text-gray-900">{result.type}</Text>
+            </div>
+            <div>
+              <Text as="p" size="xs" weight="semibold" tone="subtle" className="uppercase tracking-wider mb-1 text-gray-500">Location</Text>
+              <Text size="base" tone="default" className="text-gray-900">{result.location || 'Not specified'}</Text>
+            </div>
+            <div className="sm:col-span-2">
+              <Text as="p" size="xs" weight="semibold" tone="subtle" className="uppercase tracking-wider mb-1 text-gray-500">Description</Text>
+              <Text size="base" tone="default" leading="relaxed" className="whitespace-pre-wrap text-gray-900">{result.description}</Text>
+            </div>
           </div>
-          <div className="pt-2">
-            <Text as="p" size="xs" weight="semibold" tone="subtle" className="mb-1 uppercase tracking-wider">Description</Text>
-            <Text size="sm" tone="default" leading="relaxed">{result.description}</Text>
-          </div>
-          <div className="pt-4 mt-4 flex flex-col sm:flex-row sm:justify-between border-t border-gray-100 space-y-1 sm:space-y-0">
+
+          <div className="pt-5 mt-2 flex flex-col sm:flex-row sm:justify-between border-t border-gray-100 space-y-2 sm:space-y-0">
             <Text size="xs" tone="muted">Submitted: {formatDate(result.createdAt)}</Text>
             <Text size="xs" tone="muted">Last updated: {formatDate(result.updatedAt)}</Text>
           </div>

@@ -17,7 +17,7 @@ export default async function ChangePasswordPage() {
       <div className="mx-auto max-w-md">
         <header className="mb-6 flex items-center">
           <Link
-            href="/user/userDashboard"
+            href="/"
             aria-label="Go back"
             className="mr-3 inline-flex h-10 w-10 items-center justify-center rounded-full text-gray-700 transition hover:bg-gray-100"
           >

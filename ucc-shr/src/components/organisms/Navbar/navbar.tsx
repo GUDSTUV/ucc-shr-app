@@ -71,7 +71,7 @@ export function Navbar({ user }: NavbarProps) {
       <div className="mx-auto flex h-16 md:h-18 max-w-7xl items-center justify-between px-4 md:px-6 lg:px-8">
 
         {/* Brand */}
-        <Link href={user ? '/user/userDashboard' : '/'} className="flex shrink-0 items-center gap-2 md:gap-3 text-navy">
+        <Link href={user ? '/user/dispatch' : '/'} className="flex shrink-0 items-center gap-2 md:gap-3 text-navy">
           <span className="grid h-9 w-9 md:h-11 md:w-11 place-items-center rounded-xl bg-navy/10">
             <Image
               src="/icons/logo.svg"
@@ -149,9 +149,6 @@ export function Navbar({ user }: NavbarProps) {
                     ) : (
                       <div className="p-2 border-b border-gray-100">
                         <Text as="p" size="xs" weight="medium" tone="muted" className="px-3 py-1 uppercase tracking-wider">Navigation</Text>
-                        <Link href="/user/userDashboard" className="group flex items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-navy">
-                          <LayoutDashboard size={16} className="text-gray-400 group-hover:text-navy" /> Dashboard
-                        </Link>
                         <Link href="/user/userReports" className="group flex items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-navy">
                           <FileText size={16} className="text-gray-400 group-hover:text-navy" /> My Reports
                         </Link>
@@ -188,7 +185,7 @@ export function Navbar({ user }: NavbarProps) {
           ) : (
             <Link
               href="/login"
-                className="inline-flex h-12 items-center gap-2 rounded-md border border-navy/20 px-4 text-[15px] font-medium text-navy transition hover:bg-navy-light"
+              className="inline-flex h-12 items-center gap-2 rounded-md border border-navy/20 px-4 text-[15px] font-medium text-navy transition hover:bg-navy-light"
             >
               <LogIn size={14} />
               Sign In
@@ -198,7 +195,7 @@ export function Navbar({ user }: NavbarProps) {
           {!isUserSection && !path.startsWith('/report') && (
             <Link
               href="/report"
-              className="inline-flex h-12 items-center gap-2 rounded-md bg-navy px-4 text-[15px] font-medium text-white shadow-sm shadow-navy/25 transition hover:bg-navy-dark"
+              className="inline-flex h-12 items-center border-navy border-lg gap-2 rounded-md  px-4 text-[15px] font-medium text-navy shadow-sm shadow-navy/25 transition"
             >
               <Flag size={14} />
               Report Harassment
@@ -262,12 +259,7 @@ export function Navbar({ user }: NavbarProps) {
                 ) : (
                   <>
                     <Text as="p" size="xs" weight="semibold" tone="muted" className="px-3 py-1 uppercase tracking-wider">Quick Access</Text>
-                    <Link href="/user/userDashboard" className="flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-50">
-                      <FileText size={18} className="text-gray-400" /> My Reports
-                    </Link>
-                    <Link href="/user/saved" className="flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-50">
-                      <Bookmark size={18} className="text-gray-400" /> Saved Resources
-                    </Link>
+
                     <Link href="/about" className="flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-50">
                       <BookText size={18} className="text-gray-400" /> About
                     </Link>
@@ -293,7 +285,9 @@ export function Navbar({ user }: NavbarProps) {
             ) : (
               <>
                 {/* Unauthenticated: show nav links + sign in */}
-                {navLinks.map(({ href, label }) => (
+                {navLinks
+                  .filter(({ href }) => href === '/help')
+                  .map(({ href, label }) => (
                   <Link
                     key={href}
                     href={href}
@@ -302,14 +296,6 @@ export function Navbar({ user }: NavbarProps) {
                     {label}
                   </Link>
                 ))}
-                <div className="mt-4 flex flex-col gap-2">
-                  <Link
-                    href="/login"
-                    className="flex w-full items-center justify-center rounded-md border border-navy px-4 py-2 text-base font-medium text-navy"
-                  >
-                    Sign In
-                  </Link>
-                </div>
               </>
             )}
           </div>

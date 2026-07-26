@@ -59,9 +59,17 @@ export function ReportChat({ reportCode, isAssignedCounsellor = false }: ReportC
     return () => clearInterval(interval)
   }, [reportCode])
 
+  const previousMessageCount = useRef(0)
+  const chatContainerRef = useRef<HTMLDivElement>(null)
+
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+    if (messages.length > previousMessageCount.current) {
+      if (chatContainerRef.current) {
+        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight
+      }
+    }
+    previousMessageCount.current = messages.length
+  }, [messages.length])
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -107,7 +115,7 @@ export function ReportChat({ reportCode, isAssignedCounsellor = false }: ReportC
         </Button>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-white">
+      <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4 bg-white scroll-smooth">
         {loading && messages.length === 0 ? (
           <div className="flex h-full items-center justify-center text-sm text-gray-500">
             Loading messages...
@@ -132,7 +140,7 @@ export function ReportChat({ reportCode, isAssignedCounsellor = false }: ReportC
                 <div className="mb-1 flex items-center gap-1.5 px-1">
                   {!msg.isMe && (
                     <Text as="span" size="xs" weight="semibold" tone="muted" className="text-[10px] uppercase tracking-wider">
-                      {msg.senderRole === 'SUPER_ADMIN' || msg.senderRole === 'STAFF' ? 'CEGRAD Staff' : 'Reporter'}
+                      {['SUPER_ADMIN', 'ADMIN', 'COUNSELOR', 'INVESTIGATOR'].includes(msg.senderRole) ? 'CEGRAD Staff' : 'Reporter'}
                     </Text>
                   )}
                   <Text as="span" size="xs" tone="muted" className="text-[10px] text-gray-400">

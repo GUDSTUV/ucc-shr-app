@@ -25,7 +25,7 @@ export default async function DispatchPage() {
   )
 
   if (hasReports) {
-    redirect('/user/dashboard')
+    redirect('/user/userReports')
   } else {
     redirect('/report/new')
   }

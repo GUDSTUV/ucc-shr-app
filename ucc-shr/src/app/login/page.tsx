@@ -44,7 +44,7 @@ function LoginContent() {
   async function handleGoogleSignIn() {
     setGoogleLoading(true)
     const callbackUrl = searchParams.get('callbackUrl')
-    await signIn('google', { callbackUrl: resolveSafeCallback(callbackUrl, '/user/userDashboard') })
+    await signIn('google', { callbackUrl: resolveSafeCallback(callbackUrl, '/user/dispatch') })
   }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -67,7 +67,8 @@ function LoginContent() {
       }
 
       const callbackUrl = searchParams.get('callbackUrl')
-      router.push(resolveSafeCallback(callbackUrl, '/user/userDashboard'))
+      router.refresh()
+      router.push(resolveSafeCallback(callbackUrl, '/user/dispatch'))
     } catch {
       setError('An error occurred. Please try again.')
       setIsLoading(false)

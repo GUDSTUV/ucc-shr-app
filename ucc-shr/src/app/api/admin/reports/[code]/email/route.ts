@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { randomUUID } from 'crypto'
 import { auth } from '@/src/lib/auth/auth'
 import { prisma } from '@/src/lib/prisma'
 import { parseReportNotes, canViewConfidentialDetails } from '@/src/lib/auth/report-access'
@@ -38,13 +39,13 @@ export async function POST(request: NextRequest, context: { params: Promise<{ co
 
     const notes = parseReportNotes(report.notes)
     
-    // Check if user is allowed to view confidential details
-    const canSeeConfidential = canViewConfidentialDetails(notes, session.user.id, session.user.role)
-    const isConfidential = Boolean(notes.confidentialityRequested)
+    // Determine if the user is authorized to send an email for this case
+    const isSuperAdmin = session.user.role === 'SUPER_ADMIN'
+    const isAssigned = notes.counsellorId === session.user.id || notes.investigatorId === session.user.id
 
-    if (isConfidential && !canSeeConfidential) {
+    if (!isSuperAdmin && !isAssigned) {
       return NextResponse.json(
-        { ok: false, error: 'You are not authorized to contact the reporter for this confidential case.' },
+        { ok: false, error: 'You are not authorized to contact the reporter for this case. It is not assigned to you.' },
         { status: 403 }
       )
     }
@@ -69,11 +70,12 @@ export async function POST(request: NextRequest, context: { params: Promise<{ co
 
     // Append to admin updates so other admins can see it
     const newUpdate = {
-      id: crypto.randomUUID(),
+      id: randomUUID(),
       status: report.status,
       message: `Email sent to reporter. Subject: "${subject.trim()}". Message preview: "${message.trim().substring(0, 50)}..."`,
       by: session.user.name || session.user.email || 'Admin',
       at: new Date().toISOString(),
+      isInternal: true,
     }
 
     const adminUpdates = Array.isArray(notes.adminUpdates) ? notes.adminUpdates : []

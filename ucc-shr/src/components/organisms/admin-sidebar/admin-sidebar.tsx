@@ -21,9 +21,10 @@ const items = [
   { href: '/admin/logs', label: 'Activity Logs', icon: <ScrollText size={16} /> },
 ]
 
-/** Case Officer sees only their cases and notifications */
+/** Case Officer sees their cases, all reports queue, and notifications */
 const caseOfficerItems = [
-  { href: '/admin/reports', label: 'My Cases', icon: <Flag size={16} /> },
+  { href: '/admin/reports', label: 'Reports', icon: <Flag size={16} /> },
+  { href: '/admin/reports?assigned=me', label: 'My Cases', icon: <FileText size={16} /> },
   { href: '/admin/notifications', label: 'Notifications', icon: <BellRing size={16} /> },
 ]
 

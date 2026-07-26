@@ -10,6 +10,22 @@ import { Text } from '@/src/components/atoms/text/text'
 const DEFAULT_ARTICLE_IMAGE = '/icons/default-article.svg'
 const DEFAULT_EVENT_IMAGE = '/icons/default-event.svg'
 
+function buildGCalUrl(event: { title: string; description: string; venue: string; startDate: Date; endDate?: Date | null }) {
+  function toGCalDate(d: Date) {
+    return d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'
+  }
+  const start = toGCalDate(event.startDate)
+  const end = event.endDate ? toGCalDate(event.endDate) : toGCalDate(new Date(event.startDate.getTime() + 2 * 60 * 60 * 1000))
+  const params = new URLSearchParams({
+    action: 'TEMPLATE',
+    text: event.title,
+    dates: `${start}/${end}`,
+    details: event.description.slice(0, 500),
+    location: event.venue,
+  })
+  return `https://calendar.google.com/calendar/render?${params.toString()}`
+}
+
 interface HubItem {
 	id: string
 	resourceType: 'ARTICLE' | 'EVENT'
@@ -22,7 +38,7 @@ interface HubItem {
 	imageUrl?: string
 	dateLabel?: string
 	timeLabel?: string
-	isRegistration?: boolean
+	googleCalendarUrl?: string
 	imageTheme: string
 	isSaved: boolean
 }
@@ -54,7 +70,9 @@ export default async function EventsPage() {
 				title: true,
 				description: true,
 				image: true,
+				venue: true,
 				startDate: true,
+				endDate: true,
 			},
 		}),
 		session?.user
@@ -105,9 +123,9 @@ export default async function EventsPage() {
 			imageUrl: event.image || DEFAULT_EVENT_IMAGE,
 			dateLabel: new Intl.DateTimeFormat('en-US', { month: 'short', day: '2-digit' }).format(event.startDate).toUpperCase(),
 			timeLabel: new Intl.DateTimeFormat('en-US', { hour: '2-digit', minute: '2-digit' }).format(event.startDate),
-			isRegistration: true,
+			googleCalendarUrl: buildGCalUrl({ title: event.title, description: event.description, venue: event.venue, startDate: event.startDate, endDate: event.endDate }),
 			imageTheme: 'from-navy-dark via-navy to-gray-900',
-			isSaved: savedKeys.has(key),
+			isSaved: false,
 			sortAt: event.startDate.getTime(),
 		}
 	})

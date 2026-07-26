@@ -2,6 +2,7 @@ import { randomBytes } from 'crypto'
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/src/lib/prisma'
 import { auth } from '@/src/lib/auth/auth'
+import { logActivity } from '@/src/lib/audit'
 
 type CreateReportPayload = {
   type?: string
@@ -15,6 +16,15 @@ type CreateReportPayload = {
   offenderDescription?: string
   priorReport?: { reported: boolean; where?: string }
   confidentialityRequested?: boolean
+  complainantName?: string
+  complainantGender?: string
+  complainantUserType?: string
+  complainantStudentId?: string
+  complainantDepartment?: string
+  respondentName?: string
+  respondentPosition?: string
+  respondentDepartment?: string
+  respondentRelationship?: string
 }
 
 const ALLOWED_REPORT_TYPES = new Set([
@@ -125,10 +135,29 @@ export async function POST(request: NextRequest) {
           offenderDescription,
           priorReport,
           witnesses: witnesses.slice(0, 10),
+          complainantName: payload.complainantName?.trim() || null,
+          complainantGender: payload.complainantGender?.trim() || null,
+          complainantUserType: payload.complainantUserType?.trim() || null,
+          complainantStudentId: payload.complainantStudentId?.trim() || null,
+          complainantDepartment: payload.complainantDepartment?.trim() || null,
+          respondentName: payload.respondentName?.trim() || null,
+          respondentPosition: payload.respondentPosition?.trim() || null,
+          respondentDepartment: payload.respondentDepartment?.trim() || null,
+          respondentRelationship: payload.respondentRelationship?.trim() || null,
         }),
       },
       select: { id: true, code: true },
     })
+
+    if (reporterId) {
+      await logActivity({
+        userId: reporterId,
+        action: 'CREATED',
+        resourceType: 'REPORT',
+        resourceId: report.id,
+        details: { code: report.code, type },
+      })
+    }
 
     return NextResponse.json({ ok: true, code: report.code, id: report.id })
   } catch {

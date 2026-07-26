@@ -78,7 +78,8 @@ export default async function UserNotificationsPage({ searchParams }: PageProps)
     }
 
     const notes = parseReportNotes(report.notes)
-    const updates = Array.isArray(notes.adminUpdates) ? notes.adminUpdates : []
+    const allUpdates = Array.isArray(notes.adminUpdates) ? notes.adminUpdates : []
+    const updates = allUpdates.filter((u) => !u.isInternal)
 
     for (const update of updates) {
       const atMs = new Date(update.at).getTime()
@@ -137,7 +138,7 @@ export default async function UserNotificationsPage({ searchParams }: PageProps)
     })
 
     revalidatePath('/user/notifications')
-    revalidatePath('/user/userDashboard')
+    revalidatePath('/user/userReports')
   }
 
   async function clearSingleNotification(formData: FormData) {
@@ -157,7 +158,7 @@ export default async function UserNotificationsPage({ searchParams }: PageProps)
     await upsertNotificationState(actionSession.user.id, 'USER', { lastSeenAt: new Date() })
 
     revalidatePath('/user/notifications')
-    revalidatePath('/user/userDashboard')
+    revalidatePath('/user/userReports')
   }
 
   return (
@@ -166,8 +167,8 @@ export default async function UserNotificationsPage({ searchParams }: PageProps)
         {/* Page Header */}
         <div className="mb-6 flex items-center gap-3">
           <Link
-            href="/user/userDashboard"
-            aria-label="Go back to dashboard"
+            href="/"
+            aria-label="Go back to home"
             className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gray-600 hover:bg-gray-100 transition"
           >
             <ArrowLeft size={18} />

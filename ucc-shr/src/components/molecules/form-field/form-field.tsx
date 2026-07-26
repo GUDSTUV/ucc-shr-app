@@ -4,7 +4,7 @@ import { Text } from '../../atoms/text/text'
 export function FormField({ label, hint, error, required, children }: FormFieldProps) {
   return (
     <div className="flex flex-col gap-1.5">
-      <Text as="label" size="sm" weight="medium" className="text-gray-900">
+      <Text as="label" size={{ base: 'sm', md: 'base' }} weight="medium" className="text-gray-900">
         {label}
         {required && <span className="text-red ml-0.5">*</span>}
       </Text>

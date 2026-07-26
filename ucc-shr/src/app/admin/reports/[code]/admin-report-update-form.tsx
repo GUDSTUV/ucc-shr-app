@@ -50,9 +50,6 @@ export function AdminReportUpdateForm({
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
 
-  // Escalation state (Case Officer only)
-  const [showEscalation, setShowEscalation] = useState(false)
-  const [escalationReason, setEscalationReason] = useState('')
 
   function toggleAction(action: ActionTaken) {
     setActionsTaken((prev) =>
@@ -104,44 +101,6 @@ export function AdminReportUpdateForm({
     }
   }
 
-  async function handleEscalate() {
-    if (!escalationReason.trim()) {
-      setError('Please provide a reason for escalation.')
-      return
-    }
-
-    setSubmitting(true)
-    setError(null)
-    setSuccess(null)
-
-    try {
-      const response = await fetch(`/api/admin/reports/${encodeURIComponent(code)}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          escalate: true,
-          escalationReason: escalationReason.trim(),
-        }),
-      })
-
-      const result = (await response.json()) as { ok?: boolean; error?: string }
-
-      if (!response.ok || !result.ok) {
-        setError(result.error ?? 'Failed to escalate.')
-        setSubmitting(false)
-        return
-      }
-
-      setEscalationReason('')
-      setShowEscalation(false)
-      setSuccess('Case escalated to Super Admin.')
-      router.refresh()
-    } catch {
-      setError('Network error while escalating.')
-    } finally {
-      setSubmitting(false)
-    }
-  }
 
   return (
     <div className="space-y-4">
@@ -240,16 +199,12 @@ export function AdminReportUpdateForm({
         {/* Case Note */}
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.08em] text-gray-700">
-            {isSuperAdmin ? 'Admin Note' : 'Case Notes'}
+            Internal Case Notes
           </p>
           <Textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            placeholder={
-              isSuperAdmin
-                ? 'Optional note visible to the reporter in their dashboard'
-                : 'Record counselling notes, meeting details, follow-up actions, or next steps...'
-            }
+            placeholder="Record internal case notes, meeting details, follow-up actions, or next steps (Hidden from reporter)..."
             rows={4}
             className="mt-2 text-base leading-relaxed"
           />
@@ -263,50 +218,6 @@ export function AdminReportUpdateForm({
         </Button>
       </form>
 
-      {/* Escalation — Case Officer only */}
-      {!isSuperAdmin && (
-        <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-4">
-          {!showEscalation ? (
-            <button
-              type="button"
-              onClick={() => setShowEscalation(true)}
-              className="flex w-full items-center justify-center gap-2 rounded-lg border border-amber-300 bg-white px-4 py-2.5 text-sm font-semibold text-amber-800 transition hover:bg-amber-50"
-            >
-              <AlertTriangle size={16} />
-              Escalate to Super Admin
-            </button>
-          ) : (
-            <div className="space-y-3">
-              <p className="text-sm font-semibold text-amber-900">Why does this case need escalation?</p>
-              <Textarea
-                value={escalationReason}
-                onChange={(e) => setEscalationReason(e.target.value)}
-                placeholder="Describe why this case needs Super Admin attention..."
-                rows={3}
-                className="text-base leading-relaxed border-amber-200"
-              />
-              <div className="flex gap-2">
-                <Button
-                  type="button"
-                  onClick={handleEscalate}
-                  disabled={submitting}
-                  className="h-10 flex-1 bg-amber-600 text-white hover:bg-amber-700"
-                >
-                  {submitting ? 'Escalating...' : 'Confirm Escalation'}
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => { setShowEscalation(false); setEscalationReason('') }}
-                  className="h-10"
-                >
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
     </div>
   )
 }

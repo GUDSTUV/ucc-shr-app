@@ -9,7 +9,6 @@ export interface ButtonProps extends Omit<React.ComponentPropsWithoutRef<'button
   disabled?:  boolean
   loading?:   boolean
   fullWidth?: boolean
-  onClick?:   () => void
   children?:  ReactNode
   type?:      'button' | 'submit' | 'reset'
   className?: string

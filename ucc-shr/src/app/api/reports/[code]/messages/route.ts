@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/src/lib/auth/auth'
 import { prisma } from '@/src/lib/prisma'
 import { parseReportNotes } from '@/src/lib/auth/report-access'
+import { sendDirectEmail } from '@/src/lib/email'
 
 // GET /api/reports/[code]/messages - Fetch messages for a report
 export async function GET(request: NextRequest, context: { params: Promise<{ code: string }> }) {
@@ -105,12 +106,12 @@ export async function POST(request: NextRequest, context: { params: Promise<{ co
     
     const isReporter = notes.reporterId === session.user.id
     const isAssignedStaff = notes.counsellorId === session.user.id
+    const isSuperAdmin = session.user.role === 'SUPER_ADMIN'
 
-    // Only the reporter and the ASSIGNED staff can send messages.
-    // Even Super Admins cannot send messages unless they assign themselves.
-    if (!isReporter && !isAssignedStaff) {
+    // Only the reporter, the ASSIGNED staff, and Super Admins can send messages.
+    if (!isReporter && !isAssignedStaff && !isSuperAdmin) {
       return NextResponse.json(
-        { ok: false, error: 'Only the reporter and the assigned counsellor can send messages in this thread.' },
+        { ok: false, error: 'Only the reporter, assigned counsellor, and Super Admin can send messages in this thread.' },
         { status: 403 }
       )
     }
@@ -134,6 +135,35 @@ export async function POST(request: NextRequest, context: { params: Promise<{ co
         },
       },
     })
+
+    // Email notification logic
+    if (isReporter) {
+      // The reporter sent the message. Notify the assigned counsellor if they exist.
+      const counsellorId = notes.counsellorId
+      if (counsellorId) {
+        const counsellor = await prisma.user.findUnique({
+          where: { id: counsellorId },
+          select: { email: true, name: true },
+        })
+        if (counsellor?.email) {
+          sendDirectEmail(
+            counsellor.email,
+            `New message on case ${reportCode}`,
+            `<p>Hi ${counsellor.name || 'Counsellor'},</p><p>You have received a new message from the reporter on case <strong>${reportCode}</strong>.</p><p>Please log in to your dashboard to reply.</p>`
+          ).catch((err) => console.error('[EMAIL_ERROR]', err))
+        }
+      }
+    } else {
+      // A staff member (counsellor or super admin) sent the message. Notify the reporter.
+      const emailTo = notes.reporterEmail || notes.contact
+      if (emailTo) {
+        sendDirectEmail(
+          emailTo,
+          `New message on your report: ${reportCode}`,
+          `<p>You have received a new message from the CEGRAD team regarding your report (<strong>${reportCode}</strong>).</p><p>Please log in to your dashboard to view the message and reply.</p>`
+        ).catch((err) => console.error('[EMAIL_ERROR]', err))
+      }
+    }
 
     return NextResponse.json({
       ok: true,

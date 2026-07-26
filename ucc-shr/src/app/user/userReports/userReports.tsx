@@ -139,8 +139,8 @@ export default function UserReports({ reports }: UserReportsProps) {
         {/* Page Header */}
         <div className="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-gray-200 pb-4">
           <div>
-            <Link href="/user/userDashboard" className="inline-flex items-center gap-2 text-sm font-medium text-navy mb-4 hover:underline">
-              <ArrowLeft size={16} /> Back to Dashboard
+            <Link href="/" className="inline-flex items-center gap-2 text-sm font-medium text-navy mb-4 hover:underline">
+              <ArrowLeft size={16} /> Back to Home
             </Link>
             <h1 className="text-2xl font-bold text-gray-900 md:text-3xl">My Reports</h1>
             <p className="mt-1 text-sm text-gray-500">Track all your submitted incidents and communicate securely.</p>

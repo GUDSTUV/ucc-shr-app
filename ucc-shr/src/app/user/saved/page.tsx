@@ -102,8 +102,8 @@ export default async function SavedItemsPage() {
         {/* Page Header */}
         <div className="mb-6 flex items-center gap-3">
           <Link
-            href="/user/userDashboard"
-            aria-label="Go back to dashboard"
+            href="/"
+            aria-label="Go back to home"
             className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gray-600 hover:bg-gray-100 transition"
           >
             <ArrowLeft size={18} />

@@ -58,6 +58,7 @@ function AdminLoginContent() {
         return
       }
 
+      router.refresh()
       router.push(resolveSafeCallback(callbackUrl, '/admin', { requirePrefix: '/admin' }))
     } catch {
       setError('Unable to sign in right now. Please try again.')

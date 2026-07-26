@@ -11,6 +11,8 @@ import { logActivity } from '@/src/lib/audit'
 import { parseReportNotes, canViewConfidentialDetails } from '@/src/lib/auth/report-access'
 import { StatusBadge } from '@/src/components/molecules/status-badge'
 import { AdminReportUpdateForm } from './admin-report-update-form'
+import { ReportEmailForm } from './report-email-form'
+import { Button } from '@/src/components/atoms/button/button'
 import { ReportChat } from '@/src/components/organisms/report-chat'
 import { WorkflowStepper } from '@/src/components/organisms/workflow-stepper'
 import { PrintButton } from '@/src/components/atoms/print-button/print-button'
@@ -87,7 +89,7 @@ const ACTION_LABELS: Record<string, string> = {
 function HiddenField({ label }: { label: string }) {
   return (
     <div>
-      <p className="text-sm font-semibold uppercase tracking-[0.08em] text-gray-700">{label}</p>
+      <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">{label}</p>
       <div className="mt-1 flex items-center gap-1.5 text-sm text-gray-500">
         <EyeOff size={13} />
         <span className="italic">Hidden — Confidential Report</span>
@@ -143,7 +145,22 @@ export default async function AdminReportDetailsPage({ params }: PageProps) {
 
   // Case Officers can only view cases assigned to them
   if (isCaseOfficer && !isAssigned) {
-    notFound()
+    return (
+      <AdminLayout title="Access Denied">
+        <div className="flex h-[60vh] flex-col items-center justify-center text-center">
+          <div className="mb-4 rounded-full bg-red-100 p-3 text-red-600">
+            <EyeOff size={32} />
+          </div>
+          <h2 className="text-xl font-bold text-gray-900">Access Denied</h2>
+          <p className="mt-2 max-w-md text-gray-600">
+            This case has not been assigned to you. Only the assigned Case Officer or the Super Administrator can access its details.
+          </p>
+          <Link href="/admin/reports" className="mt-6">
+            <Button>Return to Queue</Button>
+          </Link>
+        </div>
+      </AdminLayout>
+    )
   }
 
   // ─── Privacy enforcement ───
@@ -175,18 +192,7 @@ export default async function AdminReportDetailsPage({ params }: PageProps) {
         <PrintButton />
       </div>
 
-      {/* Confidentiality banner */}
-      {isConfidential && (
-        <div className="mb-5 flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 print:hidden">
-          <EyeOff size={15} className="shrink-0" />
-          <span>
-            <strong>Confidential Report</strong> — The reporter has requested their identity be kept private.
-            {canSeeConfidential
-              ? ' You can see their details because you are a Super Admin or the assigned investigator.'
-              : ' Their contact details are hidden from you. Only the Super Admin or the assigned investigator can see them.'}
-          </span>
-        </div>
-      )}
+      {/* Removed confidentiality banner as all reports are confidential by default */}
 
       <div className="flex flex-col gap-8 w-full max-w-6xl">
 
@@ -195,7 +201,7 @@ export default async function AdminReportDetailsPage({ params }: PageProps) {
           <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] print:shadow-none print:border-none print:p-0">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.08em] text-gray-700">Report Code</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Report Code</p>
                 <h2 className="mt-1 text-2xl font-bold text-gray-900">{report.code}</h2>
               </div>
               <StatusBadge status={report.status} />
@@ -207,59 +213,131 @@ export default async function AdminReportDetailsPage({ params }: PageProps) {
 
             <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.08em] text-gray-700">Type</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Type</p>
                 <p className="mt-1 text-base text-gray-900">{report.type}</p>
               </div>
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.08em] text-gray-700">Location</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Location</p>
                 <p className="mt-1 text-base text-gray-900">{report.location || 'Not specified'}</p>
               </div>
               <div className="md:col-span-2">
-                <p className="text-sm font-semibold uppercase tracking-[0.08em] text-gray-700">Description</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Description</p>
                 <p className="mt-1 text-base leading-relaxed text-gray-900 whitespace-pre-wrap">{report.description}</p>
               </div>
 
-              {/* ─── Reporter Contact (privacy-gated) ─── */}
+              {/* ─── Complainant & Contact (privacy-gated) ─── */}
               {isConfidential && !canSeeConfidential ? (
                 <>
-                  <HiddenField label="Reporter Contact" />
-                  <HiddenField label="Reporter Email" />
-                  <HiddenField label="Phone Number" />
+                  <div className="md:col-span-2 pt-4 mt-2 border-t border-gray-100">
+                    <p className="text-sm font-bold uppercase tracking-wider text-navy mb-4">Complainant Details</p>
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                      <HiddenField label="Full Name" />
+                      <HiddenField label="Gender" />
+                      <HiddenField label="User Type" />
+                      <HiddenField label="Student/Staff ID" />
+                      <HiddenField label="Department/Unit" />
+                      <HiddenField label="Submitted Contact" />
+                      <HiddenField label="Reporter Email" />
+                      <HiddenField label="Phone Number" />
+                    </div>
+                  </div>
                 </>
               ) : (
                 <>
-                  <div>
-                    <p className="text-sm font-semibold uppercase tracking-[0.08em] text-gray-700">Submitted Contact</p>
-                    <p className="mt-1 text-base text-gray-900">{notes.contact || 'Not provided'}</p>
+                  <div className="md:col-span-2 pt-4 mt-2 border-t border-gray-100">
+                    <p className="text-sm font-bold uppercase tracking-wider text-navy mb-4">Complainant Details</p>
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Full Name</p>
+                        <p className="mt-1 text-base text-gray-900">{notes.complainantName || 'Not provided'}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Gender</p>
+                        <p className="mt-1 text-base text-gray-900">{notes.complainantGender || 'Not provided'}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">User Type</p>
+                        <p className="mt-1 text-base text-gray-900">{notes.complainantUserType || 'Not provided'}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Student/Staff ID</p>
+                        <p className="mt-1 text-base text-gray-900">{notes.complainantStudentId || 'Not provided'}</p>
+                      </div>
+                      <div className="md:col-span-2">
+                        <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Department/Unit</p>
+                        <p className="mt-1 text-base text-gray-900">{notes.complainantDepartment || 'Not provided'}</p>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-semibold uppercase tracking-[0.08em] text-gray-700">Reporter Email</p>
-                    <p className="mt-1 text-base text-gray-900">{notes.reporterEmail || 'Not available'}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold uppercase tracking-[0.08em] text-gray-700">Phone Number</p>
-                    <p className="mt-1 text-base text-gray-900">{notes.phone || 'Not provided'}</p>
+
+                  <div className="md:col-span-2 pt-4 mt-2 border-t border-gray-100">
+                    <p className="text-sm font-bold uppercase tracking-wider text-navy mb-4">Contact Information</p>
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Submitted Contact</p>
+                        <p className="mt-1 text-base text-gray-900">{notes.contact || 'Not provided'}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Reporter Email (System)</p>
+                        <p className="mt-1 text-base text-gray-900">{notes.reporterEmail || 'Not available'}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Phone Number</p>
+                        <p className="mt-1 text-base text-gray-900">{notes.phone || 'Not provided'}</p>
+                      </div>
+                    </div>
                   </div>
                 </>
               )}
 
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.08em] text-gray-700">Assigned Investigator</p>
+              {/* Email Form (shown if email is available) */}
+              {(notes.reporterEmail || notes.contact) && (
+                <div className="md:col-span-2">
+                  <ReportEmailForm 
+                    reportCode={report.code} 
+                    reporterEmail={(notes.reporterEmail || notes.contact)!} 
+                  />
+                </div>
+              )}
+
+              <div className="md:col-span-2 pt-4 mt-2 border-t border-gray-100">
+                <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Assigned Investigator</p>
                 <p className="mt-1 text-base text-gray-900">{assignedCounsellor || 'Unassigned'}</p>
               </div>
 
-              {/* Offender description */}
-              {notes.offenderDescription && (
-                <div className="md:col-span-2">
-                  <p className="text-sm font-semibold uppercase tracking-[0.08em] text-gray-700">Person Responsible (as described by reporter)</p>
-                  <p className="mt-1 text-base text-gray-900 whitespace-pre-wrap">{notes.offenderDescription}</p>
+              {/* Respondent (Alleged Offender) Details */}
+              <div className="md:col-span-2 pt-4 mt-2 border-t border-gray-100">
+                <p className="text-sm font-bold uppercase tracking-wider text-navy mb-4">Respondent (Alleged Offender) Details</p>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Full Name</p>
+                    <p className="mt-1 text-base text-gray-900">{notes.respondentName || 'Not provided'}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Position</p>
+                    <p className="mt-1 text-base text-gray-900">{notes.respondentPosition || 'Not provided'}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Department/Unit</p>
+                    <p className="mt-1 text-base text-gray-900">{notes.respondentDepartment || 'Not provided'}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Relationship to Complainant</p>
+                    <p className="mt-1 text-base text-gray-900">{notes.respondentRelationship || 'Not provided'}</p>
+                  </div>
+                  {notes.offenderDescription && (
+                    <div className="md:col-span-2 mt-2">
+                      <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Additional Description</p>
+                      <p className="mt-1 text-base text-gray-900 whitespace-pre-wrap">{notes.offenderDescription}</p>
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
 
               {/* Prior report */}
               {notes.priorReport && (
                 <div>
-                  <p className="text-sm font-semibold uppercase tracking-[0.08em] text-gray-700">Previously Reported?</p>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Previously Reported?</p>
                   <p className="mt-1 text-base text-gray-900">
                     {notes.priorReport.reported ? `Yes — ${notes.priorReport.where || 'Location not specified'}` : 'No'}
                   </p>
@@ -273,7 +351,7 @@ export default async function AdminReportDetailsPage({ params }: PageProps) {
 
             {/* Witnesses */}
             <div className="mt-5">
-              <p className="text-sm font-semibold uppercase tracking-[0.08em] text-gray-700">Witnesses</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Witnesses</p>
               {isConfidential && !canSeeConfidential ? (
                 <div className="mt-1 flex items-center gap-1.5 text-sm text-gray-500">
                   <EyeOff size={13} />
@@ -296,7 +374,7 @@ export default async function AdminReportDetailsPage({ params }: PageProps) {
           {/* Assessment Summary (visible when set) */}
           {(notes.riskLevel || notes.investigationOutcome || (notes.actionsTaken && notes.actionsTaken.length > 0)) && (
             <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)]">
-              <p className="text-sm font-semibold uppercase tracking-[0.08em] text-gray-700">Investigator Assessment</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Investigator Assessment</p>
               <div className="mt-3 grid gap-4 sm:grid-cols-3">
                 {notes.riskLevel && (
                   <div>
@@ -330,7 +408,7 @@ export default async function AdminReportDetailsPage({ params }: PageProps) {
 
           {/* Evidence Files */}
           <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] print:hidden">
-            <p className="text-sm font-semibold uppercase tracking-[0.08em] text-gray-700">Evidence Files</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Evidence Files</p>
             {evidenceFiles.length > 0 ? (
               <ul className="mt-3 space-y-3">
                 {evidenceFiles.map((item, index) => {

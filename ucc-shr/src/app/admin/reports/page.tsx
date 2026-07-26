@@ -20,7 +20,7 @@ type PageProps = {
 }
 
 const ALLOWED_STATUSES = new Set(['RECEIVED', 'UNDER_REVIEW', 'UNDER_INVESTIGATION', 'CLOSED', 'CLOSED'])
-const ALLOWED_ASSIGNED = new Set(['assigned', 'unassigned'])
+const ALLOWED_ASSIGNED = new Set(['assigned', 'unassigned', 'me'])
 const ALLOWED_SORT = new Set(['newest', 'oldest', 'updated', 'status'])
 
 function formatSubmittedAt(value: Date) {
@@ -135,17 +135,13 @@ export default async function AdminReportsPage({ searchParams }: PageProps) {
         counsellorId,
       }
     })
-    // Case Officers only see reports assigned to them
-    .filter((report) => {
-      if (!isCaseOfficer) return true
-      return report.counsellorId === session.user.id
-    })
 
   const availableTypes = Array.from(new Set(reportsWithAssignment.map((report) => report.type))).sort()
 
   const filtered = reportsWithAssignment.filter((report) => {
     if (assignedFilter === 'assigned' && !report.counsellorName) return false
     if (assignedFilter === 'unassigned' && report.counsellorName) return false
+    if (assignedFilter === 'me' && report.counsellorId !== session.user.id) return false
 
     if (!query) return true
 
@@ -155,13 +151,15 @@ export default async function AdminReportsPage({ searchParams }: PageProps) {
 
   const reports = sortReports(filtered, sortBy)
 
+  const isMyCasesPage = assignedFilter === 'me'
+
   return (
-    <AdminLayout title={isCaseOfficer ? 'My Cases' : 'Case Management'}>
+    <AdminLayout title={isMyCasesPage ? 'My Cases' : 'Case Management'}>
       <section className="rounded-2xl border border-gray-200 bg-white shadow-sm">
         <div className="flex flex-col gap-3 border-b border-gray-100 p-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-base text-gray-700">
-              {isCaseOfficer
+              {isMyCasesPage
                 ? 'View and manage the cases assigned to you.'
                 : 'Monitor and update all incident reports.'}
             </p>

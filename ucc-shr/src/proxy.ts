@@ -37,7 +37,7 @@ export async function proxy(req: NextRequest) {
       if (isAdminRole(token.role as string)) {
         return NextResponse.redirect(new URL('/admin', req.nextUrl.origin))
       }
-      return NextResponse.redirect(new URL('/user/userDashboard', req.nextUrl.origin))
+      return NextResponse.redirect(new URL('/user/dispatch', req.nextUrl.origin))
     }
     return NextResponse.next()
   }
@@ -52,7 +52,7 @@ export async function proxy(req: NextRequest) {
       if (isAdminRole(token.role as string)) {
         return NextResponse.redirect(new URL('/admin', req.nextUrl.origin))
       }
-      return NextResponse.redirect(new URL('/user/userDashboard', req.nextUrl.origin))
+      return NextResponse.redirect(new URL('/user/dispatch', req.nextUrl.origin))
     }
     return NextResponse.next()
   }

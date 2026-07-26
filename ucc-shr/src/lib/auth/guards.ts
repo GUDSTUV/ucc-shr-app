@@ -24,12 +24,12 @@ export async function requireAdmin() {
 
   const dbUser = await findUserRoleSafely(session.user.id, '/admin/login')
 
-  if (!dbUser || !isAdminRole(dbUser.role)) {
-    redirect('/admin/login')
-  }
-
   if (dbUser.role === 'SUSPENDED') {
     redirect('/admin/login?error=Suspended')
+  }
+
+  if (!dbUser || !isAdminRole(dbUser.role)) {
+    redirect('/admin/login')
   }
 
   // Update session object with fresh role

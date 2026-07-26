@@ -57,7 +57,7 @@ export function HeroSection({ banners = [], customTitle, customSubtitle }: { ban
 
   const slides = banners.length > 0 ? banners : fallbackSlides
   const activeSlide = slides[active] ?? slides[0]
-  const slideSubtitle = customSubtitle || activeSlide?.title?.trim()
+  const slideSubtitle = activeSlide?.title?.trim() || customSubtitle
     || 'Confidential reporting, prompt review, and trained CEGRAD support for the University of Cape Coast community.'
 
   useEffect(() => {
