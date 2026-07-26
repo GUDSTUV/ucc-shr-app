@@ -21,6 +21,7 @@ type UserReport = {
   type: string
   status: UserReportStatus
   createdAt: string
+  unreadMessageCount?: number
 }
 
 const reportStatusStyles: Record<
@@ -77,20 +78,33 @@ function reportActionLabel(status: UserReport['status']) {
 }
 
 function ReportsCard({ report }: { report: UserReport }) {
-  const statusMeta = reportStatusStyles[report.status]
+  const style = reportStatusStyles[report.status]
 
   return (
     <article className="rounded-2xl border border-gray-100 bg-white p-4 lg:p-6 shadow-sm transition hover:shadow-md">
-      <div className="flex items-start justify-between gap-3">
-        <div>
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex-1">
           <p
-            className={`inline-flex rounded-lg px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] ${statusMeta.chip}`}
+            className={`inline-flex rounded-lg px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] ${style.chip}`}
           >
-            {statusMeta.label}
+            {style.label}
           </p>
           <h3 className="mt-3 text-xl font-bold text-gray-900 sm:text-2xl">Incident #{report.code.replace('UCC-', '')}</h3>
           <p className="mt-1 text-sm text-gray-600">{report.type}</p>
         </div>
+        
+        {/* Unread Message Indicator */}
+        {(report.unreadMessageCount ?? 0) > 0 && (
+          <div className="flex shrink-0 flex-col items-center justify-center pt-2 pr-2">
+            <div className="relative inline-flex h-10 w-10 items-center justify-center rounded-full bg-navy/10 text-navy">
+              <MessageSquare size={20} />
+              <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-white">
+                {report.unreadMessageCount}
+              </span>
+            </div>
+          </div>
+        )}
+
         <div className="flex h-16 w-16 md:h-20 md:w-20 items-center justify-center rounded-2xl bg-navy-light text-navy shrink-0">
           {getCardIcon(report.status)}
         </div>

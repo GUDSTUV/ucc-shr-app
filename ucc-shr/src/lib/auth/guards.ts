@@ -24,7 +24,7 @@ export async function requireAdmin() {
 
   const dbUser = await findUserRoleSafely(session.user.id, '/admin/login')
 
-  if (dbUser.role === 'SUSPENDED') {
+  if (dbUser?.role === 'SUSPENDED') {
     redirect('/admin/login?error=Suspended')
   }
 

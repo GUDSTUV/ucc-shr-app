@@ -82,8 +82,7 @@ export default async function AdminLogsPage({ searchParams }: PageProps) {
 
   return (
     <AdminLayout
-      title="Activity Logs"
-      description="Immutable audit trail of all administrative actions. Only visible to the Super Admin."
+      title="System Activity Logs"
     >
       {/* Filters */}
       <div className="mb-5 flex flex-wrap gap-2">

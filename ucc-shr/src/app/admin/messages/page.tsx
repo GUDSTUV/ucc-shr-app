@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { BellRing, Clock3 } from 'lucide-react'
+import { MessageSquare, Clock3 } from 'lucide-react'
 import { revalidatePath } from 'next/cache'
 import { AdminLayout } from '@/src/components/templates/admin-layout'
 import { Button } from '@/src/components/atoms/button'
@@ -33,10 +33,10 @@ function formatRelativeTime(value: Date) {
   return `${deltaDays} days ago`
 }
 
-export default async function AdminNotificationsPage({ searchParams }: PageProps) {
+export default async function AdminMessagesPage({ searchParams }: PageProps) {
   const session = await requireAdmin()
 
-  const { reports, unreadReportsCount: unreadCount } = await getAdminNotifications(session.user.id, session.user.role)
+  const { messages, unreadMessagesCount } = await getAdminNotifications(session.user.id, session.user.role)
 
   const params = await searchParams
   const activeTab = params.tab === 'unread' ? 'unread' : 'all'
@@ -44,29 +44,12 @@ export default async function AdminNotificationsPage({ searchParams }: PageProps
   const pageSize = 10
 
   const filteredNotifications = activeTab === 'unread'
-    ? reports.filter((item) => item.unread)
-    : reports
+    ? messages.filter((item) => item.unread)
+    : messages
   const totalPages = Math.max(1, Math.ceil(filteredNotifications.length / pageSize))
   const currentPage = Math.min(pageNumber, totalPages)
   const start = (currentPage - 1) * pageSize
   const paginatedNotifications = filteredNotifications.slice(start, start + pageSize)
-
-  async function clearAllNotifications() {
-    'use server'
-
-    const actionSession = await requireAdmin()
-
-    const now = new Date()
-    await clearNotificationReads(actionSession.user.id, 'ADMIN')
-    await clearNotificationDismissed(actionSession.user.id, 'ADMIN')
-    await upsertNotificationState(actionSession.user.id, 'ADMIN', {
-      lastSeenAt: now,
-      clearedAt: now,
-    })
-
-    revalidatePath('/admin/notifications')
-    revalidatePath('/admin')
-  }
 
   async function clearSingleNotification(formData: FormData) {
     'use server'
@@ -79,19 +62,18 @@ export default async function AdminNotificationsPage({ searchParams }: PageProps
     }
 
     await dismissNotification(actionSession.user.id, 'ADMIN', notificationId)
-    await upsertNotificationState(actionSession.user.id, 'ADMIN', { lastSeenAt: new Date() })
 
-    revalidatePath('/admin/notifications')
+    revalidatePath('/admin/messages')
     revalidatePath('/admin')
   }
 
   return (
-    <AdminLayout title="Notifications" unreadNotificationsCount={unreadCount}>
+    <AdminLayout title="Messages">
       <section className="space-y-4">
         <div className="rounded-2xl border border-gray-200 bg-white p-2 shadow-sm">
           <div className="grid grid-cols-2 gap-2">
             <Link
-              href="/admin/notifications?tab=all&page=1"
+              href="/admin/messages?tab=all&page=1"
               className={`rounded-xl px-3 py-2.5 text-center text-base font-semibold transition ${
                 activeTab === 'all' ? 'bg-navy text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
@@ -99,7 +81,7 @@ export default async function AdminNotificationsPage({ searchParams }: PageProps
               All
             </Link>
             <Link
-              href="/admin/notifications?tab=unread&page=1"
+              href="/admin/messages?tab=unread&page=1"
               className={`rounded-xl px-3 py-2.5 text-center text-base font-semibold transition ${
                 activeTab === 'unread' ? 'bg-navy text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
@@ -109,18 +91,13 @@ export default async function AdminNotificationsPage({ searchParams }: PageProps
           </div>
         </div>
 
-        <div className="flex justify-end">
-          <form action={clearAllNotifications}>
-            <Button type="submit" variant="outline" size="sm">Clear All</Button>
-          </form>
-        </div>
         <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-navy">
-              <BellRing size={18} />
-              <p className="text-base font-semibold">Activity Timeline</p>
+              <MessageSquare size={18} />
+              <p className="text-base font-semibold">Message Timeline</p>
             </div>
-            <span className="rounded-full bg-navy-light px-3 py-1 text-sm font-semibold text-navy">{unreadCount}</span>
+            <span className="rounded-full bg-navy-light px-3 py-1 text-sm font-semibold text-navy">{unreadMessagesCount}</span>
           </div>
         </div>
 
@@ -144,7 +121,7 @@ export default async function AdminNotificationsPage({ searchParams }: PageProps
                   href={item.link}
                   className="text-sm font-semibold text-navy hover:text-navy-dark shrink-0"
                 >
-                  View Details
+                  View Chat
                 </Link>
               </div>
             </article>
@@ -152,7 +129,7 @@ export default async function AdminNotificationsPage({ searchParams }: PageProps
 
           {filteredNotifications.length === 0 ? (
             <article className="rounded-2xl border border-gray-100 bg-white p-4 text-center text-sm text-gray-600 shadow-sm">
-              No report notifications yet.
+              No chat messages yet.
             </article>
           ) : null}
         </div>
@@ -162,7 +139,7 @@ export default async function AdminNotificationsPage({ searchParams }: PageProps
             <span className="text-gray-700">Page {currentPage} of {totalPages}</span>
             <div className="flex items-center gap-2">
               <Link
-                href={`/admin/notifications?tab=${activeTab}&page=${Math.max(1, currentPage - 1)}`}
+                href={`/admin/messages?tab=${activeTab}&page=${Math.max(1, currentPage - 1)}`}
                 className={`rounded-lg px-3 py-2 font-semibold ${
                   currentPage === 1 ? 'pointer-events-none bg-gray-100 text-gray-400' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
@@ -170,7 +147,7 @@ export default async function AdminNotificationsPage({ searchParams }: PageProps
                 Prev
               </Link>
               <Link
-                href={`/admin/notifications?tab=${activeTab}&page=${Math.min(totalPages, currentPage + 1)}`}
+                href={`/admin/messages?tab=${activeTab}&page=${Math.min(totalPages, currentPage + 1)}`}
                 className={`rounded-lg px-3 py-2 font-semibold ${
                   currentPage === totalPages ? 'pointer-events-none bg-gray-100 text-gray-400' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}

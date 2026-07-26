@@ -4,7 +4,7 @@ import { notFound, redirect } from 'next/navigation'
 import { ArrowLeft, CalendarDays, FileText, MapPin, Mic, RefreshCw, Shield } from 'lucide-react'
 import { auth } from '@/src/lib/auth/auth'
 import { prisma } from '@/src/lib/prisma'
-import { belongsToUser } from '@/src/lib/auth/report-access'
+import { belongsToUser, parseReportNotes } from '@/src/lib/auth/report-access'
 import { StatusBadge } from '@/src/components/molecules/status-badge'
 import { ReportChat } from '@/src/components/organisms/report-chat'
 import { PublicLayout } from '@/src/components/templates/public-layout'
@@ -13,21 +13,6 @@ type ReportDetailsPageProps = {
   params: Promise<{
     code: string
   }>
-}
-
-type ReportNotes = {
-  contact?: string | null
-  witnesses?: string[]
-}
-
-function parseNotes(value: string | null): ReportNotes {
-  if (!value) return {}
-
-  try {
-    return JSON.parse(value) as ReportNotes
-  } catch {
-    return {}
-  }
 }
 
 function formatDate(value: Date) {
@@ -98,6 +83,7 @@ export default async function ReportDetailsPage({ params }: ReportDetailsPagePro
   const report = await prisma.report.findUnique({
     where: { code: reportCode },
     select: {
+      id: true,
       code: true,
       type: true,
       status: true,
@@ -120,11 +106,14 @@ export default async function ReportDetailsPage({ params }: ReportDetailsPagePro
     redirect('/user/userReports')
   }
 
-  const parsedNotes = parseNotes(report.notes)
+  const { markAllReportNotificationsAsRead } = await import('@/src/lib/notification-service')
+  await markAllReportNotificationsAsRead(session.user.id, session.user.role ?? 'USER', report.id)
+
+  const parsedNotes = parseReportNotes(report.notes)
   const evidenceFiles = report.files ?? []
   
   const allUpdates = Array.isArray(parsedNotes.adminUpdates) ? parsedNotes.adminUpdates : []
-  const publicUpdates = allUpdates.filter(u => !u.isInternal)
+  const publicUpdates = allUpdates.filter((u: { isInternal?: boolean }) => !u.isInternal)
 
   return (
     <PublicLayout>

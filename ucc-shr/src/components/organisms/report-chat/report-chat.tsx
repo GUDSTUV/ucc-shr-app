@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import { Send, User as UserIcon, Shield, RefreshCw } from 'lucide-react'
 import { Button } from '@/src/components/atoms/button'
 import { Textarea } from '@/src/components/atoms/textarea'
@@ -52,8 +53,11 @@ export function ReportChat({ reportCode, isAssignedCounsellor = false }: ReportC
     }
   }
 
+  const router = useRouter()
+
   useEffect(() => {
     fetchMessages()
+    router.refresh()
     // Optional: Add polling here if needed, e.g., setInterval
     const interval = setInterval(fetchMessages, 10000)
     return () => clearInterval(interval)

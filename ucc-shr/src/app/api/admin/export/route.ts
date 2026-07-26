@@ -15,21 +15,42 @@ export async function GET() {
         createdAt: true,
         updatedAt: true,
         location: true,
+        notes: true,
       },
     })
 
     const csvLines = [
-      'Report Code,Type,Status,Submitted At,Last Updated,Location',
+      'Report Code,Type,Status,Submitted At,Last Updated,Location,Complainant Type,Complainant Gender,Complainant Dept,Respondent Position,Respondent Relationship,Respondent Dept,Prior Reported',
     ]
 
     for (const r of reports) {
+      let notes: any = {}
+      if (r.notes) {
+        try {
+          notes = JSON.parse(r.notes)
+        } catch (e) {}
+      }
+
+      const getSafeValue = (val: string | undefined | null) => {
+        return `"${(val || 'N/A').replace(/"/g, '""')}"`
+      }
+
+      const priorReported = notes.priorReport?.reported ? 'Yes' : 'No'
+
       const line = [
         `"${r.code}"`,
         `"${r.type}"`,
         `"${r.status}"`,
         `"${r.createdAt.toISOString()}"`,
         `"${r.updatedAt.toISOString()}"`,
-        `"${(r.location || 'Not specified').replace(/"/g, '""')}"`,
+        getSafeValue(r.location),
+        getSafeValue(notes.complainantUserType),
+        getSafeValue(notes.complainantGender),
+        getSafeValue(notes.complainantDepartment),
+        getSafeValue(notes.respondentPosition),
+        getSafeValue(notes.respondentRelationship),
+        getSafeValue(notes.respondentDepartment),
+        `"${priorReported}"`
       ].join(',')
       csvLines.push(line)
     }

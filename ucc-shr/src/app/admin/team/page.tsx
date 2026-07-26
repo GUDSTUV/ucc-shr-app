@@ -24,7 +24,7 @@ export default async function AdminTeamPage() {
   return (
     <AdminLayout 
       title="Team Management" 
-      description="Manage access to the admin portal. Only Super Admins can promote or suspend accounts."
+      description="Manage access to the admin portal."
     >
       <TeamTable admins={serializedAdmins} currentUserId={session.user.id} />
     </AdminLayout>

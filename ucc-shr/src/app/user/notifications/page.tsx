@@ -16,23 +16,14 @@ import {
   getNotificationState,
   upsertNotificationState,
 } from '@/src/lib/notification-state'
-
-type NotificationItem = {
-  id: string
-  notificationId: string
-  title: string
-  message: string
-  time: string
-  unread: boolean
-  atMs: number
-}
+import { getUserNotifications } from '@/src/lib/notification-service'
 
 type PageProps = {
   searchParams: Promise<Record<string, string | undefined>>
 }
 
-function formatRelativeTime(value: string) {
-  const at = new Date(value).getTime()
+function formatRelativeTime(value: Date) {
+  const at = value.getTime()
   const now = Date.now()
   const deltaMinutes = Math.max(1, Math.floor((now - at) / (1000 * 60)))
 
@@ -57,69 +48,9 @@ export default async function UserNotificationsPage({ searchParams }: PageProps)
   const openedAt = new Date()
   await upsertNotificationState(session.user.id, 'USER', { lastSeenAt: openedAt })
 
-  const cutoffMs = Math.max(
-    notificationState?.lastSeenAt?.getTime() ?? 0,
-    notificationState?.clearedAt?.getTime() ?? 0,
-    openedAt.getTime(),
-  )
+  const { notifications, unreadCount } = await getUserNotifications(session.user.id, session.user.email ?? null)
 
-  const reports = await prisma.report.findMany({
-    select: {
-      code: true,
-      notes: true,
-    },
-  })
-
-  const notifications: NotificationItem[] = []
-
-  for (const report of reports) {
-    if (!belongsToUser(report.notes, session.user.id, session.user.email ?? null)) {
-      continue
-    }
-
-    const notes = parseReportNotes(report.notes)
-    const allUpdates = Array.isArray(notes.adminUpdates) ? notes.adminUpdates : []
-    const updates = allUpdates.filter((u) => !u.isInternal)
-
-    for (const update of updates) {
-      const atMs = new Date(update.at).getTime()
-
-      notifications.push({
-        id: update.id,
-        notificationId: update.id,
-        title: `Report ${report.code} updated`,
-        message: update.message,
-        time: formatRelativeTime(update.at),
-        unread: false,
-        atMs,
-      })
-    }
-  }
-
-  const readIds = await getNotificationReadIds(
-    session.user.id,
-    'USER',
-    notifications.map((item) => item.notificationId),
-  )
-  const dismissedIds = await getNotificationDismissedIds(
-    session.user.id,
-    'USER',
-    notifications.map((item) => item.notificationId),
-  )
-
-  for (const item of notifications) {
-    item.unread = item.atMs > cutoffMs && !readIds.has(item.notificationId)
-  }
-
-  notifications.sort((a, b) => b.atMs - a.atMs)
-
-  const visibleNotifications = notifications.filter(
-    (item) => item.atMs > (notificationState?.clearedAt?.getTime() ?? 0) && !dismissedIds.has(item.notificationId),
-  )
-
-  const unreadCount = visibleNotifications.filter((item) => item.unread).length
-
-  const filteredNotifications = visibleNotifications
+  const filteredNotifications = notifications
 
   async function clearAllNotifications() {
     'use server'
@@ -218,12 +149,20 @@ export default async function UserNotificationsPage({ searchParams }: PageProps)
                   </p>
                   <div className="mt-2 flex items-center gap-1 text-xs text-gray-500">
                     <Clock3 size={13} />
-                    <span>{item.time}</span>
+                    <span>{formatRelativeTime(item.time)}</span>
                   </div>
-                  <form action={clearSingleNotification} className="mt-3">
-                    <input type="hidden" name="notificationId" value={item.notificationId} />
-                    <Button type="submit" size="sm" variant="outline">Clear</Button>
-                  </form>
+                  <div className="mt-3 flex items-center gap-3">
+                    <Link
+                      href={item.link}
+                      className="text-sm font-semibold text-navy hover:text-navy-dark"
+                    >
+                      View Details
+                    </Link>
+                    <form action={clearSingleNotification}>
+                      <input type="hidden" name="notificationId" value={item.notificationId} />
+                      <Button type="submit" size="sm" variant="outline">Clear</Button>
+                    </form>
+                  </div>
                 </div>
               </div>
             </article>

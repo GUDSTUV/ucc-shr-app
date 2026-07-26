@@ -7,9 +7,10 @@ import { prisma } from '@/src/lib/prisma'
 import { parseReportNotes } from '@/src/lib/auth/report-access'
 import { getNotificationReadIds, getNotificationState } from '@/src/lib/notification-state'
 import { requireAdmin } from '@/src/lib/auth/guards'
+import { getAdminNotifications } from '@/src/lib/notification-service'
 import { AdminReportFilters as RecentReportFilters } from '@/src/components/molecules/admin-report-filters/admin-report-filters'
 import { AdminReportsTable as RecentReportsTable } from '@/src/components/organisms/admin-reports-table/admin-reports-table'
-import { Bell, Plus, AlertCircle, ArrowRight } from 'lucide-react'
+import { Bell, Plus, AlertCircle, ArrowRight, MessageSquare } from 'lucide-react'
 import { AdminStatCards } from '@/src/components/organisms/admin-stat-cards'
  
 import { CategoryDistribution } from '@/src/components/organisms/category-distribution'
@@ -56,6 +57,7 @@ export default async function AdminDashboardPage({ searchParams }: PageProps) {
     lastSixMonthsReports,
     resolvedForSla,
     notificationState,
+    adminNotifications,
   ] = await Promise.all([
     prisma.report.groupBy({ by: ['status'], _count: { status: true } }),
     prisma.report.findMany({
@@ -80,7 +82,10 @@ export default async function AdminDashboardPage({ searchParams }: PageProps) {
       select: { createdAt: true, updatedAt: true },
     }),
     getNotificationState(session.user.id, 'ADMIN'),
+    getAdminNotifications(session.user.id, session.user.role),
   ])
+
+  const { unreadMessagesCount } = adminNotifications
 
   const statusCountMap = reportStatusCounts.reduce<Record<'RECEIVED' | 'UNDER_REVIEW' | 'UNDER_INVESTIGATION' | 'CLOSED', number>>(
     (acc, row) => {
@@ -177,6 +182,7 @@ export default async function AdminDashboardPage({ searchParams }: PageProps) {
       id: report.code,
       status: report.status,
       submittedAt: formatSubmittedAt(report.createdAt),
+      rawDate: report.createdAt.getTime(),
       statusLabel: meta.label,
       statusVariant: meta.variant,
       category: report.type,
@@ -216,6 +222,10 @@ export default async function AdminDashboardPage({ searchParams }: PageProps) {
     const isAsc = sortDirection === 'asc'
 
     sortedRecentReports.sort((a, b) => {
+      if (sortColumn === 'submittedat') {
+        return isAsc ? a.rawDate - b.rawDate : b.rawDate - a.rawDate
+      }
+
       let aVal: string | number = ''
       let bVal: string | number = ''
 
@@ -231,9 +241,6 @@ export default async function AdminDashboardPage({ searchParams }: PageProps) {
       } else if (sortColumn === 'counsellor') {
         aVal = a.counsellor
         bVal = b.counsellor
-      } else if (sortColumn === 'submittedat') {
-        aVal = a.submittedAt
-        bVal = b.submittedAt
       }
 
       if (typeof aVal === 'string' && typeof bVal === 'string') {
@@ -246,53 +253,37 @@ export default async function AdminDashboardPage({ searchParams }: PageProps) {
   return (
     <AdminLayout
       title="Reporting Dashboard"
-      description="Monitor institutional case activity, triage urgent reports, and keep response timelines on track."
+      description={
+        <>
+  
+          You have <strong className="text-navy">{activeCases} active cases</strong> requiring your attention.
+        </>
+      }
       unreadNotificationsCount={newReportsCount}
       actions={
-        <div className="flex items-center gap-2">
-          <Link href="/admin/notifications">
-            <Button variant="outline" size="sm" className="h-10 rounded-lg">
-              <Bell size={16} /> Notifications
-            </Button>
+        <div className="flex flex-wrap items-center gap-3">
+          {unassignedCount > 0 && (
+            <Link href="/admin/reports?assigned=unassigned" className="flex items-center gap-2 rounded-xl bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-100 transition-colors">
+              <AlertCircle size={18} /> {unassignedCount} Unassigned
+            </Link>
+          )}
+          {newReportsCount > 0 && (
+            <Link href="/admin/notifications" className="flex items-center gap-2 rounded-xl bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700 hover:bg-orange-100 transition-colors">
+              <Bell size={18} /> {newReportsCount} New Alerts
+            </Link>
+          )}
+          <Link href="/admin/messages" className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-colors ${unreadMessagesCount > 0 ? 'bg-blue-50 text-blue-700 hover:bg-blue-100' : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 shadow-sm'}`}>
+            <MessageSquare size={18} /> Messages {unreadMessagesCount > 0 && `(${unreadMessagesCount})`}
           </Link>
-          <Link href="/admin/reports">
-            <Button size="sm" className="h-10 rounded-lg">
-              <Plus size={16} /> Open Cases
-            </Button>
-          </Link>
+          {unassignedCount === 0 && newReportsCount === 0 && unreadMessagesCount === 0 && (
+            <Link href="/admin/reports?status=RECEIVED&sort=newest" className="flex items-center gap-2 rounded-xl bg-white border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 shadow-sm transition-colors">
+              View Recent Cases <ArrowRight size={16} />
+            </Link>
+          )}
         </div>
       }
     >
       <section className="space-y-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-2xl bg-white p-6 md:p-8 shadow-sm border border-gray-200">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 tracking-tight mb-1">
-              Welcome back, {session.user.name?.split(' ')[0] || 'Admin'} 👋
-            </h1>
-            <p className="text-gray-500 text-sm">
-              Here's what's happening today. You have <strong className="text-navy">{activeCases} active cases</strong> requiring your attention.
-            </p>
-          </div>
-          
-          <div className="flex flex-wrap items-center gap-3">
-            {unassignedCount > 0 && (
-              <Link href="/admin/reports?assigned=unassigned" className="flex items-center gap-2 rounded-xl bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-700 hover:bg-red-100 transition-colors">
-                <AlertCircle size={18} /> {unassignedCount} Unassigned
-              </Link>
-            )}
-            {newReportsCount > 0 && (
-              <Link href="/admin/notifications" className="flex items-center gap-2 rounded-xl bg-orange-50 px-4 py-2.5 text-sm font-semibold text-orange-700 hover:bg-orange-100 transition-colors">
-                <Bell size={18} /> {newReportsCount} New Alerts
-              </Link>
-            )}
-            {unassignedCount === 0 && newReportsCount === 0 && (
-              <Link href="/admin/reports?status=RECEIVED&sort=newest" className="flex items-center gap-2 rounded-xl bg-gray-50 px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-100 transition-colors">
-                View Recent Cases <ArrowRight size={16} />
-              </Link>
-            )}
-          </div>
-        </div>
-
         <AdminStatCards 
           totalReports={totalReports}
           activeCases={activeCases}

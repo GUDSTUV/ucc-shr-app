@@ -18,13 +18,27 @@ export default async function RootLayout({
 }>) {
   const session = await auth()
   const user = session?.user ? { name: session.user.name, role: session.user.role } : null
+  
+  let unreadReportsCount = 0
+  
+  if (session?.user) {
+    const { isAdminRole } = await import('@/src/lib/auth/roles')
+    if (!isAdminRole(session.user.role)) {
+      const { getUserNotifications } = await import('@/src/lib/notification-service')
+      const counts = await getUserNotifications(session.user.id, session.user.email ?? null)
+      unreadReportsCount = counts.unreadCount
+    }
+  }
 
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="bg-gray-50 text-gray-900" suppressHydrationWarning>
         <Toaster position="top-center" />
         <Suspense fallback={null}>
-          <Navbar user={user} />
+          <Navbar 
+            user={user} 
+            unreadReportsCount={unreadReportsCount} 
+          />
         </Suspense>
         <main className="min-h-screen pb-20 md:pb-0">{children}</main>
         <Suspense fallback={null}>

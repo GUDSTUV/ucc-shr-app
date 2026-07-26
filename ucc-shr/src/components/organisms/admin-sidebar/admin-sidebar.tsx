@@ -1,5 +1,5 @@
 'use client'
-import { LayoutDashboard, FileText, CalendarDays, Flag, BellRing, UserCircle2, Settings, BarChart3, Users, Image as ImageIcon, Globe, ScrollText } from 'lucide-react'
+import { LayoutDashboard, FileText, CalendarDays, Flag, BellRing, UserCircle2, Settings, BarChart3, Users, Image as ImageIcon, Globe, ScrollText, MessageSquare } from 'lucide-react'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { signOut } from 'next-auth/react'
@@ -35,10 +35,11 @@ const accountItems = [
 
 type AdminSidebarProps = {
   unreadNotificationsCount?: number
+  unreadMessagesCount?: number
   userRole?: string
 }
 
-export function AdminSidebar({ unreadNotificationsCount, userRole = 'ADMIN' }: AdminSidebarProps) {
+export function AdminSidebar({ unreadNotificationsCount, unreadMessagesCount, userRole = 'ADMIN' }: AdminSidebarProps) {
   const pathname = usePathname()
   const isSuperAdmin = userRole === 'SUPER_ADMIN'
 
@@ -84,7 +85,11 @@ export function AdminSidebar({ unreadNotificationsCount, userRole = 'ADMIN' }: A
             <NavItem
               key={item.href}
               {...item}
-              badgeCount={item.href === '/admin/notifications' ? unreadNotificationsCount : undefined}
+              badgeCount={
+                item.href === '/admin/notifications' ? unreadNotificationsCount 
+                : item.href === '/admin/messages' ? unreadMessagesCount 
+                : undefined
+              }
               active={
                 item.href === '/admin'
                   ? pathname === '/admin'

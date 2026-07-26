@@ -113,6 +113,7 @@ export default async function AdminReportDetailsPage({ params }: PageProps) {
     prisma.report.findUnique({
       where: { code: reportCode },
       select: {
+        id: true,
         code: true,
         status: true,
         type: true,
@@ -133,6 +134,9 @@ export default async function AdminReportDetailsPage({ params }: PageProps) {
   ])
 
   if (!report) notFound()
+
+  const { markAllReportNotificationsAsRead } = await import('@/src/lib/notification-service')
+  await markAllReportNotificationsAsRead(currentUserId, currentUserRole, report.id)
 
   const notes = parseReportNotes(report.notes)
   const updates = Array.isArray(notes.adminUpdates) ? notes.adminUpdates : []
@@ -452,7 +456,7 @@ export default async function AdminReportDetailsPage({ params }: PageProps) {
           </section>
 
           {/* Update History */}
-          <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] print:mt-6">
+          <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] print:hidden">
             <h3 className="text-base font-semibold uppercase tracking-[0.08em] text-gray-700">Update History</h3>
             {updates.length > 0 ? (
               <ul className="mt-3 space-y-3 print:space-y-4">

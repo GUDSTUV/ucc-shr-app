@@ -55,7 +55,7 @@ export function ReportEmailForm({ reportCode, reporterEmail }: ReportEmailFormPr
   }
 
   return (
-    <div className="mt-4 rounded-xl border border-gray-200 bg-white p-4">
+    <div className="mt-4 rounded-xl border border-gray-200 bg-white p-4 print:hidden">
       {!isOpen ? (
         <div className="flex items-center justify-between">
           <div>

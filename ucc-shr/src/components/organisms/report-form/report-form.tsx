@@ -31,17 +31,17 @@ const RELATIONSHIP_OPTIONS = ['Lecturer', 'Supervisor', 'Peer / Classmate', 'Col
 const STEP_INDICATOR_LABELS = ['Incident', 'Involved', 'Contact', 'Review']
 
 const STEP_TITLES = [
-  'What happened?',
+  'Incident Details',
   'Who was involved?',
-  'How to reach you',
+  'Contact Information',
   'Review & Submit',
 ]
 
 const STEP_SUBTITLES = [
-  'Start by telling us a bit about yourself, then describe the incident.',
-  'Help us understand who was involved.',
-  'Let us know how CEGRAD can contact you.',
-  'Review everything carefully before submitting. You can edit any section.',
+  'Please provide your details and describe the nature of the incident.',
+  'Provide identifying details for the respondent(s) and any potential witnesses, if known.',
+  'Provide your preferred contact details for official follow-up by the CEGRAD team.',
+  'Verify the accuracy of your report before final submission. All information is strictly confidential.',
 ]
 
 export function ReportForm({ initialContact = '' }: ReportFormProps) {
@@ -88,6 +88,10 @@ export function ReportForm({ initialContact = '' }: ReportFormProps) {
 
   // Step 3 — How to reach you
   const [phoneValue, setPhoneValue] = useState('')
+
+  // Step 4 — Consent
+  const [consentAccuracy, setConsentAccuracy] = useState(false)
+  const [consentConfidentiality, setConsentConfidentiality] = useState(false)
 
   const addWitness = () => {
     const value = witness.trim()
@@ -198,7 +202,7 @@ export function ReportForm({ initialContact = '' }: ReportFormProps) {
           </Heading>
           <Text size="sm" tone="muted" className="mt-3 max-w-sm leading-relaxed">
             Your report has been securely received by CEGRAD. A member of the team will
-            reach out to you. You can also track the status from your Dashboard.
+            reach out to you. You can also track the status from your Reports page.
           </Text>
           <div className="mt-4 flex items-start gap-2 rounded-lg bg-navy-light/50 px-4 py-3 text-left text-sm text-navy">
             <Shield size={16} className="mt-0.5 shrink-0" />
@@ -206,41 +210,12 @@ export function ReportForm({ initialContact = '' }: ReportFormProps) {
           </div>
         </div>
 
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <Button
-            type="button"
-            variant="outline"
-            className="flex-1"
-            onClick={() => {
-              setSubmittedCode(null)
-              setStep(1)
-              setTypeValue('')
-              setDescriptionValue('')
-              setIncidentDate('')
-              setLocationValue('')
-              setFullName('')
-              setGender('')
-              setUserType('')
-              setStudentId('')
-              setDepartment('')
-              setRespondentName('')
-              setRespondentPosition('')
-              setRespondentDepartment('')
-              setRespondentRelationship('')
-              setOffenderDescription('')
-              setWitnesses([])
-              setPriorReported(null)
-              setPriorReportWhere('')
-              setPhoneValue('')
-            }}
-          >
-            Submit Another
-          </Button>
+        <div className="flex flex-col gap-3">
           <a
             href="/user/userReports"
-            className="flex flex-1 items-center justify-center rounded-xl bg-navy px-4 py-3 text-sm font-semibold text-white transition hover:bg-navy-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2"
+            className="flex w-full items-center justify-center rounded-xl bg-navy px-4 py-3 text-sm font-semibold text-white transition hover:bg-navy-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2"
           >
-            Go to Dashboard
+            Go to Reports
           </a>
         </div>
       </div>
@@ -659,14 +634,40 @@ export function ReportForm({ initialContact = '' }: ReportFormProps) {
             </ReviewSection>
 
             {/* Declaration */}
-            <div className="rounded-xl bg-gray-50 px-5 py-4 space-y-2">
+            <div className="rounded-xl bg-gray-50 px-5 py-4 space-y-4">
               <Text as="p" size="sm" tone="muted" weight="semibold" className="text-gray-700">
                 By submitting this report, you confirm that:
               </Text>
-              <ul className="list-inside list-disc space-y-1 text-xs text-gray-500">
-                <li>The information you have provided is accurate and truthful to the best of your knowledge.</li>
-                <li>Your identity will be kept confidential, except where disclosure is required as part of the investigation process.</li>
-              </ul>
+              
+              <div className="space-y-3">
+                <label className="flex items-start gap-3 cursor-pointer group">
+                  <div className="pt-0.5">
+                    <input 
+                      type="checkbox" 
+                      className="h-4 w-4 rounded border-gray-300 text-navy focus:ring-navy cursor-pointer transition"
+                      checked={consentAccuracy}
+                      onChange={(e) => setConsentAccuracy(e.target.checked)}
+                    />
+                  </div>
+                  <span className="text-xs text-gray-600 group-hover:text-gray-900 transition-colors leading-relaxed">
+                    The information you have provided is accurate and truthful to the best of your knowledge.
+                  </span>
+                </label>
+
+                <label className="flex items-start gap-3 cursor-pointer group">
+                  <div className="pt-0.5">
+                    <input 
+                      type="checkbox" 
+                      className="h-4 w-4 rounded border-gray-300 text-navy focus:ring-navy cursor-pointer transition"
+                      checked={consentConfidentiality}
+                      onChange={(e) => setConsentConfidentiality(e.target.checked)}
+                    />
+                  </div>
+                  <span className="text-xs text-gray-600 group-hover:text-gray-900 transition-colors leading-relaxed">
+                    Your identity will be kept confidential, except where disclosure is required as part of the investigation process.
+                  </span>
+                </label>
+              </div>
             </div>
 
           </div>
@@ -698,8 +699,8 @@ export function ReportForm({ initialContact = '' }: ReportFormProps) {
             <Button
               key="submit-btn"
               type="button"
-              variant="report"
-              disabled={!submitReady}
+              variant="primary"
+              disabled={!submitReady || !consentAccuracy || !consentConfidentiality}
               loading={submitting}
               onClick={handleSubmit}
               className="flex-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2 transition-all"

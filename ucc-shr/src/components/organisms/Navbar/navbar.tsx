@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Flag, LogIn, Bell, UserCircle2, ChevronDown, LogOut, LayoutDashboard, FileText, Bookmark, Lock, Menu, X, BookText, HelpCircle } from 'lucide-react'
+import { Flag, LogIn, Bell, UserCircle2, ChevronDown, LogOut, LayoutDashboard, FileText, Bookmark, Lock, Menu, X, BookText, HelpCircle, MessageSquare } from 'lucide-react'
 import { Text } from '@/src/components/atoms/text'
 import { Button } from '@/src/components/atoms/button'
 import { signOut } from 'next-auth/react'
@@ -17,6 +17,7 @@ type UserInfo = {
 
 interface NavbarProps {
   user?: UserInfo | null
+  unreadReportsCount?: number
 }
 
 const navLinks = [
@@ -26,7 +27,7 @@ const navLinks = [
   { href: '/help', label: 'Help', exact: false },
 ]
 
-export function Navbar({ user }: NavbarProps) {
+export function Navbar({ user, unreadReportsCount = 0 }: NavbarProps) {
   const path = usePathname()
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -119,6 +120,9 @@ export function Navbar({ user }: NavbarProps) {
                 aria-label="Notifications"
               >
                 <Bell size={18} />
+                {unreadReportsCount > 0 && (
+                  <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white" />
+                )}
               </Link>
 
               <div className="relative" ref={dropdownRef}>
@@ -192,7 +196,7 @@ export function Navbar({ user }: NavbarProps) {
             </Link>
           )}
 
-          {!isUserSection && !path.startsWith('/report') && (
+          {!path.startsWith('/report') && (
             <Link
               href="/report"
               className="inline-flex h-12 items-center border-navy border-lg gap-2 rounded-md  px-4 text-[15px] font-medium text-navy shadow-sm shadow-navy/25 transition"
@@ -208,9 +212,12 @@ export function Navbar({ user }: NavbarProps) {
           {user && (
             <Link
               href="/user/notifications"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100"
+              className="relative inline-flex h-10 w-10 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100"
             >
               <Bell size={20} />
+              {unreadReportsCount > 0 && (
+                <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white" />
+              )}
             </Link>
           )}
           <Button

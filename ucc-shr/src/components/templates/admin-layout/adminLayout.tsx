@@ -2,12 +2,13 @@ import { auth } from '@/src/lib/auth/auth'
 import { AdminSidebar } from '@/src/components/organisms/admin-sidebar'
 import { Heading } from '@/src/components/atoms/heading/heading'
 import { Text } from '@/src/components/atoms/text/text'
+import { getAdminNotifications } from '@/src/lib/notification-service'
 
 interface AdminLayoutProps {
   title:    string
-  description?: string
+  description?: React.ReactNode
   children: React.ReactNode
-  unreadNotificationsCount?: number
+  unreadNotificationsCount?: number // Keeping prop for backwards compatibility but we will override it
   actions?: React.ReactNode
 }
 
@@ -15,11 +16,14 @@ export async function AdminLayout({
   title,
   description,
   children,
-  unreadNotificationsCount,
+  unreadNotificationsCount: _unused, // Ignored
   actions,
 }: AdminLayoutProps) {
   const session = await auth()
   const userRole = session?.user?.role as string | undefined
+  const userId = session?.user?.id ?? ''
+
+  const { unreadReportsCount, unreadMessagesCount } = await getAdminNotifications(userId, userRole ?? '')
 
   return (
     <div className="flex min-h-dvh bg-gray-50 font-sans text-[15px] text-gray-900">
@@ -30,7 +34,11 @@ export async function AdminLayout({
         Skip to main content
       </a>
 
-      <AdminSidebar unreadNotificationsCount={unreadNotificationsCount} userRole={userRole} />
+      <AdminSidebar 
+        unreadNotificationsCount={unreadReportsCount} 
+        unreadMessagesCount={unreadMessagesCount}
+        userRole={userRole} 
+      />
 
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto flex min-h-dvh w-full max-w-310 flex-col px-4 py-5 sm:px-6 lg:px-8">

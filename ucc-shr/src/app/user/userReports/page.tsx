@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { auth } from '@/src/lib/auth/auth'
 import { prisma } from '@/src/lib/prisma'
 import { belongsToUser } from '@/src/lib/auth/report-access'
+import { getUnreadMessageCountsByReport } from '@/src/lib/notification-service'
 
 export default async function UserReportsPage() {
   const session = await auth()
@@ -20,6 +21,7 @@ export default async function UserReportsPage() {
       type: true,
       status: true,
       createdAt: true,
+      id: true,
       notes: true,
     },
   })
@@ -28,11 +30,15 @@ export default async function UserReportsPage() {
     belongsToUser(report.notes, session.user.id, session.user.email ?? null)
   )
 
+  const reportIds = userReports.map((r) => r.id)
+  const unreadMessageCounts = await getUnreadMessageCountsByReport(session.user.id, 'USER', reportIds)
+
   return (
     <UserReports
       reports={userReports.map((report) => ({
         ...report,
         createdAt: report.createdAt.toISOString(),
+        unreadMessageCount: unreadMessageCounts[report.id] || 0,
       }))}
     />
   )

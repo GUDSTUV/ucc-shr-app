@@ -38,11 +38,6 @@ export default async function AdminAnalyticsPage() {
     reportStatusCounts,
     reportsInWindow,
     reportTypeCounts,
-    articlesTotal,
-    articlesPublished,
-    eventsTotal,
-    eventsPublished,
-    upcomingEvents,
   ] = await Promise.all([
     prisma.report.groupBy({ by: ['status'], _count: { status: true } }),
     prisma.report.findMany({
@@ -51,14 +46,10 @@ export default async function AdminAnalyticsPage() {
         createdAt: true,
         updatedAt: true,
         status: true,
+        notes: true,
       },
     }),
     prisma.report.groupBy({ by: ['type'], _count: { type: true } }),
-    prisma.article.count(),
-    prisma.article.count({ where: { published: true } }),
-    prisma.event.count(),
-    prisma.event.count({ where: { published: true } }),
-    prisma.event.count({ where: { startDate: { gte: now }, published: true } }),
   ])
 
   const statusCountMap = reportStatusCounts.reduce<
@@ -145,6 +136,86 @@ export default async function AdminAnalyticsPage() {
       ? 100
       : 0
 
+  // ─── Analytics Aggregations from Notes ───
+  let totalDemographics = 0
+  let studentComplainants = 0
+  let staffComplainants = 0
+  let externalComplainants = 0
+
+  let totalGender = 0
+  let maleComplainants = 0
+  let femaleComplainants = 0
+
+  let priorReportedCount = 0
+
+  const respondentPositionCounts: Record<string, number> = {}
+  const respondentRelationshipCounts: Record<string, number> = {}
+  const complainantDeptCounts: Record<string, number> = {}
+  const respondentDeptCounts: Record<string, number> = {}
+
+  for (const report of reportsInWindow) {
+    if (!report.notes) continue
+    try {
+      const notes = JSON.parse(report.notes)
+
+      // Demographics
+      if (notes.complainantUserType) {
+        totalDemographics++
+        const ut = notes.complainantUserType.toLowerCase()
+        if (ut.includes('student')) studentComplainants++
+        else if (ut.includes('staff')) staffComplainants++
+        else externalComplainants++
+      }
+
+      if (notes.complainantGender) {
+        totalGender++
+        const g = notes.complainantGender.toLowerCase()
+        if (g === 'male') maleComplainants++
+        else if (g === 'female') femaleComplainants++
+      }
+
+      if (notes.complainantDepartment) {
+        const dept = notes.complainantDepartment
+        complainantDeptCounts[dept] = (complainantDeptCounts[dept] || 0) + 1
+      }
+
+      // Power Dynamics & Respondent
+      if (notes.respondentPosition) {
+        const pos = notes.respondentPosition
+        respondentPositionCounts[pos] = (respondentPositionCounts[pos] || 0) + 1
+      }
+
+      if (notes.respondentRelationship) {
+        const rel = notes.respondentRelationship
+        respondentRelationshipCounts[rel] = (respondentRelationshipCounts[rel] || 0) + 1
+      }
+
+      if (notes.respondentDepartment) {
+        const dept = notes.respondentDepartment
+        respondentDeptCounts[dept] = (respondentDeptCounts[dept] || 0) + 1
+      }
+
+      // Prior Reports
+      if (notes.priorReport?.reported) {
+        priorReportedCount++
+      }
+    } catch (e) {
+      // Ignore JSON parse errors
+    }
+  }
+
+  const formatTop5 = (counts: Record<string, number>) => {
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([label, value]) => ({ label, value }))
+  }
+
+  const topRespondentPositions = formatTop5(respondentPositionCounts)
+  const topRespondentRelationships = formatTop5(respondentRelationshipCounts)
+  const topComplainantDepts = formatTop5(complainantDeptCounts)
+  const topRespondentDepts = formatTop5(respondentDeptCounts)
+
   const statusRows = [
     { label: 'Received', count: receivedReports, variant: 'navy' as const },
     { label: 'Reviewing', count: reviewingReports, variant: 'warning' as const },
@@ -155,7 +226,7 @@ export default async function AdminAnalyticsPage() {
   return (
     <AdminLayout
       title="Analytics"
-      description="Track operational patterns, case response velocity, and content activity for institutional decisions."
+      description="Analyze incident trends and reporting demographics."
       actions={
         <div className="flex gap-2">
           <a href="/api/admin/export" download className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border-[1.5px] border-navy px-4 text-sm font-semibold text-navy transition-all hover:bg-navy-light active:scale-[0.97]">
@@ -237,26 +308,6 @@ export default async function AdminAnalyticsPage() {
               ))}
             </div>
           </article>
-
-          <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-            <h2 className="text-lg font-semibold text-gray-900">Content Operations</h2>
-            <p className="mt-1 text-base text-gray-700">Publication status for awareness content and events.</p>
-
-            <dl className="mt-4 space-y-3 text-sm">
-              <div className="rounded-xl border border-gray-200 bg-gray-50 p-3">
-                <dt className="font-medium text-gray-700">Published articles</dt>
-                <dd className="mt-1 text-xl font-semibold text-gray-900">{articlesPublished} / {articlesTotal}</dd>
-              </div>
-              <div className="rounded-xl border border-gray-200 bg-gray-50 p-3">
-                <dt className="font-medium text-gray-700">Published events</dt>
-                <dd className="mt-1 text-xl font-semibold text-gray-900">{eventsPublished} / {eventsTotal}</dd>
-              </div>
-              <div className="rounded-xl border border-gray-200 bg-gray-50 p-3">
-                <dt className="font-medium text-gray-700">Upcoming published events</dt>
-                <dd className="mt-1 text-xl font-semibold text-gray-900">{upcomingEvents}</dd>
-              </div>
-            </dl>
-          </article>
         </div>
 
         <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
@@ -286,27 +337,121 @@ export default async function AdminAnalyticsPage() {
           )}
         </article>
 
-        <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-          <div className="flex items-start gap-3">
-            <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-navy-light text-navy">
-              <FileBarChart size={17} />
-            </span>
-            <div>
-              <h2 className="text-base font-semibold text-gray-900">Institutional Readiness Note</h2>
-              <p className="mt-1 text-base leading-relaxed text-gray-700">
-                Analytics supports governance and planning, but should be interpreted alongside policy and safeguarding context.
-              </p>
-              <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
-                <span className="inline-flex items-center gap-1 rounded-full bg-navy-light px-2.5 py-1 font-semibold text-navy">
-                  <ShieldCheck size={13} /> Confidential
-                </span>
-                <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-1 font-semibold text-gray-700">
-                  <Clock3 size={13} /> Updated in real time
-                </span>
+        {/* ─── NEW: Demographics ─── */}
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+          <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+            <h2 className="text-lg font-semibold text-gray-900">Complainant Demographics</h2>
+            <p className="mt-1 text-sm text-gray-700">Breakdown of who is reporting harassment.</p>
+            <div className="mt-4 space-y-3">
+              <div className="rounded-xl border border-gray-200 bg-gray-50 p-3 flex justify-between items-center">
+                <dt className="font-medium text-gray-700">Students</dt>
+                <dd className="text-lg font-semibold text-gray-900">{studentComplainants}</dd>
               </div>
+              <div className="rounded-xl border border-gray-200 bg-gray-50 p-3 flex justify-between items-center">
+                <dt className="font-medium text-gray-700">Staff</dt>
+                <dd className="text-lg font-semibold text-gray-900">{staffComplainants}</dd>
+              </div>
+              <div className="rounded-xl border border-gray-200 bg-gray-50 p-3 flex justify-between items-center">
+                <dt className="font-medium text-gray-700">External / Other</dt>
+                <dd className="text-lg font-semibold text-gray-900">{externalComplainants}</dd>
+              </div>
+            </div>
+          </article>
+
+          <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+            <h2 className="text-lg font-semibold text-gray-900">Gender & Escalation</h2>
+            <p className="mt-1 text-sm text-gray-700">Gender distribution and prior reporting rates.</p>
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <div className="rounded-xl border border-gray-200 bg-gray-50 p-3">
+                <dt className="font-medium text-gray-700">Female Victims</dt>
+                <dd className="mt-1 text-xl font-semibold text-gray-900">{femaleComplainants}</dd>
+              </div>
+              <div className="rounded-xl border border-gray-200 bg-gray-50 p-3">
+                <dt className="font-medium text-gray-700">Male Victims</dt>
+                <dd className="mt-1 text-xl font-semibold text-gray-900">{maleComplainants}</dd>
+              </div>
+              <div className="col-span-2 rounded-xl border border-warning bg-warning/10 p-3 mt-2 flex items-center justify-between">
+                <div>
+                  <dt className="font-bold text-gray-900">Prior Reports</dt>
+                  <dd className="text-xs text-gray-700">Cases reported elsewhere before CEGRAD</dd>
+                </div>
+                <dd className="text-2xl font-black text-warning-dark">{priorReportedCount}</dd>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        {/* ─── NEW: Power Dynamics ─── */}
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+          <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+            <h2 className="text-lg font-semibold text-gray-900">Offender Profiles</h2>
+            <p className="mt-1 text-sm text-gray-700">Top roles of reported respondents.</p>
+            {topRespondentPositions.length > 0 ? (
+              <div className="mt-4 space-y-3">
+                {topRespondentPositions.map((entry) => (
+                  <div key={entry.label} className="flex justify-between items-center py-1 border-b border-gray-100 last:border-0">
+                    <span className="text-gray-800 font-medium">{entry.label}</span>
+                    <Badge variant="gray">{entry.value}</Badge>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="mt-3 text-sm text-gray-500 italic">No data available.</p>
+            )}
+          </article>
+
+          <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+            <h2 className="text-lg font-semibold text-gray-900">Relationship to Victim</h2>
+            <p className="mt-1 text-sm text-gray-700">Power dynamics (e.g. Supervisor vs Peer).</p>
+            {topRespondentRelationships.length > 0 ? (
+              <div className="mt-4 space-y-3">
+                {topRespondentRelationships.map((entry) => (
+                  <div key={entry.label} className="flex justify-between items-center py-1 border-b border-gray-100 last:border-0">
+                    <span className="text-gray-800 font-medium">{entry.label}</span>
+                    <Badge variant="gray">{entry.value}</Badge>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="mt-3 text-sm text-gray-500 italic">No data available.</p>
+            )}
+          </article>
+        </div>
+
+        {/* ─── NEW: Departmental Hotspots ─── */}
+        <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+          <h2 className="text-lg font-semibold text-gray-900">Departmental Hotspots</h2>
+          <p className="mt-1 text-sm text-gray-700">Which departments have the most complainants and respondents?</p>
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+              <h3 className="font-semibold text-navy mb-3">Top Complainant Departments</h3>
+              {topComplainantDepts.length > 0 ? (
+                <ul className="space-y-2">
+                  {topComplainantDepts.map((entry) => (
+                    <li key={entry.label} className="flex justify-between text-sm">
+                      <span className="text-gray-700 truncate pr-2">{entry.label}</span>
+                      <span className="font-semibold">{entry.value}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : <p className="text-sm text-gray-500 italic">No data.</p>}
+            </div>
+            <div>
+              <h3 className="font-semibold text-red-600 mb-3">Top Offender Departments</h3>
+              {topRespondentDepts.length > 0 ? (
+                <ul className="space-y-2">
+                  {topRespondentDepts.map((entry) => (
+                    <li key={entry.label} className="flex justify-between text-sm">
+                      <span className="text-gray-700 truncate pr-2">{entry.label}</span>
+                      <span className="font-semibold">{entry.value}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : <p className="text-sm text-gray-500 italic">No data.</p>}
             </div>
           </div>
         </article>
+
       </section>
     </AdminLayout>
   )

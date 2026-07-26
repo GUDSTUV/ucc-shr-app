@@ -6,6 +6,8 @@ import { requireAdmin } from '@/src/lib/auth/guards'
 import { isCaseOfficerRole } from '@/src/lib/auth/roles'
 import { prisma } from '@/src/lib/prisma'
 import { parseReportNotes } from '@/src/lib/auth/report-access'
+import { getUnreadMessageCountsByReport } from '@/src/lib/notification-service'
+import { MessageSquare } from 'lucide-react'
 import { ReportFilters } from './report-filters'
 import { ReportTabs } from './report-tabs'
 
@@ -42,6 +44,7 @@ function statusMeta(status: 'RECEIVED' | 'UNDER_REVIEW' | 'UNDER_INVESTIGATION' 
 
 function sortReports(
   reports: Array<{
+    id: string
     code: string
     createdAt: Date
     updatedAt: Date
@@ -118,6 +121,7 @@ export default async function AdminReportsPage({ searchParams }: PageProps) {
       status: true,
       type: true,
       notes: true,
+      id: true,
     },
   })
 
@@ -126,6 +130,7 @@ export default async function AdminReportsPage({ searchParams }: PageProps) {
       const notes = parseReportNotes(report.notes)
       const counsellorId = notes.counsellorId ?? notes.investigatorId ?? null
       return {
+        id: report.id,
         code: report.code,
         createdAt: report.createdAt,
         updatedAt: report.updatedAt,
@@ -150,6 +155,9 @@ export default async function AdminReportsPage({ searchParams }: PageProps) {
   })
 
   const reports = sortReports(filtered, sortBy)
+
+  const reportIds = reports.map((r) => r.id)
+  const unreadCounts = await getUnreadMessageCountsByReport(session.user.id, 'ADMIN', reportIds)
 
   const isMyCasesPage = assignedFilter === 'me'
 
@@ -195,7 +203,17 @@ export default async function AdminReportsPage({ searchParams }: PageProps) {
               {reports.map((report) => (
                 <tr key={report.code} className="border-t border-gray-100 text-[15px] text-gray-800">
                   <td className="px-4 py-5">
-                    <p className="font-semibold text-gray-900">{report.code}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-semibold text-gray-900">{report.code}</p>
+                      {unreadCounts[report.id] > 0 && (
+                        <div className="relative inline-flex items-center justify-center text-red-500" title={`${unreadCounts[report.id]} unread messages`}>
+                          <MessageSquare size={16} className="fill-red-50" />
+                          <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white ring-1 ring-white">
+                            {unreadCounts[report.id]}
+                          </span>
+                        </div>
+                      )}
+                    </div>
                     <p className="text-sm text-gray-700">{formatSubmittedAt(report.createdAt)}</p>
                   </td>
                   <td className="px-4 py-5">
