@@ -1,9 +1,16 @@
-import NextAuth from "next-auth"
+import NextAuth, { CredentialsSignin } from "next-auth"
 import Google from "next-auth/providers/google"
 import Credentials from "next-auth/providers/credentials"
 import { prisma } from "@/src/lib/prisma"
 import bcrypt from "bcryptjs"
 import { isAdminRole } from "@/src/lib/auth/roles"
+
+class CustomAuthError extends CredentialsSignin {
+  constructor(msg: string) {
+    super()
+    this.code = msg
+  }
+}
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
@@ -54,16 +61,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return null
         }
 
+        if (user.role === 'SUSPENDED') {
+          throw new CustomAuthError('Your account has been suspended by a Super Admin.')
+        }
+
         if (portal === 'admin' && !isAdminRole(user.role)) {
-          throw new Error('Access denied. Admin privileges required.')
+          throw new CustomAuthError('Access denied. Admin privileges required.')
         }
 
         if (portal === 'user' && isAdminRole(user.role)) {
-          throw new Error('Admins must use the Admin Console to log in.')
-        }
-
-        if (user.role === 'SUSPENDED') {
-          return null
+          throw new CustomAuthError('Admins must use the Admin Console to log in.')
         }
 
         await prisma.user.update({
