@@ -1,9 +1,50 @@
-import { Resend } from 'resend'
+/**
+ * Email service using Brevo Transactional Email API
+ * Docs: https://developers.brevo.com/reference/sendtransacemail
+ *
+ * Required env vars:
+ *  BREVO_API_KEY  — your API key from Brevo → Settings → SMTP & API → API Keys (starts with xkeysib-)
+ *  EMAIL_FROM_NAME  — sender display name (e.g. "CEGRAD UCC")
+ *  EMAIL_FROM_ADDRESS — verified sender email in Brevo (e.g. "noreply.apptest2004@gmail.com")
+ */
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email'
 
-const FROM_ADDRESS = process.env.EMAIL_FROM ?? 'UCC SHR <noreply@ucc-shr.edu.gh>'
+const FROM_NAME = process.env.EMAIL_FROM_NAME ?? 'UCC SHR'
+const FROM_ADDRESS = process.env.EMAIL_FROM_ADDRESS ?? 'noreply.apptest2004@gmail.com'
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
+
+async function sendBrevoEmail(to: string, subject: string, htmlContent: string) {
+  const apiKey = process.env.BREVO_API_KEY
+
+  if (!apiKey) {
+    throw new Error('BREVO_API_KEY is not set in environment variables')
+  }
+
+  const payload = {
+    sender: { name: FROM_NAME, email: FROM_ADDRESS },
+    to: [{ email: to }],
+    subject,
+    htmlContent,
+  }
+
+  const response = await fetch(BREVO_API_URL, {
+    method: 'POST',
+    headers: {
+      accept: 'application/json',
+      'api-key': apiKey,
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  })
+
+  if (!response.ok) {
+    const errorBody = await response.text()
+    throw new Error(`Brevo API error ${response.status}: ${errorBody}`)
+  }
+
+  return response.json()
+}
 
 function wrapInTemplate(contentHtml: string) {
   return `
@@ -17,8 +58,8 @@ function wrapInTemplate(contentHtml: string) {
         <table width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08);">
           <!-- Header -->
           <tr>
-            <td style="background:#00695C;padding:28px 40px;text-align:center;">
-              <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;letter-spacing:.5px;">UCC Sexual Harassment Reporter</h1>
+            <td style="background:#263875;padding:28px 40px;text-align:center;">
+              <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;letter-spacing:.5px;">UCC Sexual Harassment Reporting</h1>
             </td>
           </tr>
           <!-- Body -->
@@ -54,7 +95,7 @@ export async function sendVerificationEmail(to: string, name: string, token: str
     </p>
     <div style="text-align:center;margin:28px 0;">
       <a href="${verifyUrl}"
-         style="display:inline-block;background:#00695C;color:#ffffff;font-size:15px;font-weight:600;
+         style="display:inline-block;background:#263875;color:#ffffff;font-size:15px;font-weight:600;
                 text-decoration:none;padding:14px 36px;border-radius:8px;">
         Verify Email Address
       </a>
@@ -62,23 +103,13 @@ export async function sendVerificationEmail(to: string, name: string, token: str
     <p style="margin:0 0 8px;font-size:13px;color:#6b7280;line-height:1.5;">
       Or copy and paste this link into your browser:
     </p>
-    <p style="margin:0 0 24px;font-size:12px;color:#00695C;word-break:break-all;">${verifyUrl}</p>
+    <p style="margin:0 0 24px;font-size:12px;color:#263875;word-break:break-all;">${verifyUrl}</p>
     <p style="margin:0;font-size:13px;color:#9ca3af;">This link expires in <strong>24 hours</strong>. If you did not create an account, you can safely ignore this email.</p>
   `
 
-  await resend.emails.send({
-    from: FROM_ADDRESS,
-    to,
-    subject: 'Verify your UCC SHR account',
-    html: wrapInTemplate(contentHtml),
-  })
+  await sendBrevoEmail(to, 'Verify your UCC SHR account', wrapInTemplate(contentHtml))
 }
 
 export async function sendDirectEmail(to: string, subject: string, html: string) {
-  await resend.emails.send({
-    from: FROM_ADDRESS,
-    to,
-    subject,
-    html: wrapInTemplate(html),
-  })
+  await sendBrevoEmail(to, subject, wrapInTemplate(html))
 }

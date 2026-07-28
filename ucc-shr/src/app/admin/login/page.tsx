@@ -4,7 +4,8 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import { Suspense, useState, useEffect } from 'react'
 import { signOut, signIn } from 'next-auth/react'
 import Link from 'next/link'
-import { FormLayout } from '@/src/components/templates/form-layout'
+import { Eye, EyeOff } from 'lucide-react'
+import { AuthLayout } from '@/src/components/templates/auth-layout'
 import { FormField } from '@/src/components/molecules/form-field'
 import { Input } from '@/src/components/atoms/input'
 import { Button } from '@/src/components/atoms/button'
@@ -16,6 +17,7 @@ function AdminLoginContent() {
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
@@ -48,7 +50,6 @@ function AdminLoginContent() {
       })
 
       if (result?.error) {
-        // NextAuth returns 'CredentialsSignin' when authorize returns null
         if (result.error === 'CredentialsSignin') {
           setError('Invalid admin credentials')
         } else {
@@ -67,38 +68,56 @@ function AdminLoginContent() {
   }
 
   return (
-    <FormLayout title="Admin Login">
-      <AlertBox title="Restricted access" variant="info">
-        Sign in with a SUPER_ADMIN account to access the admin dashboard.
-      </AlertBox>
+    <AuthLayout hideBackButton>
+      <div className="mb-6 space-y-1 text-center">
+        <h2 className="text-2xl font-bold text-navy">Admin Portal</h2>
+        <p className="text-sm text-gray-500">
+          Sign in to your admin account.
+        </p>
+      </div>
 
-      {error ? (
-        <AlertBox title="Login failed" variant="danger">
-          {error}
-        </AlertBox>
-      ) : null}
+      {error && (
+        <div className="mt-4">
+          <AlertBox title="Login failed" variant="danger">
+            {error}
+          </AlertBox>
+        </div>
+      )}
 
-      <form onSubmit={handleSubmit} className="space-y-4 rounded-xl border border-gray-100 bg-white p-4">
-        <FormField label="Admin Email">
+      <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+        <FormField label="Admin Email" required>
           <Input
             type="email"
-            placeholder="you@stu.ucc.edu.gh"
+            placeholder="admin@ucc.edu.gh"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             required
             disabled={isLoading}
+            autoComplete="email"
           />
         </FormField>
 
-        <FormField label="Password">
-          <Input
-            type="password"
-            placeholder="Enter your password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            required
-            disabled={isLoading}
-          />
+        <FormField label="Password" required>
+          <div className="relative">
+            <Input
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Enter your password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              required
+              disabled={isLoading}
+              autoComplete="current-password"
+              className="pr-11"
+            />
+            <button
+              type="button"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy rounded"
+              onClick={() => setShowPassword(!showPassword)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
         </FormField>
 
         <Button type="submit" fullWidth disabled={isLoading}>
@@ -106,12 +125,12 @@ function AdminLoginContent() {
         </Button>
       </form>
 
-      <div className="flex flex-wrap items-center gap-3 text-[13px] font-medium">
-        <Link href="/admin/signup" className="text-navy underline underline-offset-2">
+      <div className="mt-6 flex flex-wrap items-center justify-center gap-3 text-[13px] font-medium">
+        <Link href="/admin/signup" className="text-navy hover:text-navy-dark transition-colors underline underline-offset-2">
           Need to set up an admin account?
         </Link>
       </div>
-    </FormLayout>
+    </AuthLayout>
   )
 }
 
@@ -121,4 +140,4 @@ export default function AdminLoginPage() {
       <AdminLoginContent />
     </Suspense>
   )
-}
+}

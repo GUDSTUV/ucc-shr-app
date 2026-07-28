@@ -83,20 +83,10 @@ export async function POST(request: NextRequest) {
       console.error('Failed to send verification email:', emailError)
     }
 
-    // In development mode, print the verification link to the console
-    const verifyUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/auth/verify-email?token=${verifyToken}`
-    if (process.env.NODE_ENV === 'development') {
-      console.log('\n--- DEVELOPMENT MODE ---')
-      console.log(`Verification link for ${normalizedEmail}:`)
-      console.log(verifyUrl)
-      console.log('------------------------\n')
-    }
-
     return NextResponse.json(
       {
         message: 'Account created successfully. Please check your email to verify your account.',
         user,
-        ...(process.env.NODE_ENV === 'development' && { devVerifyUrl: verifyUrl })
       },
       { status: 201 }
     )

@@ -35,17 +35,8 @@ export async function POST(request: NextRequest) {
       console.error('Failed to send verification email:', emailError)
     }
 
-    const verifyUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/auth/verify-email?token=${verifyToken}`
-    if (process.env.NODE_ENV === 'development') {
-      console.log('\n--- DEVELOPMENT MODE ---')
-      console.log(`Resent verification link for ${user.email}:`)
-      console.log(verifyUrl)
-      console.log('------------------------\n')
-    }
-
     return NextResponse.json({ 
-      message: 'If that email is registered and unverified, a new link has been sent.',
-      ...(process.env.NODE_ENV === 'development' && { devVerifyUrl: verifyUrl })
+      message: 'If that email is registered and unverified, a new link has been sent.'
     })
   } catch (error) {
     console.error('Resend verification error:', error)
