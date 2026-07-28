@@ -12,8 +12,9 @@ const coreValues = [
 
 export function AboutMission() {
   return (
-    <section className="bg-navy-light/10 py-16 lg:py-20">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+    <>
+      <section className="bg-navy-light/10 py-16 lg:py-20">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto">
           <div className="grid gap-8 md:grid-cols-2">
             {/* Mission Card */}
@@ -40,30 +41,33 @@ export function AboutMission() {
               </Text>
             </div>
           </div>
+        </div>
+        </div>
+      </section>
 
-          {/* Core Values */}
-          <div className="mt-12 rounded-3xl bg-navy px-8 py-12 text-white sm:px-12 lg:py-16">
-            <div className="text-center">
-              <Text as="span" size="xs" weight="semibold" tone="white" className="uppercase tracking-widest opacity-70">Guiding Principles</Text>
-              <Heading as="h2" size={{ base: '3xl', lg: '4xl' }} weight="semibold" tone="white" className="mt-2">Our Core Values</Heading>
-            </div>
-            <div className="mt-10 flex flex-wrap justify-center gap-6">
-              {coreValues.map((value, i) => (
-                <div
-                  key={i}
-                  className="flex w-full max-w-[320px] items-start gap-4 rounded-xl bg-white/10 p-5 backdrop-blur-md transition hover:bg-white/20 sm:w-auto"
-                >
-                  <div className="mt-1 flex-shrink-0 rounded-full bg-white/20 p-2">
-                    {value.icon}
-                  </div>
-                  <Text size="sm" weight="medium" tone="white" className="leading-relaxed">{value.text}</Text>
+      {/* Core Values Section */}
+      <section className="bg-navy py-16 lg:py-24">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="text-center">
+            <Text as="span" size="xs" weight="semibold" tone="white" className="uppercase tracking-widest opacity-70">Guiding Principles</Text>
+            <Heading as="h2" size={{ base: '3xl', lg: '4xl' }} weight="semibold" tone="white" className="mt-2">Our Core Values</Heading>
+          </div>
+          <div className="mt-10 flex flex-wrap justify-center gap-6">
+            {coreValues.map((value, i) => (
+              <div
+                key={i}
+                className="flex w-full max-w-[320px] items-start gap-4 rounded-xl bg-white/10 p-5 backdrop-blur-md transition hover:bg-white/20 sm:w-auto"
+              >
+                <div className="mt-1 flex-shrink-0 rounded-full bg-white/20 p-2">
+                  {value.icon}
                 </div>
-              ))}
-            </div>
+                <Text size="sm" weight="medium" tone="white" className="leading-relaxed">{value.text}</Text>
+              </div>
+            ))}
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   )
 }
 

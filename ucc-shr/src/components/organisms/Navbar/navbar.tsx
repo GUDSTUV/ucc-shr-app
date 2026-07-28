@@ -199,9 +199,10 @@ export function Navbar({ user, unreadReportsCount = 0 }: NavbarProps) {
           {!path.startsWith('/report') && (
             <Link
               href="/report"
-              className="inline-flex h-12 items-center border-navy border-lg gap-2 rounded-md  px-4 text-[15px] font-medium text-navy shadow-sm shadow-navy/25 transition"
+              className="inline-flex h-12 items-center gap-2 rounded-md border border-navy/20 px-4 text-[15px] font-medium text-navy transition hover:bg-navy-light"
+              aria-label="Report Harassment"
             >
-              <Flag size={14} />
+              <Flag size={16} />
               Report Harassment
             </Link>
           )}

@@ -29,7 +29,7 @@ export function AboutHero({ customImages }: { customImages?: CarouselImage[] }) 
   }, [])
 
   return (
-    <section className="relative min-h-[80vh] sm:min-h-[600px] w-full overflow-hidden bg-navy text-white flex flex-col justify-center">
+    <section className="relative min-h-[100dvh] sm:min-h-[600px] w-full overflow-hidden bg-navy text-white flex flex-col justify-center">
       {/* Background Images */}
       <AnimatePresence mode="wait">
         <motion.img
