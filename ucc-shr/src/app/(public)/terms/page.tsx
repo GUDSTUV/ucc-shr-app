@@ -1,6 +1,5 @@
-import { Footer } from '@/src/components/organisms/Footer'
-import { Heading } from '@/src/components/atoms/heading/heading'
 import { Text } from '@/src/components/atoms/text/text'
+import { Heading } from '@/src/components/atoms/heading/heading'
 
 export default function TermsOfServicePage() {
   return (
@@ -57,7 +56,6 @@ export default function TermsOfServicePage() {
           </div>
         </div>
       </div>
-      <Footer />
     </>
   )
 }

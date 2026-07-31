@@ -169,17 +169,7 @@ model Message {
   @@index([reportId, createdAt])
 }
 
-/// Anonymous support story submitted after case closure.
-/// Only approved stories (approved = true) are shown publicly.
-/// No identifying information is stored — no name, no case code.
-model SupportStory {
-  id        String   @id @default(cuid())
-  message   String
-  approved  Boolean  @default(false)
-  createdAt DateTime @default(now())
 
-  @@index([approved, createdAt])
-}
 
 /// Generic key-value store for dynamic frontend content (Hero text, FAQs, Contacts, Footer)
 model SiteContent {

@@ -1,7 +1,7 @@
+export const revalidate = 3600;
 import { prisma } from '@/src/lib/prisma'
 import { auth } from '@/src/lib/auth/auth'
 import dynamic from 'next/dynamic'
-import { Footer } from '@/src/components/organisms/Footer'
 import { AnimatedCounter } from '@/src/components/molecules/animated-counter/animated-counter'
 import { FadeIn, FadeInStagger, FadeInItem } from '@/src/components/atoms/fade-in'
 import Link from 'next/link'
@@ -137,8 +137,6 @@ export default async function HubPage() {
 					</div>
 				</section>
 			</div>
-
-			<Footer />
 		</>
 	)
 }

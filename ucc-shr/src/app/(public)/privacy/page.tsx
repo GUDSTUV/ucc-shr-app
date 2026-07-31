@@ -1,4 +1,3 @@
-import { Footer } from '@/src/components/organisms/Footer'
 import { Metadata } from 'next'
 import { Heading } from '@/src/components/atoms/heading/heading'
 import { Text } from '@/src/components/atoms/text/text'
@@ -65,7 +64,6 @@ export default function PrivacyPolicyPage() {
           </div>
         </div>
       </div>
-      <Footer />
     </>
   )
 }

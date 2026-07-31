@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Play, X } from 'lucide-react'
+import Image from 'next/image'
 import { Text } from '@/src/components/atoms/text/text'
 
 interface CampaignVideoPlayerProps {
@@ -33,7 +34,12 @@ export function CampaignVideoPlayer({ videoUrl }: CampaignVideoPlayerProps) {
         {/* Background Thumbnail Preview */}
         {hasVideo && (
           isYouTube ? (
-            <img src={`https://i.ytimg.com/vi/${youtubeId}/maxresdefault.jpg`} alt="Video Thumbnail" className="absolute inset-0 h-full w-full object-cover opacity-50 transition-transform duration-700 group-hover:scale-105" />
+            <Image 
+              src={`https://i.ytimg.com/vi/${youtubeId}/maxresdefault.jpg`} 
+              alt="Video Thumbnail" 
+              fill
+              className="object-cover opacity-50 transition-transform duration-700 group-hover:scale-105" 
+            />
           ) : (
             <video src={videoUrl as string} className="absolute inset-0 h-full w-full object-cover opacity-50 transition-transform duration-700 group-hover:scale-105" />
           )

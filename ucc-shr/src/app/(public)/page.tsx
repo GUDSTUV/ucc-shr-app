@@ -1,3 +1,5 @@
+export const revalidate = 3600;
+
 import dynamic from 'next/dynamic'
 
 import { HeroSection } from '@/src/components/organisms/hero-section'
@@ -9,7 +11,6 @@ const AwarenessPreviewSection = dynamic(() => import('@/src/components/organisms
 const EventsCampaignSection = dynamic(() => import('@/src/components/organisms/events-campaign/events-campaign').then(mod => mod.EventsCampaignSection))
 const FaqSection = dynamic(() => import('@/src/components/organisms/faq-section').then(mod => mod.FaqSection))
 const ContactSection = dynamic(() => import('@/src/components/organisms/contact-section').then(mod => mod.ContactSection))
-const Footer = dynamic(() => import('@/src/components/organisms/Footer').then(mod => mod.Footer))
 
 export default async function HomePage() {
   let activeBanners: Array<{ id: string; imageUrl: string; title: string; linkUrl: string | null }> = []
@@ -60,10 +61,8 @@ export default async function HomePage() {
       <ReportingProcessSection />
       <AwarenessPreviewSection />
       <EventsCampaignSection />
-      {/* <SurvivorSupportStories showSubmissionForm={false} /> */}
       <FaqSection featuredOnly={true} customFaqs={customFaqs} />
       <ContactSection />
-      <Footer />
     </>
   )
 }

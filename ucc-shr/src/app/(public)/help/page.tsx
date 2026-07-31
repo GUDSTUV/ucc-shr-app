@@ -1,5 +1,4 @@
 import { HelpClient } from "./help-client"
-import { Footer } from "@/src/components/organisms/Footer"
 import { prisma } from '@/src/lib/prisma'
 import { Metadata } from "next"
 
@@ -34,9 +33,6 @@ export default async function HelpPage() {
       <HelpClient 
         customFaqs={customFaqs} 
       />
-      <Footer />
     </>
   )
 }
-
-

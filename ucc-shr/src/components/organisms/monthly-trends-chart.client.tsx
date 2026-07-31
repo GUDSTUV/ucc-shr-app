@@ -10,17 +10,8 @@ const MonthlyTrendsChart = dynamic(
   }
 )
 
-type TrendBar = {
-  key: string
-  label: string
-  count: number
-  height: number
-}
+import { MonthlyTrendsChartProps } from '@/src/components/organisms/monthly-trends-chart/monthly-trends-chart'
 
-type Props = {
-  trendBars: TrendBar[]
-}
-
-export default function MonthlyTrendsChartClient({ trendBars }: Props) {
+export default function MonthlyTrendsChartClient({ trendBars }: MonthlyTrendsChartProps) {
   return <MonthlyTrendsChart trendBars={trendBars} />
 }

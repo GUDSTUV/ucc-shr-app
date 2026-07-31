@@ -7,7 +7,7 @@ import { X } from 'lucide-react'
 import { Heading } from '@/src/components/atoms/heading/heading'
 import { Text } from '@/src/components/atoms/text/text'
 import { FadeIn } from '@/src/components/atoms/fade-in'
-import { harassmentTypes } from '@/src/app/hub/constants'
+import { harassmentTypes } from '@/src/app/(public)/hub/constants'
 
 type HarassmentType = typeof harassmentTypes[0]
 

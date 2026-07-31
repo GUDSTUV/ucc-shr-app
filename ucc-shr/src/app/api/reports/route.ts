@@ -1,149 +1,100 @@
-import { randomBytes } from 'crypto'
+import { z } from 'zod'
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/src/lib/prisma'
 import { auth } from '@/src/lib/auth/auth'
 import { logActivity } from '@/src/lib/audit'
+import { generateUniqueTrackingCode } from '@/src/lib/tracking-code'
 
-type CreateReportPayload = {
-  type?: string
-  location?: string
-  contact?: string
-  phone?: string
-  description?: string
-  isAnonymous?: boolean
-  witnesses?: string[]
-  incidentDate?: string
-  offenderDescription?: string
-  priorReport?: { reported: boolean; where?: string }
-  confidentialityRequested?: boolean
-  complainantName?: string
-  complainantGender?: string
-  complainantUserType?: string
-  complainantStudentId?: string
-  complainantDepartment?: string
-  respondentName?: string
-  respondentPosition?: string
-  respondentDepartment?: string
-  respondentRelationship?: string
-}
+const ALLOWED_REPORT_TYPES = ['verbal', 'physical', 'online', 'quid_pro_quo', 'other'] as const
 
-const ALLOWED_REPORT_TYPES = new Set([
-  'verbal',
-  'physical',
-  'online',
-  'quid_pro_quo',
-  'other',
-])
-
-function buildTrackingCode() {
-  const year = new Date().getFullYear()
-  const token = randomBytes(2).toString('hex').toUpperCase()
-  return `UCC-${year}-${token}`
-}
-
-async function generateUniqueTrackingCode() {
-  for (let i = 0; i < 8; i += 1) {
-    const candidate = buildTrackingCode()
-    const exists = await prisma.report.findUnique({
-      where: { code: candidate },
-      select: { id: true },
-    })
-    if (!exists) return candidate
-  }
-  const fallback = randomBytes(3).toString('hex').toUpperCase()
-  return `UCC-${new Date().getFullYear()}-${fallback}`
-}
+const createReportSchema = z.object({
+  type: z.enum(ALLOWED_REPORT_TYPES, { error: 'Invalid report type.' }),
+  location: z.string().trim().max(180).optional().nullable(),
+  contact: z.string().trim().optional().nullable(),
+  phone: z.string().trim().optional().nullable(),
+  description: z.string().trim().min(1, 'Description is required.').max(4000, 'Description is too long.'),
+  isAnonymous: z.boolean().optional(),
+  witnesses: z.array(z.string().trim().min(1)).optional(),
+  incidentDate: z.coerce.date().optional().nullable(),
+  offenderDescription: z.string().trim().max(1000).optional().nullable(),
+  priorReport: z.object({
+    reported: z.boolean(),
+    where: z.string().trim().max(300).optional().nullable()
+  }).optional().nullable(),
+  confidentialityRequested: z.boolean().optional(),
+  complainantName: z.string().trim().optional().nullable(),
+  complainantGender: z.string().trim().optional().nullable(),
+  complainantUserType: z.string().trim().optional().nullable(),
+  complainantStudentId: z.string().trim().optional().nullable(),
+  complainantDepartment: z.string().trim().optional().nullable(),
+  respondentName: z.string().trim().optional().nullable(),
+  respondentPosition: z.string().trim().optional().nullable(),
+  respondentDepartment: z.string().trim().optional().nullable(),
+  respondentRelationship: z.string().trim().optional().nullable(),
+})
 
 export async function POST(request: NextRequest) {
   try {
     const session = await auth()
-    const payload = (await request.json()) as CreateReportPayload
-
-    const type = payload.type?.trim().toLowerCase()
-    const description = payload.description?.trim()
-
-    if (!type || !description) {
+    const json = await request.json()
+    
+    const parseResult = createReportSchema.safeParse(json)
+    if (!parseResult.success) {
       return NextResponse.json(
-        { ok: false, error: 'Type and description are required.' },
+        { ok: false, error: parseResult.error.issues[0]?.message || 'Invalid input' },
         { status: 400 }
       )
     }
 
-    const contact = payload.contact?.trim()
-    const phone = payload.phone?.trim() || null
+    const payload = parseResult.data
+
     const reporterId = session?.user?.id ?? null
     const reporterEmail = session?.user?.email?.toLowerCase() ?? null
+    const contact = payload.contact || null
+    const normalizedContact = contact?.toLowerCase() ?? null
 
-    if (!contact && !reporterEmail) {
+    if (!normalizedContact && !reporterEmail) {
       return NextResponse.json(
         { ok: false, error: 'A contact email is required.' },
         { status: 400 }
       )
     }
 
-    if (!ALLOWED_REPORT_TYPES.has(type)) {
-      return NextResponse.json(
-        { ok: false, error: 'Invalid report type.' },
-        { status: 400 }
-      )
-    }
-
-    if (description.length > 4000) {
-      return NextResponse.json(
-        { ok: false, error: 'Description is too long.' },
-        { status: 400 }
-      )
-    }
-
     const code = await generateUniqueTrackingCode()
+    const type = payload.type
+    const description = payload.description
 
-    const normalizedContact = contact?.toLowerCase() ?? null
-    const witnesses = Array.isArray(payload.witnesses)
-      ? payload.witnesses.map((item) => item.trim()).filter(Boolean)
-      : []
-
-    const incidentDate = payload.incidentDate ? new Date(payload.incidentDate) : null
-
-    // Sanitise the offender description
-    const offenderDescription = payload.offenderDescription?.trim().slice(0, 1000) || null
-
-    // Sanitise prior report
-    const priorReport = payload.priorReport
-      ? {
-          reported: Boolean(payload.priorReport.reported),
-          where: payload.priorReport.where?.trim().slice(0, 300) || null,
-        }
-      : null
-
+    const incidentDate = payload.incidentDate ? new Date(payload.incidentDate) : new Date()
     const confidentialityRequested = Boolean(payload.confidentialityRequested)
+    const witnesses = payload.witnesses?.slice(0, 10) || []
 
     const report = await prisma.report.create({
       data: {
         code,
         type,
         description,
-        location: payload.location?.trim().slice(0, 180) || null,
-        date: incidentDate ?? new Date(),
+        location: payload.location || null,
+        date: incidentDate,
         isAnonymous: confidentialityRequested,
         files: [],
         notes: JSON.stringify({
           reporterId,
           reporterEmail,
           contact: normalizedContact,
-          phone,
+          phone: payload.phone || null,
           confidentialityRequested,
-          offenderDescription,
-          priorReport,
-          witnesses: witnesses.slice(0, 10),
-          complainantName: payload.complainantName?.trim() || null,
-          complainantGender: payload.complainantGender?.trim() || null,
-          complainantUserType: payload.complainantUserType?.trim() || null,
-          complainantStudentId: payload.complainantStudentId?.trim() || null,
-          complainantDepartment: payload.complainantDepartment?.trim() || null,
-          respondentName: payload.respondentName?.trim() || null,
-          respondentPosition: payload.respondentPosition?.trim() || null,
-          respondentDepartment: payload.respondentDepartment?.trim() || null,
-          respondentRelationship: payload.respondentRelationship?.trim() || null,
+          offenderDescription: payload.offenderDescription || null,
+          priorReport: payload.priorReport || null,
+          witnesses,
+          complainantName: payload.complainantName || null,
+          complainantGender: payload.complainantGender || null,
+          complainantUserType: payload.complainantUserType || null,
+          complainantStudentId: payload.complainantStudentId || null,
+          complainantDepartment: payload.complainantDepartment || null,
+          respondentName: payload.respondentName || null,
+          respondentPosition: payload.respondentPosition || null,
+          respondentDepartment: payload.respondentDepartment || null,
+          respondentRelationship: payload.respondentRelationship || null,
         }),
       },
       select: { id: true, code: true },
