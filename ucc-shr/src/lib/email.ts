@@ -14,18 +14,28 @@ const FROM_NAME = process.env.EMAIL_FROM_NAME ?? 'UCC SHR'
 const FROM_ADDRESS = process.env.EMAIL_FROM_ADDRESS ?? 'noreply.apptest2004@gmail.com'
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
 
-async function sendBrevoEmail(to: string, subject: string, htmlContent: string) {
+async function sendBrevoEmail(
+  to: string,
+  subject: string,
+  htmlContent: string,
+  replyTo?: { email: string; name?: string },
+  senderName?: string
+) {
   const apiKey = process.env.BREVO_API_KEY
 
   if (!apiKey) {
     throw new Error('BREVO_API_KEY is not set in environment variables')
   }
 
-  const payload = {
-    sender: { name: FROM_NAME, email: FROM_ADDRESS },
+  const payload: any = {
+    sender: { name: senderName ?? FROM_NAME, email: FROM_ADDRESS },
     to: [{ email: to }],
     subject,
     htmlContent,
+  }
+
+  if (replyTo) {
+    payload.replyTo = replyTo
   }
 
   const response = await fetch(BREVO_API_URL, {
@@ -110,6 +120,12 @@ export async function sendVerificationEmail(to: string, name: string, token: str
   await sendBrevoEmail(to, 'Verify your UCC SHR account', wrapInTemplate(contentHtml))
 }
 
-export async function sendDirectEmail(to: string, subject: string, html: string) {
-  await sendBrevoEmail(to, subject, wrapInTemplate(html))
+export async function sendDirectEmail(
+  to: string,
+  subject: string,
+  html: string,
+  replyTo?: { email: string; name?: string },
+  senderName?: string
+) {
+  await sendBrevoEmail(to, subject, wrapInTemplate(html), replyTo, senderName)
 }

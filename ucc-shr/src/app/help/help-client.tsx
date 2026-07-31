@@ -6,9 +6,8 @@ import { Mail, Phone, MapPin, PhoneForwarded, X } from "lucide-react"
 import { Button } from '@/src/components/atoms/button'
 import { Heading } from '@/src/components/atoms/heading'
 import { Text } from '@/src/components/atoms/text'
-import { Input } from '@/src/components/atoms/input/input'
-import { Textarea } from '@/src/components/atoms/textarea/textarea'
 import { FadeIn } from '@/src/components/atoms/fade-in'
+import { ContactForm } from '@/src/components/organisms/contact-form'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { CheckCircle2 } from 'lucide-react'
@@ -19,18 +18,8 @@ type HelpClientProps = {
 
 export function HelpClient({ customFaqs }: HelpClientProps) {
   const [isGalleryOpen, setIsGalleryOpen] = useState(false)
-  const [contactStatus, setContactStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle')
 
   const tollFreeNumber = '0800-100-114'
-
-  const handleContactSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setContactStatus('sending')
-    setTimeout(() => {
-      setContactStatus('success')
-      setTimeout(() => setContactStatus('idle'), 3000)
-    }, 1500)
-  }
 
   return (
     <>
@@ -185,53 +174,7 @@ export function HelpClient({ customFaqs }: HelpClientProps) {
 
               {/* Right column — inline contact form */}
               <FadeIn delay={0.15} className="w-full lg:col-span-7 lg:max-w-lg lg:justify-self-end">
-                {contactStatus === 'success' ? (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="flex flex-col items-center rounded-2xl bg-white/5 py-16 text-center backdrop-blur-sm"
-                  >
-                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-500/20 text-green-300">
-                      <CheckCircle2 size={32} />
-                    </div>
-                    <Heading as="h3" size="xl" weight="semibold" tone="white" className="mt-4">Message Sent</Heading>
-                    <Text tone="white" className="mt-2 opacity-70">
-                      Thank you for reaching out. A CEGRAD representative will review your message and get back to you shortly.
-                    </Text>
-                  </motion.div>
-                ) : (
-                  <form onSubmit={handleContactSubmit} className="space-y-4 p-1">
-                    <div>
-                      <Text as="label" htmlFor="contact-name" size="sm" weight="regular" tone="white" className="mb-1 block opacity-80">
-                        Name <span className="text-red-300">*</span>
-                      </Text>
-                      <Input type="text" id="contact-name" required placeholder="Your name" className="text-navy placeholder:text-gray-500" />
-                    </div>
-                    <div>
-                      <Text as="label" htmlFor="contact-email" size="sm" weight="regular" tone="white" className="mb-1 block opacity-80">
-                        Email Address <span className="text-red-300">*</span>
-                      </Text>
-                      <Input type="email" id="contact-email" required placeholder="you@example.com" className="text-navy placeholder:text-gray-500" />
-                    </div>
-                    <div>
-                      <Text as="label" htmlFor="contact-phone" size="sm" weight="regular" tone="white" className="mb-1 block opacity-80">
-                        Phone Number (Optional)
-                      </Text>
-                      <Input type="tel" id="contact-phone" placeholder="e.g., 020 123 4567" className="text-navy placeholder:text-gray-500" />
-                    </div>
-                    <div>
-                      <Text as="label" htmlFor="contact-message" size="sm" weight="regular" tone="white" className="mb-1 block opacity-80">
-                        Message <span className="text-red-300">*</span>
-                      </Text>
-                      <Textarea id="contact-message" required rows={5} placeholder="How can we help you?" className="text-navy placeholder:text-gray-500" />
-                    </div>
-                    <div className="pt-2">
-                      <Button type="submit" variant="report" size="md" loading={contactStatus === 'sending'} className="min-w-40 font-normal">
-                        {contactStatus === 'sending' ? 'Sending…' : 'Send Message'}
-                      </Button>
-                    </div>
-                  </form>
-                )}
+                <ContactForm />
               </FadeIn>
             </div>
           </div>

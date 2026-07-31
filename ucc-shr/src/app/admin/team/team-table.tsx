@@ -32,7 +32,8 @@ export function TeamTable({ admins, currentUserId }: TeamTableProps) {
     setError('')
     setSuccess('')
 
-    const formData = new FormData(e.currentTarget)
+    const form = e.currentTarget
+    const formData = new FormData(form)
     const email = formData.get('email') as string
 
     const res = await createAdminAccount(formData)
@@ -41,7 +42,7 @@ export function TeamTable({ admins, currentUserId }: TeamTableProps) {
       setError(res.error)
     } else {
       setSuccess(`Account for ${email} has been created successfully.`)
-      e.currentTarget.reset()
+      form.reset()
     }
     setLoading(false)
   }
