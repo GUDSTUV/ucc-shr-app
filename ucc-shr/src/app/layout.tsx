@@ -1,10 +1,18 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
+import { Poppins } from 'next/font/google'
 import './globals.css'
 import { BottomNav } from '@/src/components/organisms/bottom-nav'
 import { Navbar } from '@/src/components/organisms/Navbar'
 import { auth } from '@/src/lib/auth/auth'
 import { Toaster } from 'react-hot-toast'
+
+const poppins = Poppins({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700', '800'],
+  variable: '--font-sans',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   title: 'CEGRAD UCC',
@@ -31,8 +39,8 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className="bg-gray-50 text-gray-900" suppressHydrationWarning>
+    <html lang="en" className={poppins.variable} suppressHydrationWarning>
+      <body className="bg-gray-50 text-gray-900 font-sans" suppressHydrationWarning>
         <Toaster position="top-center" />
         <Suspense fallback={null}>
           <Navbar 

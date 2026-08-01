@@ -1,3 +1,4 @@
+export const revalidate = 3600;
 import { PublicLayout } from '@/src/components/templates/public-layout'
 import { prisma } from '@/src/lib/prisma'
 import { auth } from '@/src/lib/auth/auth'

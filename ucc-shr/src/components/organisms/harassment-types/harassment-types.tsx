@@ -19,7 +19,7 @@ export function HarassmentTypesSection() {
     <section id="awareness" className="bg-gray-50 py-16 lg:py-24 overflow-hidden relative">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-stretch">
-          
+
           {/* Left Column */}
           <FadeIn>
             <Text as="span" size="xs" weight="medium" tone="navy" className="uppercase tracking-widest">
@@ -58,19 +58,18 @@ export function HarassmentTypesSection() {
             </div>
           </FadeIn>
 
-          {/* Right Column (Illustration) */}
-          <FadeIn delay={0.2} className="relative w-full h-full min-h-[400px] lg:min-h-0">
-            <div className="absolute inset-0 w-full h-full mix-blend-multiply overflow-hidden">
-               <Image 
-                 src="/images/awareness/harassment_illustration.png" 
-                 alt="Illustration representing support and conversation" 
-                 fill 
-                 className="object-cover" 
-                 priority
-               />
-            </div>
+          {/* Right Column (Campus Photo) */}
+          <FadeIn delay={0.2} className="relative w-full h-full min-h-[320px] sm:min-h-[380px] lg:min-h-0 overflow-hidden">
+            <Image
+              src="/images/awareness/aw3.png"
+              alt="UCC students studying and discussing together in the campus library"
+              fill
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              className="object-cover"
+              priority
+            />
           </FadeIn>
-          
+
         </div>
       </div>
 
@@ -86,7 +85,7 @@ export function HarassmentTypesSection() {
               onClick={() => setSelectedType(null)}
               className="absolute inset-0 bg-navy/40 backdrop-blur-sm"
             />
-            
+
             {/* Modal Content */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -105,11 +104,11 @@ export function HarassmentTypesSection() {
               <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-xl bg-navy-light text-navy">
                 <selectedType.Icon size={24} />
               </div>
-              
+
               <Heading as="h3" size={{ base: 'xl', lg: '2xl' }} tone="navy" weight="semibold" className="mb-3">
                 {selectedType.title}
               </Heading>
-              
+
               <Text size="base" tone="muted" className="mb-6 leading-relaxed">
                 {selectedType.description}
               </Text>

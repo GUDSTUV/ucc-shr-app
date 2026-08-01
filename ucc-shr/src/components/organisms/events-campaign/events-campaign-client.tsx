@@ -80,6 +80,10 @@ export function EventsCampaignClient({ items: initialItems, isAuthenticated }: {
     }
   }
 
+  if (!items || items.length === 0) {
+    return null
+  }
+
   return (
     <section className="bg-gray-50 py-16 lg:py-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">

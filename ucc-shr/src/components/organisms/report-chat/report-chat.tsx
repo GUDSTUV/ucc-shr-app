@@ -204,7 +204,7 @@ export function ReportChat({ reportCode, isAssignedCounsellor = false }: ReportC
             </div>
             <Text as="p" size="sm" weight="medium" className="text-gray-700">No messages yet</Text>
             <Text as="p" size="xs" tone="muted" className="mt-1 max-w-[200px]">
-              This is a secure channel between the reporter and the assigned counsellor.
+              This is a secure channel between the reporter and the assigned case officer.
             </Text>
           </div>
         ) : (

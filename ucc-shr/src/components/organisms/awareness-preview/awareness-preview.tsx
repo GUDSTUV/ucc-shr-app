@@ -85,7 +85,7 @@ export function AwarenessPreviewSection() {
             className="relative overflow-hidden lg:col-span-5"
           >
             <Image
-              src="/images/awareness/Gemini_Generated_Image_eo2i06eo2i06eo2i.png"
+              src="/images/awareness/aw2.png"
               alt="Students walking on UCC campus"
               fill
               sizes="(max-width: 1024px) 100vw, 42vw"

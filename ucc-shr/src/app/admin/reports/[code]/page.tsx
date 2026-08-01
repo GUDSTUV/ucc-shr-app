@@ -269,7 +269,7 @@ export default async function AdminReportDetailsPage({ params }: PageProps) {
               )}
 
               <div className="md:col-span-2 pt-4 mt-2 border-t border-gray-100">
-                <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Assigned Investigator</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Assigned Case Officer</p>
                 <p className="mt-1 text-base text-gray-900">{assignedCounsellor || 'Unassigned'}</p>
               </div>
 

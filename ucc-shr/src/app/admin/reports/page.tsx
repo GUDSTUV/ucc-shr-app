@@ -195,7 +195,7 @@ export default async function AdminReportsPage({ searchParams }: PageProps) {
                 <th className="px-4 py-4 font-semibold">Report ID</th>
                 <th className="px-4 py-4 font-semibold">Status</th>
                 <th className="px-4 py-4 font-semibold">Category</th>
-                <th className="px-4 py-4 font-semibold">Counsellor</th>
+                <th className="px-4 py-4 font-semibold">Case Officer</th>
                 <th className="px-4 py-4 font-semibold">Actions</th>
               </tr>
             </thead>

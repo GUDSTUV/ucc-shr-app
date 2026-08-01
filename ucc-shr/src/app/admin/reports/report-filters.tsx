@@ -60,7 +60,7 @@ export function ReportFilters({
             pushFilters({ q: nextValue })
           }, 250)
         }}
-        placeholder="Search report ID, category, status, or counsellor"
+        placeholder="Search report ID, category, status, or case officer"
         className="h-11 text-base"
         aria-label="Search reports"
       />

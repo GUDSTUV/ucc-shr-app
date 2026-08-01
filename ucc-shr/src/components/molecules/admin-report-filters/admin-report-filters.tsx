@@ -64,7 +64,7 @@ export function AdminReportFilters() {
         name="recentQ"
         value={recentQInput}
         onChange={(event) => setRecentQInput(event.target.value)}
-        placeholder="Filter by report ID, category, status, or counsellor"
+        placeholder="Filter by report ID, category, status, or case officer"
         className="h-11 border-gray-300 bg-white text-base text-gray-900"
       />
 

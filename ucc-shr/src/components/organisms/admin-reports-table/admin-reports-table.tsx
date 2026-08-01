@@ -107,7 +107,7 @@ export function AdminReportsTable({
               <SortHeader column="category" label="Category" />
             </th>
             <th className="px-4 py-4">
-              <SortHeader column="counsellor" label="Counsellor" />
+              <SortHeader column="Case Officer" label="Case Officer" />
             </th>
             <th className="px-4 py-4 font-semibold">Actions</th>
           </tr>

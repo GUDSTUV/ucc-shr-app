@@ -27,17 +27,23 @@ const nextConfig: NextConfig = {
     ],
   },
   images: {
+    formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 2592000, // 30 days image caching
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'i.ytimg.com',
+        pathname: '/**',
       },
       {
         protocol: 'https',
         hostname: 'res.cloudinary.com',
+        pathname: '/**',
       },
     ],
   },
+  compress: true,
+  poweredByHeader: false,
 }
 
 export default nextConfig;

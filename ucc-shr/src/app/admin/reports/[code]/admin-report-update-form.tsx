@@ -105,10 +105,10 @@ export function AdminReportUpdateForm({
   return (
     <div className="space-y-4">
       <form onSubmit={handleSubmit} className="space-y-5 rounded-xl border border-gray-200 bg-white p-5">
-        {/* Assign Investigator — Super Admin only */}
+        {/* Assign Case Officer — Super Admin only */}
         {isSuperAdmin && (
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.08em] text-gray-700">Assign Investigator</p>
+            <p className="text-sm font-semibold uppercase tracking-[0.08em] text-gray-700">Assign Case Officer</p>
             <Select value={counsellorId} onChange={(e) => setCounsellorId(e.target.value)} className="mt-2 h-11 text-base">
               <option value="">Unassigned</option>
               {counsellors.map((c) => (

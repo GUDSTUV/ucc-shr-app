@@ -137,5 +137,10 @@ export async function EventsCampaignSection() {
   items.sort((a, b) => b.sortAt - a.sortAt)
   const topItems = items.slice(0, 6)
 
+  // Do not show the section unless there is at least one published event or article card
+  if (topItems.length === 0) {
+    return null
+  }
+
   return <EventsCampaignClient items={topItems} isAuthenticated={!!session?.user} />
 }
