@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
 
   const contentPayload = summary ? `${summary}\n\n${content}` : content
   const coverImage =
-    coverImageRaw.startsWith('/uploads/') || coverImageRaw.startsWith('/icons/')
+    coverImageRaw.startsWith('/uploads/') || coverImageRaw.startsWith('/icons/') || coverImageRaw.startsWith('http://') || coverImageRaw.startsWith('https://')
       ? coverImageRaw
       : DEFAULT_ARTICLE_IMAGE
 

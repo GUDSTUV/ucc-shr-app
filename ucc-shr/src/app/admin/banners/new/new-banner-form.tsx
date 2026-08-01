@@ -61,8 +61,9 @@ export function NewBannerForm() {
       throw new Error('No file returned from upload.')
     }
 
-    const [kind, pathOnly] = uploadedFiles[0].split(':')
-    if (!pathOnly.startsWith('/uploads/')) {
+    const rawPath = String(uploadedFiles[0])
+    const pathOnly = rawPath.includes(':') ? rawPath.split(':').slice(1).join(':') : rawPath
+    if (!pathOnly.startsWith('/uploads/') && !pathOnly.startsWith('http://') && !pathOnly.startsWith('https://')) {
       throw new Error('Unexpected file path from upload.')
     }
 

@@ -42,7 +42,7 @@ export async function HomeEventsPreview() {
     <section className="mt-6 space-y-2">
       <div className="flex items-center justify-between">
         <Text as="h2" size="base" weight="bold" tone="navy">Upcoming Events</Text>
-        <Link href="/events" className="text-xs font-semibold text-gray-500 hover:text-navy">
+        <Link href="/hub" className="text-xs font-semibold text-gray-500 hover:text-navy">
           View all
         </Link>
       </div>

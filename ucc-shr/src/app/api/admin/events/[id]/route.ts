@@ -62,7 +62,7 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
   let image = existing.image || DEFAULT_EVENT_IMAGE
   if (hasImageField) {
     const imageRaw = typeof body?.image === 'string' ? body.image.trim() : ''
-    image = imageRaw.startsWith('/uploads/') || imageRaw.startsWith('/icons/') ? imageRaw : DEFAULT_EVENT_IMAGE
+    image = imageRaw.startsWith('/uploads/') || imageRaw.startsWith('/icons/') || imageRaw.startsWith('http://') || imageRaw.startsWith('https://') ? imageRaw : DEFAULT_EVENT_IMAGE
   }
 
   let startDate = existing.startDate

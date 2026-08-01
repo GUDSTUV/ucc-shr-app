@@ -1,7 +1,7 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
-import { Home, CalendarClock, Flag, BookText, UserRound, LayoutDashboard, FileText, Bookmark } from 'lucide-react'
+import { Home, Lightbulb, Flag, BookText, UserRound, LayoutDashboard, FileText, Bookmark } from 'lucide-react'
 import { MobileNavItem } from '@/src/components/molecules/mobile-nav-item'
 import { ReportFab } from '@/src/components/atoms/report-fab'
 import { isAdminRole } from '@/src/lib/auth/roles'
@@ -44,7 +44,7 @@ export function BottomNav({ user }: BottomNavProps) {
             <MobileNavItem
               href="/awareness"
               label="Awareness"
-              icon={<CalendarClock size={20} strokeWidth={2.3} />}
+              icon={<Lightbulb size={20} strokeWidth={2.3} />}
               active={path.startsWith('/awareness')}
             />
             <ReportFab
@@ -91,7 +91,7 @@ export function BottomNav({ user }: BottomNavProps) {
             <MobileNavItem
               href="/awareness"
               label="Awareness"
-              icon={<CalendarClock size={20} strokeWidth={2.3} />}
+              icon={<Lightbulb size={20} strokeWidth={2.3} />}
               active={path.startsWith('/awareness')}
             />
             <ReportFab

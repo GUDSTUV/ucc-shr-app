@@ -75,7 +75,7 @@ export default async function EventDetailPage({ params }: PageProps) {
 
         {/* Back Navigation */}
         <div className="mb-8">
-          <Link href="/events" className="inline-flex items-center gap-2 text-sm font-semibold text-navy transition-colors hover:text-navy-dark">
+          <Link href="/hub" className="inline-flex items-center gap-2 text-sm font-semibold text-navy transition-colors hover:text-navy-dark">
             <ArrowLeft size={16} />
             Back to Posts & Events
           </Link>

@@ -2,8 +2,9 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X } from 'lucide-react'
+import { X, ArrowRight } from 'lucide-react'
 import { Heading } from '@/src/components/atoms/heading/heading'
 import { Text } from '@/src/components/atoms/text/text'
 import { FadeIn } from '@/src/components/atoms/fade-in'
@@ -46,12 +47,13 @@ export function HarassmentTypesSection() {
               </div>
 
               <div className="mt-8">
-                <a
+                <Link
                   href="/hub"
-                  className="inline-flex items-center gap-1 text-sm font-medium text-navy transition hover:text-red underline underline-offset-4"
+                  className="group inline-flex items-center gap-1.5 text-sm font-medium text-navy transition-colors hover:text-red"
                 >
-                  Join our Educational Events & Workshops &rarr;
-                </a>
+                  <span>Join our educational events & workshops</span>
+                  <ArrowRight size={15} className="transition-transform group-hover:translate-x-1" />
+                </Link>
               </div>
             </div>
           </FadeIn>

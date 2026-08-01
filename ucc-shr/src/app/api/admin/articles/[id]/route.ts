@@ -75,7 +75,7 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
   const contentPayload = summary ? `${summary}\n\n${content}` : content
   const hasCoverImageField = body ? Object.prototype.hasOwnProperty.call(body, 'coverImage') : false
   const coverImage = hasCoverImageField
-    ? coverImageRaw.startsWith('/uploads/') || coverImageRaw.startsWith('/icons/')
+    ? coverImageRaw.startsWith('/uploads/') || coverImageRaw.startsWith('/icons/') || coverImageRaw.startsWith('http://') || coverImageRaw.startsWith('https://')
       ? coverImageRaw
       : DEFAULT_ARTICLE_IMAGE
     : existing.coverImage || DEFAULT_ARTICLE_IMAGE

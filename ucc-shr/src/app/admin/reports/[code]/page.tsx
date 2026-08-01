@@ -1,7 +1,6 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import { notFound } from 'next/navigation'
-import { ArrowLeft, Clock3, FileText, Mic, EyeOff } from 'lucide-react'
+import { ArrowLeft, Clock3, FileText, EyeOff } from 'lucide-react'
 import { AdminLayout } from '@/src/components/templates/admin-layout'
 import { requireAdmin } from '@/src/lib/auth/guards'
 import { isCaseOfficerRole } from '@/src/lib/auth/roles'
@@ -29,40 +28,6 @@ function formatDate(value: Date | string) {
     hour: '2-digit',
     minute: '2-digit',
   }).format(new Date(value))
-}
-
-function parseEvidenceItem(item: string) {
-  const [kind, ...rest] = item.split(':')
-  const rawValue = rest.join(':').trim() || item
-
-  const url = rawValue.startsWith('/uploads/') || rawValue.startsWith('http://') || rawValue.startsWith('https://')
-    ? rawValue
-    : null
-  const fileName = url ? rawValue.split('/').pop() || rawValue : rawValue
-
-  if (kind === 'audio') return { kindLabel: 'Audio', icon: Mic, fileName, url }
-  if (kind === 'doc') return { kindLabel: 'Document', icon: FileText, fileName, url }
-  return { kindLabel: 'Evidence', icon: FileText, fileName, url }
-}
-
-function isImageFile(fileName: string) {
-  return /\.(png|jpg|jpeg|gif|webp|bmp|svg)$/i.test(fileName)
-}
-
-function isAudioFile(fileName: string) {
-  return /\.(mp3|wav|ogg|m4a|aac|flac|webm)$/i.test(fileName)
-}
-
-function getAudioMimeType(fileName: string) {
-  const ext = fileName.split('.').pop()?.toLowerCase()
-  if (ext === 'mp3') return 'audio/mpeg'
-  if (ext === 'wav') return 'audio/wav'
-  if (ext === 'ogg') return 'audio/ogg'
-  if (ext === 'm4a') return 'audio/mp4'
-  if (ext === 'aac') return 'audio/aac'
-  if (ext === 'flac') return 'audio/flac'
-  if (ext === 'webm') return 'audio/webm'
-  return undefined
 }
 
 const RISK_STYLES: Record<string, string> = {
@@ -141,7 +106,6 @@ export default async function AdminReportDetailsPage({ params }: PageProps) {
   const notes = parseReportNotes(report.notes)
   const updates = Array.isArray(notes.adminUpdates) ? notes.adminUpdates : []
   const witnesses = Array.isArray(notes.witnesses) ? notes.witnesses : []
-  const evidenceFiles = report.files ?? []
   const assignedCounsellor = notes.counsellorName ?? null
   const currentCounsellorId = notes.counsellorId ?? null
   const assignedId = notes.counsellorId ?? notes.investigatorId ?? null
@@ -410,50 +374,7 @@ export default async function AdminReportDetailsPage({ params }: PageProps) {
             </section>
           )}
 
-          {/* Evidence Files */}
-          <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] print:hidden">
-            <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Evidence Files</p>
-            {evidenceFiles.length > 0 ? (
-              <ul className="mt-3 space-y-3">
-                {evidenceFiles.map((item, index) => {
-                  const parsed = parseEvidenceItem(item)
-                  const audioInline = parsed.url && (parsed.kindLabel === 'Audio' || isAudioFile(parsed.fileName))
-                  const fileUrl = parsed.url ?? undefined
 
-                  return (
-                    <li key={`${item}-${index}`} className="rounded-lg bg-gray-50 px-3 py-3">
-                      <div className="flex items-center gap-2">
-                        <parsed.icon size={14} className="text-navy" />
-                        <div className="min-w-0">
-                          <p className="text-sm font-semibold uppercase tracking-[0.08em] text-gray-600">{parsed.kindLabel}</p>
-                          {parsed.url && !audioInline ? (
-                            <a href={parsed.url} target="_blank" rel="noreferrer" className="block break-all text-base text-navy underline underline-offset-2">
-                              {parsed.fileName}
-                            </a>
-                          ) : (
-                            <p className="break-all text-base text-gray-900">{parsed.fileName}</p>
-                          )}
-                        </div>
-                      </div>
-                      {audioInline ? (
-                        <audio controls controlsList="nodownload" preload="metadata" className="mt-2 w-full">
-                          <source src={fileUrl} type={getAudioMimeType(parsed.fileName)} />
-                          Your browser does not support audio playback.
-                        </audio>
-                      ) : null}
-                      {parsed.url && isImageFile(parsed.fileName) ? (
-                        <a href={parsed.url} target="_blank" rel="noreferrer" className="mt-2 block">
-                          <Image src={parsed.url} alt={parsed.fileName} width={1200} height={800} unoptimized className="max-h-56 w-full rounded-md border border-gray-200 object-cover" />
-                        </a>
-                      ) : null}
-                    </li>
-                  )
-                })}
-              </ul>
-            ) : (
-              <p className="mt-1 text-base text-gray-700">Evidence will be collected in person during the investigation, per CEGRAD policy.</p>
-            )}
-          </section>
 
           {/* Update History */}
           <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] print:hidden">

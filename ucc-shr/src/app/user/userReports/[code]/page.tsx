@@ -1,7 +1,6 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import { notFound, redirect } from 'next/navigation'
-import { ArrowLeft, CalendarDays, FileText, MapPin, Mic, RefreshCw, Shield } from 'lucide-react'
+import { ArrowLeft, CalendarDays, FileText, MapPin, RefreshCw, Shield } from 'lucide-react'
 import { auth } from '@/src/lib/auth/auth'
 import { prisma } from '@/src/lib/prisma'
 import { belongsToUser, parseReportNotes } from '@/src/lib/auth/report-access'
@@ -23,47 +22,6 @@ function formatDate(value: Date) {
     hour: '2-digit',
     minute: '2-digit',
   }).format(value)
-}
-
-function parseEvidenceItem(item: string) {
-  const [kind, ...rest] = item.split(':')
-  const rawValue = rest.join(':').trim() || item
-
-  const url = rawValue.startsWith('/uploads/') || rawValue.startsWith('http://') || rawValue.startsWith('https://')
-    ? rawValue
-    : null
-  const fileName = url ? rawValue.split('/').pop() || rawValue : rawValue
-
-  if (kind === 'audio') {
-    return { kindLabel: 'Audio', icon: Mic, fileName, url }
-  }
-
-  if (kind === 'doc') {
-    return { kindLabel: 'Document', icon: FileText, fileName, url }
-  }
-
-  return { kindLabel: 'Evidence', icon: FileText, fileName, url }
-}
-
-function isImageFile(fileName: string) {
-  return /\.(png|jpg|jpeg|gif|webp|bmp|svg)$/i.test(fileName)
-}
-
-function isAudioFile(fileName: string) {
-  return /\.(mp3|wav|ogg|m4a|aac|flac|webm)$/i.test(fileName)
-}
-
-function getAudioMimeType(fileName: string) {
-  const ext = fileName.split('.').pop()?.toLowerCase()
-
-  if (ext === 'mp3') return 'audio/mpeg'
-  if (ext === 'wav') return 'audio/wav'
-  if (ext === 'ogg') return 'audio/ogg'
-  if (ext === 'm4a') return 'audio/mp4'
-  if (ext === 'aac') return 'audio/aac'
-  if (ext === 'flac') return 'audio/flac'
-  if (ext === 'webm') return 'audio/webm'
-  return undefined
 }
 
 export default async function ReportDetailsPage({ params }: ReportDetailsPageProps) {
@@ -110,7 +68,7 @@ export default async function ReportDetailsPage({ params }: ReportDetailsPagePro
   await markAllReportNotificationsAsRead(session.user.id, session.user.role ?? 'USER', report.id)
 
   const parsedNotes = parseReportNotes(report.notes)
-  const evidenceFiles = report.files ?? []
+  const witnesses = Array.isArray(parsedNotes.witnesses) ? parsedNotes.witnesses : []
   
   const allUpdates = Array.isArray(parsedNotes.adminUpdates) ? parsedNotes.adminUpdates : []
   const publicUpdates = allUpdates.filter((u: { isInternal?: boolean }) => !u.isInternal)
@@ -187,9 +145,9 @@ export default async function ReportDetailsPage({ params }: ReportDetailsPagePro
 
             <div>
               <p className="text-sm font-semibold uppercase tracking-wider text-gray-500">Witnesses</p>
-              {parsedNotes.witnesses && parsedNotes.witnesses.length > 0 ? (
+              {witnesses.length > 0 ? (
                 <ul className="mt-3 space-y-3 text-base md:text-lg text-gray-900">
-                  {parsedNotes.witnesses.map((witness, index) => (
+                  {witnesses.map((witness, index) => (
                     <li key={`${witness}-${index}`} className="rounded-xl bg-gray-50 px-4 py-3">
                       {witness}
                     </li>
@@ -201,64 +159,7 @@ export default async function ReportDetailsPage({ params }: ReportDetailsPagePro
             </div>
           </div>
 
-          {/* Evidence */}
-          <div className="border-t border-gray-100 pt-6">
-            <p className="text-sm font-semibold uppercase tracking-wider text-gray-500">Evidence Files</p>
-            {evidenceFiles.length > 0 ? (
-              <ul className="mt-4 space-y-4">
-                {evidenceFiles.map((item, index) => {
-                  const parsed = parseEvidenceItem(item)
-                  const audioInline = parsed.url && (parsed.kindLabel === 'Audio' || isAudioFile(parsed.fileName))
-                  const fileUrl = parsed.url ?? undefined
 
-                  return (
-                    <li key={`${item}-${index}`} className="rounded-xl bg-gray-50 px-5 py-4">
-                      <div className="flex items-center gap-3">
-                        <parsed.icon size={18} className="text-navy" />
-                        <div className="min-w-0">
-                          <p className="text-sm font-semibold uppercase tracking-wider text-gray-500">{parsed.kindLabel}</p>
-                          {parsed.url && !audioInline ? (
-                            <a
-                              href={parsed.url}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="block break-all text-base md:text-lg text-navy underline underline-offset-2 mt-1"
-                            >
-                              {parsed.fileName}
-                            </a>
-                          ) : (
-                            <p className="break-all text-base md:text-lg text-gray-900 mt-1">{parsed.fileName}</p>
-                          )}
-                        </div>
-                      </div>
-
-                      {audioInline ? (
-                        <audio controls controlsList="nodownload" preload="metadata" className="mt-3 w-full">
-                          <source src={fileUrl} type={getAudioMimeType(parsed.fileName)} />
-                          Your browser does not support audio playback.
-                        </audio>
-                      ) : null}
-
-                      {parsed.url && isImageFile(parsed.fileName) ? (
-                        <a href={parsed.url} target="_blank" rel="noreferrer" className="mt-3 block">
-                          <Image
-                            src={parsed.url}
-                            alt={parsed.fileName}
-                            width={1200}
-                            height={800}
-                            unoptimized
-                            className="max-h-64 w-full rounded-md border border-gray-200 object-cover"
-                          />
-                        </a>
-                      ) : null}
-                    </li>
-                  )
-                })}
-              </ul>
-            ) : (
-              <p className="mt-2 text-base md:text-lg text-gray-700">No evidence files attached.</p>
-            )}
-          </div>
 
 
         </section>

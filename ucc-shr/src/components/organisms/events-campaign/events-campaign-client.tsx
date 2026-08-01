@@ -103,8 +103,8 @@ export function EventsCampaignClient({ items: initialItems, isAuthenticated }: {
             </Text>
           </div>
           <Link
-            href="/events"
-            className="inline-flex shrink-0 items-center gap-1.5 text-sm font-medium text-navy transition-colors hover:text-navy-dark"
+            href="/hub"
+            className="inline-flex shrink-0 items-center gap-1.5 text-sm font-medium text-navy transition-colors hover:text-red"
           >
             All Posts &amp; Events <ArrowRight size={15} />
           </Link>

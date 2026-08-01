@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
 
     for (let i = 0; i < files.length; i += 1) {
       const file = files[i]
-      const kind = kinds[i] || 'evidence'
+      const kind = kinds[i] || 'media'
 
       if (file.size > MAX_FILE_BYTES) {
         return NextResponse.json(

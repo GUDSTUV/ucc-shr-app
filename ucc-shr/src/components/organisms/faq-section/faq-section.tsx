@@ -22,7 +22,7 @@ const faqs = [
   {
     question: 'Can I edit or add information after submitting?',
     answer:
-      'Yes. Use your tracking code on the Track page to add updates, corrections, or additional evidence to your open report.',
+      'Yes. Use your tracking code on the Track page to add updates, corrections, or additional details to your open report.',
   },
   {
     question: 'Will my report stay confidential?',

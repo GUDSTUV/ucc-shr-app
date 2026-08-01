@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: false, error: 'Invalid end date.' }, { status: 400 })
   }
 
-  const image = imageRaw.startsWith('/uploads/') || imageRaw.startsWith('/icons/') ? imageRaw : DEFAULT_EVENT_IMAGE
+  const image = imageRaw.startsWith('/uploads/') || imageRaw.startsWith('/icons/') || imageRaw.startsWith('http://') || imageRaw.startsWith('https://') ? imageRaw : DEFAULT_EVENT_IMAGE
 
   const event = await prisma.event.create({
     data: {
