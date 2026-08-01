@@ -4,18 +4,19 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { AdminLayout } from '@/src/components/templates/admin-layout'
-import { Button } from '@/src/components/atoms/button'
-import { Input } from '@/src/components/atoms/input'
-import { Textarea } from '@/src/components/atoms/textarea'
+import { Button } from '@/src/components/atoms/button/button'
+import { Input } from '@/src/components/atoms/input/input'
+import { Textarea } from '@/src/components/atoms/textarea/textarea'
+import { compressImage } from '@/src/lib/compress-image'
 
 export function NewEventForm() {
   const router = useRouter()
   const [title, setTitle] = useState('')
-  const [imageFile, setImageFile] = useState<File | null>(null)
-  const [venue, setVenue] = useState('')
   const [description, setDescription] = useState('')
+  const [venue, setVenue] = useState('')
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
+  const [imageFile, setImageFile] = useState<File | null>(null)
   const [capacity, setCapacity] = useState('')
   const [published, setPublished] = useState(false)
   const [notifyUsers, setNotifyUsers] = useState(true)
@@ -27,8 +28,9 @@ export function NewEventForm() {
       return null
     }
 
+    const compressed = await compressImage(imageFile)
     const formData = new FormData()
-    formData.append('files', imageFile)
+    formData.append('files', compressed)
     formData.append('kinds', 'event')
 
     const response = await fetch('/api/uploads', {

@@ -8,6 +8,7 @@ import { Input } from '@/src/components/atoms/input'
 import { Button } from '@/src/components/atoms/button'
 import { AlertBox } from '@/src/components/molecules/alert-box'
 import { createBanner } from '../banner-actions'
+import { compressImage } from '@/src/lib/compress-image'
 
 export function NewBannerForm() {
   const router = useRouter()
@@ -19,17 +20,17 @@ export function NewBannerForm() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0]
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
     if (!file) return
 
     if (!file.type.startsWith('image/')) {
-      setError('Please select an image file.')
+      setError('Please select an image file (PNG, JPG, WebP).')
       return
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      setError('Image must be under 5MB.')
+    if (file.size > 10 * 1024 * 1024) {
+      setError('File size must be under 10MB.')
       return
     }
 
@@ -42,8 +43,9 @@ export function NewBannerForm() {
   async function uploadImage() {
     if (!imageFile) return null
 
+    const compressed = await compressImage(imageFile)
     const formData = new FormData()
-    formData.append('files', imageFile)
+    formData.append('files', compressed)
 
     const response = await fetch('/api/uploads', {
       method: 'POST',

@@ -133,9 +133,9 @@ export async function EventsCampaignSection() {
     }),
   ]
 
-  // Sort by date (descending) and take top 6
+  // Sort by date (descending) and take top 3
   items.sort((a, b) => b.sortAt - a.sortAt)
-  const topItems = items.slice(0, 6)
+  const topItems = items.slice(0, 3)
 
   // Do not show the section unless there is at least one published event or article card
   if (topItems.length === 0) {

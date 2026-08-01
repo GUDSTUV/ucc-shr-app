@@ -7,6 +7,7 @@ import { AdminLayout } from '@/src/components/templates/admin-layout'
 import { Button } from '@/src/components/atoms/button'
 import { Input } from '@/src/components/atoms/input'
 import { Textarea } from '@/src/components/atoms/textarea'
+import { compressImage } from '@/src/lib/compress-image'
 
 type Props = {
   event: {
@@ -22,24 +23,22 @@ type Props = {
   }
 }
 
-function toDatetimeLocal(date: Date | null) {
-  if (!date) return ''
-  const pad = (v: number) => String(v).padStart(2, '0')
-  const y = date.getFullYear()
-  const m = pad(date.getMonth() + 1)
-  const d = pad(date.getDate())
-  const h = pad(date.getHours())
-  const min = pad(date.getMinutes())
-  return `${y}-${m}-${d}T${h}:${min}`
+function toDatetimeLocal(value: Date | null) {
+  if (!value) {
+    return ''
+  }
+  const date = new Date(value)
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`
 }
 
 export function EditEventForm({ event }: Props) {
   const router = useRouter()
   const [title, setTitle] = useState(event.title)
-  const [imageFile, setImageFile] = useState<File | null>(null)
-  const [imagePath, setImagePath] = useState(event.image)
-  const [venue, setVenue] = useState(event.venue)
   const [description, setDescription] = useState(event.description)
+  const [imagePath, setImagePath] = useState(event.image)
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [venue, setVenue] = useState(event.venue)
   const [startDate, setStartDate] = useState(toDatetimeLocal(new Date(event.startDate)))
   const [endDate, setEndDate] = useState(toDatetimeLocal(event.endDate ? new Date(event.endDate) : null))
   const [capacity, setCapacity] = useState(event.capacity ? String(event.capacity) : '')
@@ -53,8 +52,9 @@ export function EditEventForm({ event }: Props) {
       return null
     }
 
+    const compressed = await compressImage(imageFile)
     const formData = new FormData()
-    formData.append('files', imageFile)
+    formData.append('files', compressed)
     formData.append('kinds', 'event')
 
     const response = await fetch('/api/uploads', {

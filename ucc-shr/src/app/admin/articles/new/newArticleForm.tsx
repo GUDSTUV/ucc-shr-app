@@ -8,6 +8,7 @@ import { Button } from '@/src/components/atoms/button'
 import { Input } from '@/src/components/atoms/input'
 import { Select } from '@/src/components/atoms/select'
 import { Textarea } from '@/src/components/atoms/textarea'
+import { compressImage } from '@/src/lib/compress-image'
 
 type Category = 'Awareness' | 'Rights'
 
@@ -28,8 +29,9 @@ export function NewArticleForm() {
       return null
     }
 
+    const compressed = await compressImage(coverFile)
     const formData = new FormData()
-    formData.append('files', coverFile)
+    formData.append('files', compressed)
     formData.append('kinds', 'cover')
 
     const response = await fetch('/api/uploads', {
