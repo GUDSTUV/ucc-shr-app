@@ -129,3 +129,128 @@ export async function sendDirectEmail(
 ) {
   await sendBrevoEmail(to, subject, wrapInTemplate(html), replyTo, senderName)
 }
+
+export type EventEmailData = {
+  id: string
+  title: string
+  description: string
+  venue: string
+  startDate: Date | string
+  endDate?: Date | string | null
+}
+
+export async function sendEventAnnouncementEmail(
+  to: string,
+  recipientName: string,
+  event: EventEmailData
+) {
+  const eventUrl = `${APP_URL}/events/${event.id}`
+  const startDateObj = new Date(event.startDate)
+
+  const dateFormatted = new Intl.DateTimeFormat('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(startDateObj)
+
+  const timeFormatted = new Intl.DateTimeFormat('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  }).format(startDateObj)
+
+  const contentHtml = `
+    <div style="text-align:center;margin-bottom:20px;">
+      <span style="display:inline-block;background:#EEF1FA;color:#263875;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:6px 14px;border-radius:20px;">
+        New Campus Event
+      </span>
+    </div>
+
+    <h2 style="margin:0 0 14px;color:#1A1D2E;font-size:20px;font-weight:700;line-height:1.3;text-align:center;">
+      ${event.title}
+    </h2>
+
+    <p style="margin:0 0 20px;color:#4B5563;font-size:15px;line-height:1.6;">
+      ${event.description.length > 280 ? event.description.slice(0, 280) + '...' : event.description}
+    </p>
+
+    <div style="background:#F9FAFB;border:1px solid #E5E7EB;border-radius:10px;padding:16px 20px;margin-bottom:24px;">
+      <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+          <td style="padding:5px 0;font-size:14px;color:#374151;">
+            <strong style="color:#263875;">📅 Date:</strong> ${dateFormatted}
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:5px 0;font-size:14px;color:#374151;">
+            <strong style="color:#263875;">⏰ Time:</strong> ${timeFormatted}
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:5px 0;font-size:14px;color:#374151;">
+            <strong style="color:#263875;">📍 Venue:</strong> ${event.venue}
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <div style="text-align:center;margin:28px 0;">
+      <a href="${eventUrl}"
+         style="display:inline-block;background:#263875;color:#ffffff;font-size:15px;font-weight:600;
+                text-decoration:none;padding:14px 36px;border-radius:8px;">
+        View Event & RSVP
+      </a>
+    </div>
+
+    <p style="margin:24px 0 0;font-size:12px;color:#9CA3AF;text-align:center;line-height:1.5;">
+      You received this email because you have a registered account on the UCC CEGRAD platform.<br />
+      University of Cape Coast &bull; Centre for Gender Research and Advocacy
+    </p>
+  `
+
+  await sendBrevoEmail(to, `[CEGRAD UCC] New Event: ${event.title}`, wrapInTemplate(contentHtml))
+}
+
+export async function broadcastEventAnnouncement(event: EventEmailData) {
+  try {
+    const { prisma } = await import('@/src/lib/prisma')
+    // Get all verified users with valid emails (excluding suspended users)
+    const users = await prisma.user.findMany({
+      where: {
+        emailVerified: true,
+        role: { not: 'SUSPENDED' },
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+      },
+    })
+
+    if (!users || users.length === 0) {
+      console.log('No verified users found to notify for event:', event.id)
+      return { count: 0 }
+    }
+
+    console.log(`Broadcasting event "${event.title}" to ${users.length} verified user(s)...`)
+
+    // Send emails in batches of 5 to avoid connection flooding
+    const BATCH_SIZE = 5
+    for (let i = 0; i < users.length; i += BATCH_SIZE) {
+      const batch = users.slice(i, i + BATCH_SIZE)
+      await Promise.allSettled(
+        batch.map((user) =>
+          sendEventAnnouncementEmail(user.email, user.name || 'Member', event).catch((err) => {
+            console.error(`Failed to send event email to ${user.email}:`, err)
+          })
+        )
+      )
+    }
+
+    return { count: users.length }
+  } catch (error) {
+    console.error('Error during broadcastEventAnnouncement:', error)
+    return { count: 0, error }
+  }
+}

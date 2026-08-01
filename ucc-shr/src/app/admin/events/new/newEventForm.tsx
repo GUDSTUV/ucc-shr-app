@@ -18,6 +18,7 @@ export function NewEventForm() {
   const [endDate, setEndDate] = useState('')
   const [capacity, setCapacity] = useState('')
   const [published, setPublished] = useState(false)
+  const [notifyUsers, setNotifyUsers] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -73,6 +74,7 @@ export function NewEventForm() {
           endDate: endDate || null,
           capacity: capacity ? Number(capacity) : null,
           published,
+          notifyUsers: published ? notifyUsers : false,
         }),
       })
 
@@ -140,10 +142,23 @@ export function NewEventForm() {
           <label className="mb-1 block text-sm font-semibold text-gray-700">Capacity (optional)</label>
           <Input type="number" min={1} value={capacity} onChange={(event) => setCapacity(event.target.value)} />
         </div>
-        <label className="flex items-center gap-2 pt-7 text-sm font-semibold text-gray-700">
-          <input type="checkbox" checked={published} onChange={(event) => setPublished(event.target.checked)} className="h-4 w-4" />
-          Publish immediately
-        </label>
+        <div className="space-y-2 pt-2">
+          <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+            <input type="checkbox" checked={published} onChange={(event) => setPublished(event.target.checked)} className="h-4 w-4 rounded border-gray-300 text-navy focus:ring-navy" />
+            Publish immediately
+          </label>
+          {published && (
+            <label className="flex items-center gap-2 text-xs font-medium text-navy-dark bg-navy/5 px-2.5 py-1.5 rounded-lg border border-navy/10">
+              <input
+                type="checkbox"
+                checked={notifyUsers}
+                onChange={(event) => setNotifyUsers(event.target.checked)}
+                className="h-3.5 w-3.5 rounded border-gray-300 text-navy focus:ring-navy"
+              />
+              Email announcement to all registered users
+            </label>
+          )}
+        </div>
       </div>
 
       {error ? <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div> : null}

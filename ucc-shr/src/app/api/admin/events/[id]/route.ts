@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/src/lib/auth/auth'
 import { prisma } from '@/src/lib/prisma'
+import { broadcastEventAnnouncement } from '@/src/lib/email'
 
 const DEFAULT_EVENT_IMAGE = '/icons/default-event.svg'
 
@@ -13,6 +14,7 @@ type UpdateEventPayload = {
   endDate?: unknown
   capacity?: unknown
   published?: unknown
+  notifyUsers?: unknown
 }
 
 export async function PATCH(request: NextRequest, context: { params: Promise<{ id: string }> }) {
@@ -97,6 +99,7 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
   }
 
   const published = typeof body?.published === 'boolean' ? body.published : existing.published
+  const notifyUsers = body?.notifyUsers === true // explicitly opt-in for updates
 
   const event = await prisma.event.update({
     where: { id },
@@ -110,8 +113,22 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
       capacity,
       published,
     },
-    select: { id: true, published: true },
+    select: { id: true, title: true, description: true, venue: true, startDate: true, endDate: true, image: true, published: true },
   })
+
+  // If published and admin requested notification, broadcast announcement asynchronously
+  if (published && notifyUsers) {
+    void broadcastEventAnnouncement({
+      id: event.id,
+      title: event.title,
+      description: event.description,
+      venue: event.venue,
+      startDate: event.startDate,
+      endDate: event.endDate,
+    }).catch((err) => {
+      console.error('Failed to broadcast event announcement email:', err)
+    })
+  }
 
   return NextResponse.json({ ok: true, event })
 }

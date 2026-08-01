@@ -44,6 +44,7 @@ export function EditEventForm({ event }: Props) {
   const [endDate, setEndDate] = useState(toDatetimeLocal(event.endDate ? new Date(event.endDate) : null))
   const [capacity, setCapacity] = useState(event.capacity ? String(event.capacity) : '')
   const [published, setPublished] = useState(event.published)
+  const [notifyUsers, setNotifyUsers] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -94,6 +95,7 @@ export function EditEventForm({ event }: Props) {
         endDate: endDate || null,
         capacity: capacity ? Number(capacity) : null,
         published,
+        notifyUsers: published ? notifyUsers : false,
       }
 
       if (uploadedImage) {
@@ -122,20 +124,20 @@ export function EditEventForm({ event }: Props) {
 
   return (
     <form
-      onSubmit={(event) => {
-        event.preventDefault()
+      onSubmit={(e) => {
+        e.preventDefault()
         void handleSave()
       }}
       className="mx-auto max-w-3xl space-y-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"
     >
       <div>
         <label className="mb-1 block text-sm font-semibold text-gray-700">Title</label>
-        <Input value={title} onChange={(event) => setTitle(event.target.value)} required />
+        <Input value={title} onChange={(e) => setTitle(e.target.value)} required />
       </div>
 
       <div>
         <label className="mb-1 block text-sm font-semibold text-gray-700">Venue</label>
-        <Input value={venue} onChange={(event) => setVenue(event.target.value)} required />
+        <Input value={venue} onChange={(e) => setVenue(e.target.value)} required />
       </div>
 
       <div>
@@ -143,7 +145,7 @@ export function EditEventForm({ event }: Props) {
         <input
           type="file"
           accept="image/png,image/jpeg,image/webp"
-          onChange={(event) => setImageFile(event.target.files?.[0] ?? null)}
+          onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
           className="block h-12 w-full rounded-[10px] border-[1.5px] border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 file:mr-3 file:rounded-md file:border-0 file:bg-navy file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white hover:file:bg-navy-dark"
         />
         <p className="mt-1 text-xs text-gray-500">Current image: {imagePath}</p>
@@ -151,29 +153,53 @@ export function EditEventForm({ event }: Props) {
 
       <div>
         <label className="mb-1 block text-sm font-semibold text-gray-700">Description</label>
-        <Textarea value={description} onChange={(event) => setDescription(event.target.value)} rows={8} required />
+        <Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={8} required />
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label className="mb-1 block text-sm font-semibold text-gray-700">Start Date & Time</label>
-          <Input type="datetime-local" value={startDate} onChange={(event) => setStartDate(event.target.value)} required />
+          <Input type="datetime-local" value={startDate} onChange={(e) => setStartDate(e.target.value)} required />
         </div>
         <div>
           <label className="mb-1 block text-sm font-semibold text-gray-700">End Date & Time (optional)</label>
-          <Input type="datetime-local" value={endDate} onChange={(event) => setEndDate(event.target.value)} />
+          <Input type="datetime-local" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
         </div>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label className="mb-1 block text-sm font-semibold text-gray-700">Capacity (optional)</label>
-          <Input type="number" min={1} value={capacity} onChange={(event) => setCapacity(event.target.value)} />
+          <Input type="number" min={1} value={capacity} onChange={(e) => setCapacity(e.target.value)} />
         </div>
-        <label className="flex items-center gap-2 pt-7 text-sm font-semibold text-gray-700">
-          <input type="checkbox" checked={published} onChange={(event) => setPublished(event.target.checked)} className="h-4 w-4" />
-          Published
-        </label>
+        <div className="space-y-2 pt-2">
+          <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+            <input
+              type="checkbox"
+              checked={published}
+              onChange={(e) => {
+                const isNowPublished = e.target.checked
+                setPublished(isNowPublished)
+                if (isNowPublished && !event.published) {
+                  setNotifyUsers(true)
+                }
+              }}
+              className="h-4 w-4 rounded border-gray-300 text-navy focus:ring-navy"
+            />
+            Published
+          </label>
+          {published && (
+            <label className="flex items-center gap-2 text-xs font-medium text-navy-dark bg-navy/5 px-2.5 py-1.5 rounded-lg border border-navy/10">
+              <input
+                type="checkbox"
+                checked={notifyUsers}
+                onChange={(e) => setNotifyUsers(e.target.checked)}
+                className="h-3.5 w-3.5 rounded border-gray-300 text-navy focus:ring-navy"
+              />
+              Email announcement to all registered users
+            </label>
+          )}
+        </div>
       </div>
 
       {error ? <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div> : null}

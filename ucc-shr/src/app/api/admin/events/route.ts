@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/src/lib/auth/auth'
 import { prisma } from '@/src/lib/prisma'
+import { broadcastEventAnnouncement } from '@/src/lib/email'
 
 const DEFAULT_EVENT_IMAGE = '/icons/default-event.svg'
 
@@ -13,6 +14,7 @@ type CreateEventPayload = {
   endDate?: unknown
   capacity?: unknown
   published?: unknown
+  notifyUsers?: unknown
 }
 
 export async function POST(request: NextRequest) {
@@ -34,6 +36,7 @@ export async function POST(request: NextRequest) {
   const endDateRaw = typeof body?.endDate === 'string' ? body.endDate : ''
   const capacityRaw = typeof body?.capacity === 'number' ? body.capacity : Number(body?.capacity)
   const published = body?.published === true
+  const notifyUsers = body?.notifyUsers !== false // default to true when published
 
   if (!title || !description || !venue || !startDateRaw) {
     return NextResponse.json({ ok: false, error: 'Title, description, venue and start date are required.' }, { status: 400 })
@@ -63,8 +66,22 @@ export async function POST(request: NextRequest) {
       published,
       authorId: session.user.id,
     },
-    select: { id: true, published: true },
+    select: { id: true, title: true, description: true, venue: true, startDate: true, endDate: true, image: true, published: true },
   })
+
+  // If published and email notification is enabled, broadcast announcement asynchronously
+  if (published && notifyUsers) {
+    void broadcastEventAnnouncement({
+      id: event.id,
+      title: event.title,
+      description: event.description,
+      venue: event.venue,
+      startDate: event.startDate,
+      endDate: event.endDate,
+    }).catch((err) => {
+      console.error('Failed to broadcast event announcement email:', err)
+    })
+  }
 
   return NextResponse.json({ ok: true, event }, { status: 201 })
 }
