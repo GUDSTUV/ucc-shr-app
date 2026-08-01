@@ -7,7 +7,7 @@ import { X } from 'lucide-react'
 import { Heading } from '@/src/components/atoms/heading/heading'
 import { Text } from '@/src/components/atoms/text/text'
 import { FadeIn } from '@/src/components/atoms/fade-in'
-import { harassmentTypes } from '@/src/app/(public)/hub/constants'
+import { harassmentTypes } from '@/src/app/(public)/awareness/constants'
 
 type HarassmentType = typeof harassmentTypes[0]
 
@@ -17,7 +17,7 @@ export function HarassmentTypesSection() {
   return (
     <section id="awareness" className="bg-gray-50 py-16 lg:py-24 overflow-hidden relative">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-stretch">
           
           {/* Left Column */}
           <FadeIn>
@@ -38,23 +38,32 @@ export function HarassmentTypesSection() {
                   <button
                     key={type.title}
                     onClick={() => setSelectedType(type)}
-                    className="px-5 py-3 rounded-md border border-gray-300 bg-white text-[15px] font-medium text-gray-800 transition-all hover:border-navy hover:text-navy hover:shadow-sm active:scale-[0.98]"
+                    className="px-5 py-3 rounded-md border border-gray-300 bg-transparent text-[15px] font-medium text-gray-800 transition-all hover:border-navy hover:bg-navy/5 hover:text-navy active:scale-[0.98]"
                   >
                     {type.title}
                   </button>
                 ))}
               </div>
+
+              <div className="mt-8">
+                <a
+                  href="/hub"
+                  className="inline-flex items-center gap-1 text-sm font-medium text-navy transition hover:text-red underline underline-offset-4"
+                >
+                  Join our Educational Events & Workshops &rarr;
+                </a>
+              </div>
             </div>
           </FadeIn>
 
           {/* Right Column (Illustration) */}
-          <FadeIn delay={0.2} className="relative flex justify-center lg:justify-end">
-            <div className="relative aspect-[4/3] w-full max-w-md lg:max-w-lg mix-blend-multiply">
+          <FadeIn delay={0.2} className="relative w-full h-full min-h-[400px] lg:min-h-0">
+            <div className="absolute inset-0 w-full h-full mix-blend-multiply overflow-hidden">
                <Image 
-                 src="/images/awareness/aw1.png" 
+                 src="/images/awareness/harassment_illustration.png" 
                  alt="Illustration representing support and conversation" 
                  fill 
-                 className="object-contain" 
+                 className="object-cover" 
                  priority
                />
             </div>

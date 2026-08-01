@@ -31,18 +31,18 @@ export function AboutHero({ customImages }: { customImages?: CarouselImage[] }) 
   return (
     <section className="relative min-h-[100dvh] sm:min-h-[600px] w-full overflow-hidden bg-navy text-white flex flex-col justify-center">
       {/* Background Images */}
-      <AnimatePresence mode="wait">
+      {activeImages.map((image, index) => (
         <motion.img
-          key={currentIndex}
-          src={activeImages[currentIndex]?.url || ''}
-          alt={activeImages[currentIndex]?.alt || activeImages[currentIndex]?.caption || 'Carousel image'}
-          className="absolute inset-0 h-full w-full object-cover"
-          initial={{ opacity: 0, scale: 1.05 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0 }}
+          key={index}
+          src={image.url || ''}
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 h-full w-full object-cover z-0 pointer-events-none"
+          initial={{ opacity: index === currentIndex ? 1 : 0, scale: index === currentIndex ? 1 : 1.05 }}
+          animate={{ opacity: index === currentIndex ? 1 : 0, scale: index === currentIndex ? 1 : 1.05 }}
           transition={{ duration: 1.2, ease: "easeInOut" }}
         />
-      </AnimatePresence>
+      ))}
 
       {/* Overlays */}
       <div className="absolute inset-0 bg-black/30 pointer-events-none" />

@@ -4,7 +4,7 @@ import { ShieldCheck, ArrowRight } from 'lucide-react'
 import { Heading } from '@/src/components/atoms/heading/heading'
 import { Text } from '@/src/components/atoms/text/text'
 import { FadeIn, FadeInStagger, FadeInItem } from '@/src/components/atoms/fade-in'
-import { consentPrinciples } from '@/src/app/(public)/hub/constants'
+import { consentPrinciples } from '@/src/app/(public)/awareness/constants'
 
 export function ConsentSection() {
   return (

@@ -10,7 +10,7 @@ import { Button } from '@/src/components/atoms/button'
 
 const faqs = [
   {
-    question: 'Will my identity be kept anonymous?',
+    question: 'Will my identity be kept confidential?',
     answer:
       'You do not need to provide your full name, but a contact (email or phone) is required so CEGRAD can follow up. Without a contact, CEGRAD cannot investigate or take action on a report.',
   },

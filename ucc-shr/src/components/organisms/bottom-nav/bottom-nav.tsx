@@ -42,10 +42,10 @@ export function BottomNav({ user }: BottomNavProps) {
               active={path === '/'}
             />
             <MobileNavItem
-              href="/hub"
+              href="/awareness"
               label="Awareness"
               icon={<CalendarClock size={20} strokeWidth={2.3} />}
-              active={path.startsWith('/hub') || path.startsWith('/events')}
+              active={path.startsWith('/awareness')}
             />
             <ReportFab
               href={reportHref}
@@ -89,10 +89,10 @@ export function BottomNav({ user }: BottomNavProps) {
               active={path === '/'}
             />
             <MobileNavItem
-              href="/hub"
+              href="/awareness"
               label="Awareness"
               icon={<CalendarClock size={20} strokeWidth={2.3} />}
-              active={path.startsWith('/hub') || path.startsWith('/events')}
+              active={path.startsWith('/awareness')}
             />
             <ReportFab
               href={reportHref}

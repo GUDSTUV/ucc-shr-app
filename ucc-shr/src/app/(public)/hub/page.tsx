@@ -1,142 +1,151 @@
-export const revalidate = 3600;
+import { PublicLayout } from '@/src/components/templates/public-layout'
 import { prisma } from '@/src/lib/prisma'
 import { auth } from '@/src/lib/auth/auth'
 import dynamic from 'next/dynamic'
-import { AnimatedCounter } from '@/src/components/molecules/animated-counter/animated-counter'
-import { FadeIn, FadeInStagger, FadeInItem } from '@/src/components/atoms/fade-in'
-import Link from 'next/link'
-import { Text } from '@/src/components/atoms/text'
-import { Heading } from '@/src/components/atoms/heading'
-import { stats, harassmentTypes, rights, consentPrinciples, policyPoints } from './constants'
 
-import { Phone, CheckCircle2 } from 'lucide-react'
-import { ConsentSection } from '@/src/components/organisms/consent-section/consent-section'
-import { HarassmentTypesSection } from '@/src/components/organisms/harassment-types'
-const ScenarioCards = dynamic(() => import('@/src/components/organisms/scenario-cards/scenario-cards').then(m => m.ScenarioCards))
-const CampaignVideoPlayer = dynamic(() => import('@/src/components/organisms/campaign-video-player').then(m => m.CampaignVideoPlayer))
-import { PageHero } from '@/src/components/organisms/page-hero/page-hero'
+const HubClient = dynamic(() => import('@/src/components/organisms/hub-client').then(m => m.HubClient))
+import { Heading } from '@/src/components/atoms/heading/heading'
+import { Text } from '@/src/components/atoms/text/text'
 
-/* ─── Page ─── */
+const DEFAULT_ARTICLE_IMAGE = '/icons/default-article.svg'
+const DEFAULT_EVENT_IMAGE = '/icons/default-event.svg'
 
-export default async function HubPage() {
-	let contentRecords: { key: string, value: unknown }[] = []
-	try {
-		contentRecords = await prisma.siteContent.findMany({
-			where: { key: { in: ['awarenessVideoUrl'] } }
-		})
-	} catch (error) {
-		console.warn('Hub page DB fetch failed (Neon DB might be sleeping), using defaults.', error)
-	}
+function buildGCalUrl(event: { title: string; description: string; venue: string; startDate: Date; endDate?: Date | null }) {
+  function toGCalDate(d: Date) {
+    return d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'
+  }
+  const start = toGCalDate(event.startDate)
+  const end = event.endDate ? toGCalDate(event.endDate) : toGCalDate(new Date(event.startDate.getTime() + 2 * 60 * 60 * 1000))
+  const params = new URLSearchParams({
+    action: 'TEMPLATE',
+    text: event.title,
+    dates: `${start}/${end}`,
+    details: event.description.slice(0, 500),
+    location: event.venue,
+  })
+  return `https://calendar.google.com/calendar/render?${params.toString()}`
+}
 
-	const contentMap = contentRecords.reduce((acc: Record<string, string>, record: { key: string; value: unknown }) => {
-		// Safely strip double quotes if Prisma serialized it as a JSON string literal
-		let val = typeof record.value === 'string' ? record.value : String(record.value || '');
-		val = val.replace(/^"|"$/g, '');
-		acc[record.key] = val;
-		return acc;
-	}, {} as Record<string, string>);
+interface HubItem {
+	id: string
+	resourceType: 'ARTICLE' | 'EVENT'
+	resourceId: string
+	href: string
+	title: string
+	excerpt: string
+	category: 'Awareness' | 'Events' | 'Rights'
+	readTime: string
+	imageUrl?: string
+	dateLabel?: string
+	timeLabel?: string
+	googleCalendarUrl?: string
+	imageTheme: string
+	isSaved: boolean
+}
 
-	const customVideo = contentMap['awarenessVideoUrl'];
+export default async function EventsPage() {
+	const session = await auth()
+
+	const [articles, events, saved] = await Promise.all([
+		prisma.article.findMany({
+			where: { published: true },
+			orderBy: { updatedAt: 'desc' },
+			take: 30,
+			select: {
+				id: true,
+				slug: true,
+				title: true,
+				category: true,
+				content: true,
+				coverImage: true,
+				updatedAt: true,
+			},
+		}),
+		prisma.event.findMany({
+			where: { published: true },
+			orderBy: { startDate: 'desc' },
+			take: 30,
+			select: {
+				id: true,
+				title: true,
+				description: true,
+				image: true,
+				venue: true,
+				startDate: true,
+				endDate: true,
+			},
+		}),
+		session?.user
+			? prisma.savedResource.findMany({
+					where: { userId: session.user.id },
+					select: { resourceType: true, resourceId: true },
+				})
+			: Promise.resolve([]),
+	])
+
+	const savedKeys = new Set(saved.map((entry) => `${entry.resourceType}:${entry.resourceId}`))
+
+	const articleItems: Array<HubItem & { sortAt: number }> = articles.map((article) => {
+		const category = article.category === 'Rights' ? 'Rights' : 'Awareness'
+		const contentText = typeof article.content === 'string' ? article.content : JSON.stringify(article.content)
+		const key = `ARTICLE:${article.id}`
+
+		return {
+			id: key,
+			resourceType: 'ARTICLE',
+			resourceId: article.id,
+			href: `/hub/${article.slug}`,
+			title: article.title,
+			excerpt: contentText.slice(0, 140) || 'Read the latest CEGRAD update.',
+			category,
+			readTime: '3 min read',
+			imageUrl: article.coverImage || DEFAULT_ARTICLE_IMAGE,
+			imageTheme:
+				category === 'Rights' ? 'from-red/10 via-red/5 to-white' : 'from-navy-light via-white to-gray-100',
+			isRegistration: false,
+			isSaved: savedKeys.has(key),
+			sortAt: article.updatedAt.getTime(),
+		}
+	})
+
+	const eventItems: Array<HubItem & { sortAt: number }> = events.map((event) => {
+		const key = `EVENT:${event.id}`
+
+		return {
+			id: key,
+			resourceType: 'EVENT',
+			resourceId: event.id,
+			href: `/events/${event.id}`,
+			title: event.title,
+			excerpt: `${event.description.slice(0, 120)}${event.description.length > 120 ? '...' : ''}`,
+			category: 'Events',
+			readTime: 'Event',
+			imageUrl: event.image || DEFAULT_EVENT_IMAGE,
+			dateLabel: new Intl.DateTimeFormat('en-US', { month: 'short', day: '2-digit' }).format(event.startDate).toUpperCase(),
+			timeLabel: new Intl.DateTimeFormat('en-US', { hour: '2-digit', minute: '2-digit' }).format(event.startDate),
+			googleCalendarUrl: buildGCalUrl({ title: event.title, description: event.description, venue: event.venue, startDate: event.startDate, endDate: event.endDate }),
+			imageTheme: 'from-navy-dark via-navy to-gray-900',
+			isSaved: false,
+			sortAt: event.startDate.getTime(),
+		}
+	})
+
+	const items: HubItem[] = [...articleItems, ...eventItems]
+		.sort((a, b) => b.sortAt - a.sortAt)
+		.slice(0, 30)
 
 	return (
-		<>
-			<div className="bg-gray-50">
-				{/* ═══ Section 1: Typography-Driven Awareness Hero ═══ */}
-				<PageHero 
-					title="Awareness & Prevention"
-					subtitle="Creating a safer campus starts with awareness. Learn to recognize sexual harassment, understand your rights, and access confidential support and reporting resources."
-					buttonText="Get Help"
-					buttonLink="/help"
-				/>
+		<PublicLayout>
+			<section className="space-y-3">
+				<Heading as="h1" size={{ base: '2xl', lg: '3xl' }} weight="semibold" tone="navy">Posts & Events</Heading>
+				<Text size="sm" tone="muted">
+					Read the latest articles, find upcoming events, and access educational resources from CEGRAD.
+				</Text>
+			</section>
 
-				{/* ═══ Section 2: Quick Stats ═══ */}
-				<section className="border-b border-gray-100 bg-white">
-					<div className="mx-auto max-w-7xl px-6 lg:px-8">
-						<div className="grid grid-cols-2 divide-x divide-gray-100 overflow-hidden rounded-2xl border border-gray-100 sm:grid-cols-4">
-							{stats.map((stat) => (
-								<div key={stat.value} className="flex flex-col items-center p-8 sm:p-10 text-center">
-									<stat.icon className="h-6 w-6 text-navy" />
-									<Text as="span" size="2xl" weight="semibold" tone="navy" className="mt-5 tracking-tight">
-										<AnimatedCounter value={stat.value} />
-									</Text>
-									<Text as="span" size="sm" weight="medium" tone="muted" className="mt-2">
-										{stat.label}
-									</Text>
-								</div>
-							))}
-						</div>
-					</div>
-				</section>
-
-				{/* ═══ Section 3: What is Sexual Harassment ═══ */}
-				<HarassmentTypesSection />
-
-								{/* ═══ Section 4.5: Featured Campaign Media ═══ */}
-				<section className="bg-white py-16 lg:py-24 border-b border-gray-100">
-					<div className="mx-auto max-w-7xl px-6 lg:px-8">
-						<FadeIn className="text-left mb-10">
-							<Heading size={{ base: '3xl', lg: '4xl' }} tone="navy" weight="semibold">Break The Silence</Heading>
-							<Text size="lg" tone="muted" className="mt-3 max-w-4xl">
-								Hear from CeGRAD leadership as they share the University's commitment to preventing sexual harassment, supporting survivors, and creating a safe and respectful campus for all.
-							</Text>
-						</FadeIn>
-						
-						{/* Featured Main Video */}
-						<FadeIn delay={0.2} className="relative w-full">
-							<div className="overflow-hidden ring-1 ring-gray-900/5 relative group">
-								{/* Small Tag at bottom left */}
-								<div className="absolute bottom-6 left-6 lg:bottom-8 lg:left-8 z-10 pointer-events-none">
-									<span className="text-sm md:text-base font-medium text-white drop-shadow-md">
-										Message from CeGRAD Leadership
-									</span>
-								</div>
-								<CampaignVideoPlayer videoUrl={customVideo} />
-							</div>
-						</FadeIn>
-					</div>
-				</section>
-				{/* ═══ Section 4: Understanding Consent (F.R.I.E.S) ═══ */}
-				<ConsentSection />
-
-				{/* ═══ Section 5: Know Your Rights ═══ */}
-				<section className="bg-navy py-16 lg:py-24">
-					<div className="mx-auto max-w-7xl px-6 lg:px-8">
-						<FadeIn className="text-center">
-							<Text as="span" size="xs" weight="medium" tone="white" className="uppercase tracking-widest opacity-80">Your Protections</Text>
-							<Heading size={{ base: '3xl', lg: '4xl' }} tone="white" weight="semibold" className="mt-2">Know Your Rights</Heading>
-							<Text size="lg" tone="white" className="mx-auto mt-3 max-w-2xl opacity-80">
-								As a member of the UCC community, you are protected by comprehensive university policies and national laws. Understand your fundamental rights.
-							</Text>
-						</FadeIn>
-
-						<FadeInStagger className="mt-16 grid gap-8 sm:grid-cols-2">
-							{rights.map((right) => (
-								<FadeInItem
-									key={right.title}
-									className="group flex h-full flex-col rounded-xl border border-white/20 bg-transparent p-6 transition-colors hover:border-white hover:bg-white/5"
-								>
-									<div className="inline-flex h-12 w-12 items-center justify-center rounded-md bg-white text-navy">
-										<right.Icon size={22} />
-									</div>
-									<Heading as="h3" size="xl" tone="white" weight="semibold" className="mt-6">{right.title}</Heading>
-									<Text size="lg" tone="white" leading="relaxed" className="mt-3 flex-1 opacity-80">{right.description}</Text>
-								</FadeInItem>
-							))}
-						</FadeInStagger>
-
-						<FadeIn delay={0.3} className="mt-16 text-center">
-							<a
-								href="/documents/UCC_Anti_Sexual_Harassment_Policy.pdf"
-								target="_blank"
-								download
-								className="inline-flex items-center justify-center gap-2 rounded-xl bg-red px-8 py-4 text-base font-semibold text-white transition-all hover:bg-red-dark hover:-translate-y-0.5"
-							>
-								Download Full Policy PDF
-							</a>
-						</FadeIn>
-					</div>
-				</section>
-			</div>
-		</>
+			<section className="mt-8">
+				<HubClient items={items} isAuthenticated={Boolean(session?.user)} />
+			</section>
+		</PublicLayout>
 	)
 }

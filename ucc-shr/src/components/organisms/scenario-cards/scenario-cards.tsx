@@ -16,8 +16,7 @@ const scenarios = [
     whatToDo: [
       'Document the date, time, and exact words used.',
       'If safe, tell the lecturer the comments are unwelcome.',
-      'Report the behaviour to CEGRAD through the reporting platform.',
-      'You can report anonymously or with your contact details for follow-up.',
+      'Report the behaviour to CEGRAD through the reporting platform.'
     ],
     isHarassment: true,
   },

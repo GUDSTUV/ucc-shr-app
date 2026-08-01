@@ -7,7 +7,7 @@ import { prisma } from '@/src/lib/prisma'
 
 const quickLinks = [
   { href: '/', label: 'Home' },
-  { href: '/hub', label: 'Awareness Hub' },
+  { href: '/awareness', label: 'Awareness Hub' },
   { href: '/about', label: 'About CEGRAD' },
   { href: '/help', label: 'Help & FAQ' },
   { href: '/report', label: 'Report Incident' },
@@ -15,8 +15,8 @@ const quickLinks = [
 
 const resources = [
   { href: '/rights', label: 'Campus Policies' },
-  { href: '/hub', label: 'Prevention Guide' },
-  { href: '/events', label: 'Events & Workshops' },
+  { href: '/awareness', label: 'Prevention Guide' },
+  { href: '/hub', label: 'Events & Workshops' },
 ]
 
 const socials = [

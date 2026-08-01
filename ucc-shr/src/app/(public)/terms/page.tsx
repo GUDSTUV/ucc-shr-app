@@ -33,9 +33,9 @@ export default function TermsOfServicePage() {
                 Misuse of the reporting system may result in disciplinary action under university policies.
               </p>
 
-              <Heading as="h2" size={{ base: 'lg', lg: 'xl' }} weight="semibold" tone="navy" className="mt-8 mb-4">3. Reporting and Anonymity</Heading>
+              <Heading as="h2" size={{ base: 'lg', lg: 'xl' }} weight="semibold" tone="navy" className="mt-8 mb-4">3. Reporting Process</Heading>
               <p>
-                We offer the option to report incidents anonymously. While we will take all anonymous reports seriously, please be aware that our ability to investigate or take formal disciplinary action may be limited if we cannot verify the details or contact the reporter for further information.
+                When submitting a report, we ask that you provide accurate and truthful information to the best of your knowledge to allow us to conduct a proper investigation.
               </p>
 
               <Heading as="h2" size={{ base: 'lg', lg: 'xl' }} weight="semibold" tone="navy" className="mt-8 mb-4">4. Confidentiality</Heading>

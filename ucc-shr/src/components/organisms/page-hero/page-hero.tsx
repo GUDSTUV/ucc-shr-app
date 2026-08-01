@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { Text } from '@/src/components/atoms/text'
 import { Heading } from '@/src/components/atoms/heading'
 import { FadeIn } from '@/src/components/atoms/fade-in'
@@ -10,6 +11,7 @@ type PageHeroProps = {
   subtitle: string
   buttonText?: string
   buttonLink?: string
+  backgroundImage?: string
 }
 
 export function PageHero({
@@ -17,9 +19,17 @@ export function PageHero({
   subtitle,
   buttonText,
   buttonLink,
+  backgroundImage,
 }: PageHeroProps) {
   return (
     <div className="relative w-full bg-navy py-24 sm:py-32 lg:py-40 overflow-hidden">
+      {backgroundImage && (
+        <div className="absolute inset-0 z-0">
+          <Image src={backgroundImage} alt="" fill className="object-cover opacity-60 mix-blend-overlay" priority />
+          <div className="absolute inset-0 bg-gradient-to-r from-navy via-navy/90 to-transparent" />
+        </div>
+      )}
+
       {/* Subtle Texture: Faint concentric circles in top-left as shown in reference */}
       <div 
         className="absolute -top-24 -left-24 h-64 w-64 rounded-full bg-white/[0.03] pointer-events-none" 

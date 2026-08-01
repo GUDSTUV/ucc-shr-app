@@ -18,13 +18,13 @@ const previews = [
     title: 'Prevention Tips',
     description:
       'Recognise warning signs, learn safe bystander actions, and discover how to create safer campus spaces.',
-    href: '/hub',
+    href: '/awareness',
   },
   {
     title: 'Support Resources',
     description:
       'Access counseling services, crisis support programs, and community advocacy resources at UCC.',
-    href: '/hub',
+    href: '/awareness',
   },
 ]
 

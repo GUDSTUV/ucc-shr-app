@@ -28,7 +28,7 @@ export function CampaignVideoPlayer({ videoUrl }: CampaignVideoPlayerProps) {
   return (
     <>
       <div 
-        className={`relative aspect-video sm:aspect-[21/9] w-full overflow-hidden rounded-xl bg-gray-900 border border-white/10 group ${hasVideo ? 'cursor-pointer' : ''}`}
+        className={`relative aspect-[4/3] sm:aspect-[21/9] w-full overflow-hidden rounded-lg bg-gray-900 border border-white/10 group ${hasVideo ? 'cursor-pointer' : ''}`}
         onClick={() => hasVideo && setIsOpen(true)}
       >
         {/* Background Thumbnail Preview */}

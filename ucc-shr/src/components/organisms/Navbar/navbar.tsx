@@ -23,7 +23,7 @@ interface NavbarProps {
 const navLinks = [
   { href: '/', label: 'Home', exact: true },
   { href: '/about', label: 'About Us', exact: false },
-  { href: '/hub', label: 'Awareness', exact: false },
+  { href: '/awareness', label: 'Awareness', exact: false },
   { href: '/help', label: 'Help', exact: false },
 ]
 

@@ -60,10 +60,10 @@ export function HelpClient({ customFaqs }: HelpClientProps) {
                   Visit Us
                 </Text>
                 <Heading size={{ base: '3xl', lg: '4xl' }} tone="navy" weight="semibold" className="mt-2">
-                  Find the CeGRAD Office
+                  Find the CEGRAD Office
                 </Heading>
                 <Text size={{ base: 'base', lg: 'lg' }} tone="muted" className="mt-3 max-w-xl">
-                  We are located on the University of Cape Coast campus. Click on the map to view the CeGRAD office building and get directions.
+                  We are located on the University of Cape Coast campus. Click on the map to view the CEGRAD office building and get directions.
                 </Text>
 
                 <div className="mt-6 flex items-start gap-3">
@@ -151,7 +151,9 @@ export function HelpClient({ customFaqs }: HelpClientProps) {
                     </div>
                     <div>
                       <Text size="xs" tone="white" className="opacity-60">Emergency Lines</Text>
-                      <Text size="base" weight="medium" tone="white">024 476 6862 &middot; 024 210 9202</Text>
+                      <Text size="base" weight="medium" tone="white">024 476 6862</Text>
+                      <Text size="base" weight="medium" tone="white">024 210 9202</Text>
+
                     </div>
                   </a>
 
@@ -204,7 +206,7 @@ export function HelpClient({ customFaqs }: HelpClientProps) {
               className="relative w-full max-w-4xl overflow-hidden rounded-3xl bg-white shadow-2xl flex flex-col max-h-[90vh] z-10"
             >
               <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
-                <Heading size="xl" weight="semibold" tone="navy">CeGRAD Location Photos</Heading>
+                <Heading size="xl" weight="semibold" tone="navy">CEGRAD Location Photos</Heading>
                 <button
                   onClick={() => setIsGalleryOpen(false)}
                   className="rounded-full p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
@@ -219,7 +221,7 @@ export function HelpClient({ customFaqs }: HelpClientProps) {
                     <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl ring-1 ring-black/5 bg-gray-100">
                       <Image
                         src="/images/cegrad_building.jpg"
-                        alt="CeGRAD Building Exterior"
+                        alt="CEGRAD Building Exterior"
                         fill
                         className="object-cover"
                       />
@@ -230,7 +232,7 @@ export function HelpClient({ customFaqs }: HelpClientProps) {
                     <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl ring-1 ring-black/5 bg-gray-100">
                       <Image
                         src="/images/cegrad_office.jpg"
-                        alt="CeGRAD Office Front"
+                        alt="CEGRAD Office Front"
                         fill
                         className="object-cover"
                       />

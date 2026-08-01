@@ -53,7 +53,7 @@ export const userReportsMock: UserReport[] = [
 		timeline: [
 			{
 				title: 'Report submitted',
-				note: 'Anonymous complaint logged and assigned to CEGRAD case officer.',
+				note: 'Complaint logged and assigned to CEGRAD case officer.',
 				time: 'Mar 20, 09:12 AM',
 				done: true,
 			},

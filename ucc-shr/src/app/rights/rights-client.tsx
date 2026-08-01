@@ -155,7 +155,7 @@ export function RightsClient() {
               <Heading as="h2" size={{ base: 'xl', lg: '2xl' }} weight="semibold" tone="navy" className="mb-4">Support and Help</Heading>
               <Text className="mb-4">If you experience or witness sexual harassment, support is available. You may seek assistance from:</Text>
               <ul className="list-disc pl-5 space-y-2">
-                <li><Text>CeGRAD</Text></li>
+                <li><Text>CEGRAD</Text></li>
                 <li><Text>Counselling Centre</Text></li>
                 <li><Text>Hall Tutors</Text></li>
                 <li><Text>Dean of Students</Text></li>

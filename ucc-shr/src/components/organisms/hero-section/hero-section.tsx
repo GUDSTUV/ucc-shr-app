@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from 'framer-motion'
 import Image from 'next/image'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { BookOpen, Flag } from 'lucide-react'
 import { Heading } from '@/src/components/atoms/heading/heading'
@@ -52,6 +52,7 @@ const itemVariants = {
 
 export function HeroSection({ banners = [], customTitle, customSubtitle }: { banners?: BannerSlide[], customTitle?: string, customSubtitle?: string }) {
   const [active, setActive] = useState(0)
+  const [imageErrors, setImageErrors] = useState<Record<number, boolean>>({})
   const router = useRouter()
   const reportHref = '/report'
 
@@ -69,26 +70,27 @@ export function HeroSection({ banners = [], customTitle, customSubtitle }: { ban
 
   return (
     <section className="relative min-h-160 overflow-hidden bg-navy text-white">
-      <AnimatePresence mode="wait">
+      {slides.map((slide, index) => (
         <motion.div
-          key={active}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+          key={slide.id || index}
+          initial={{ opacity: index === active ? 1 : 0 }}
+          animate={{ opacity: index === active ? 1 : 0 }}
           transition={{ duration: 1.1 }}
-          className="absolute inset-0"
+          className="absolute inset-0 z-0 pointer-events-none"
         >
           <Image
-            src={slides[active].imageUrl}
-            alt={slides[active].title}
+            src={imageErrors[index] ? fallbackSlides[index % fallbackSlides.length].imageUrl : slide.imageUrl}
+            alt=""
+            aria-hidden="true"
             fill
             loading="eager"
-            priority={active === 0}
+            priority={true}
             sizes="100vw"
-            className="object-cover object-center"
+            className="object-cover object-center text-transparent"
+            onError={() => setImageErrors(prev => ({ ...prev, [index]: true }))}
           />
         </motion.div>
-      </AnimatePresence>
+      ))}
 
       <div className="absolute inset-0 bg-linear-to-b from-black/75 via-black/65 to-black/90 sm:from-black/65 sm:via-black/55 sm:to-navy/85 lg:from-black/55 lg:via-black/45 lg:to-black/80" aria-hidden="true" />
 

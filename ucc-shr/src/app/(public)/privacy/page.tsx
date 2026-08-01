@@ -26,8 +26,7 @@ export default function PrivacyPolicyPage() {
                 We collect information when you voluntarily submit a report, use our tracking system, or contact us for help. The types of information we may collect include:
               </p>
               <ul className="list-disc pl-5">
-                <li><strong>Anonymous Reports:</strong> Non-personally identifiable details of the incident. We do not collect your IP address or browser information if you choose to report anonymously.</li>
-                <li><strong>Identified Reports:</strong> If you choose to provide your contact details (name, email, phone number, student/staff ID), they are securely stored to allow our team to follow up with you.</li>
+                <li><strong>Incident Reports:</strong> The contact details (name, email, phone number, student/staff ID) you provide are securely stored to allow our team to follow up with you regarding your report.</li>
                 <li><strong>Usage Data:</strong> Standard website analytics to help us improve the platform's resources and user experience.</li>
               </ul>
 
@@ -41,9 +40,9 @@ export default function PrivacyPolicyPage() {
                 <li>Compile anonymised, aggregated statistics to identify trends and improve university policies and prevention strategies.</li>
               </ul>
 
-              <Heading as="h2" size={{ base: 'lg', lg: 'xl' }} weight="semibold" tone="navy" className="mt-8 mb-4">3. Confidentiality and Anonymity</Heading>
+              <Heading as="h2" size={{ base: 'lg', lg: 'xl' }} weight="semibold" tone="navy" className="mt-8 mb-4">3. Confidentiality</Heading>
               <p>
-                We treat all reports with the strictest confidence. If you choose to report anonymously, your identity will remain completely unknown to us. For non-anonymous reports, your identity will only be shared with authorized CEGRAD personnel directly involved in the investigation and support process. We will not disclose your identity to any third party without your explicit consent, except where required by law or in cases of an imminent threat to safety.
+                We treat all reports with the strictest confidence. Your identity will only be shared with authorized CEGRAD personnel directly involved in the investigation and support process. We will not disclose your identity to any third party without your explicit consent, except where required by law or in cases of an imminent threat to safety.
               </p>
 
               <Heading as="h2" size={{ base: 'lg', lg: 'xl' }} weight="semibold" tone="navy" className="mt-8 mb-4">4. Data Security</Heading>
