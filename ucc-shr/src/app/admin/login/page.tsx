@@ -22,6 +22,7 @@ function AdminLoginContent() {
   const [isLoading, setIsLoading] = useState(false)
 
   const urlError = searchParams.get('error')
+  const setupSuccess = searchParams.get('setup') === 'success'
   const callbackUrl = searchParams.get('callbackUrl')
 
   useEffect(() => {
@@ -75,6 +76,14 @@ function AdminLoginContent() {
           Sign in to your admin account.
         </p>
       </div>
+
+      {setupSuccess && (
+        <div className="mt-4">
+          <AlertBox title="Setup complete" variant="success">
+            Super Admin account was created successfully. Please sign in with your credentials.
+          </AlertBox>
+        </div>
+      )}
 
       {error && (
         <div className="mt-4">

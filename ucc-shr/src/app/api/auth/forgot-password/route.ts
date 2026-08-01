@@ -31,10 +31,7 @@ export async function POST(req: Request) {
       data: { resetToken, resetTokenExpiry },
     })
 
-    // Simulated email send
-    const resetLink = `${new URL(req.url).origin}/reset-password?token=${resetToken}`
-    console.log(`\n\n[MOCK EMAIL] Password Reset Link for ${email}:\n${resetLink}\n\n`)
-
+    // TODO: Send password reset email via Brevo transactional email
     return NextResponse.json({ ok: true })
   } catch (error) {
     console.error(error)

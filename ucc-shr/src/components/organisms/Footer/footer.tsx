@@ -7,7 +7,7 @@ import { prisma } from '@/src/lib/prisma'
 
 const quickLinks = [
   { href: '/', label: 'Home' },
-  { href: '/awareness', label: 'Awareness Hub' },
+  { href: '/awareness', label: 'Awareness' },
   { href: '/about', label: 'About CEGRAD' },
   { href: '/help', label: 'Help & FAQ' },
   { href: '/report', label: 'Report Incident' },
@@ -50,7 +50,7 @@ export function Footer() {
               </span>
               <div className="leading-tight">
                 <Text size="sm" weight="bold" tone="white">CEGRAD-UCC</Text>
-                <Text size="xs" tone="white" className="opacity-60">Centre for Gender Research,<br/> Advocacy and Documentation</Text>
+                <Text size="xs" tone="white" className="opacity-60">Centre for Gender Research,<br /> Advocacy and Documentation</Text>
               </div>
             </div>
 

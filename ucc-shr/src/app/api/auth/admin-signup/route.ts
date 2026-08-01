@@ -9,8 +9,8 @@ const adminSignupSchema = z.object({
     .string()
     .email('Invalid email format')
     .refine(
-      (email) => email.endsWith('@stu.ucc.edu.gh'),
-      'Only UCC institutional emails (@stu.ucc.edu.gh) are allowed'
+      (email) => email.endsWith('@ucc.edu.gh') || email.endsWith('@stu.ucc.edu.gh'),
+      'Only UCC institutional emails (@ucc.edu.gh or @stu.ucc.edu.gh) are allowed'
     ),
   password: z.string().min(8, 'Password must be at least 8 characters'),
   adminKey: z.string().min(1, 'Admin setup key is required'),
@@ -96,6 +96,7 @@ export async function POST(request: NextRequest) {
         email: normalizedEmail,
         password: hashedPassword,
         role: 'SUPER_ADMIN',
+        emailVerified: true,
       },
       select: {
         id: true,

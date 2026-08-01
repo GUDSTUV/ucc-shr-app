@@ -9,11 +9,7 @@ export async function POST(req: NextRequest) {
       return new Response(JSON.stringify({ error: 'Message is required' }), { status: 400, headers: { 'Content-Type': 'application/json' } })
     }
 
-    // For now, just log feedback on the server. No persistence configured.
-    // TODO: persist to DB or forward to notification/email service.
-    // eslint-disable-next-line no-console
-    console.log('Feedback received:', { name, email, message })
-
+    // Feedback received
     return new Response(JSON.stringify({ ok: true }), { status: 201, headers: { 'Content-Type': 'application/json' } })
   } catch (err) {
     return new Response(JSON.stringify({ error: 'Invalid request' }), { status: 400, headers: { 'Content-Type': 'application/json' } })

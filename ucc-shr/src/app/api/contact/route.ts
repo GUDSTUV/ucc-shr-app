@@ -30,8 +30,10 @@ export async function POST(req: NextRequest) {
       <p>${message.replace(/\n/g, '<br/>')}</p>
     `
 
+    const recipientEmail = process.env.CONTACT_EMAIL ?? 'cegrad@ucc.edu.gh'
+
     await sendDirectEmail(
-      'david.sedzro@stu.ucc.edu.gh', 
+      recipientEmail, 
       `Contact Form: Message from ${name}`, 
       htmlContent,
       { email, name }, // replyTo

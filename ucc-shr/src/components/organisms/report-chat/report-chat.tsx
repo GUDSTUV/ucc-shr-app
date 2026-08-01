@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Send, User as UserIcon, Shield, RefreshCw } from 'lucide-react'
+import { Send, Shield, RefreshCw, CheckCheck, Clock } from 'lucide-react'
 import { Button } from '@/src/components/atoms/button'
 import { Textarea } from '@/src/components/atoms/textarea'
 import { Text } from '@/src/components/atoms/text/text'
@@ -15,6 +15,7 @@ type Message = {
   senderName: string
   senderRole: 'STAFF' | 'SUPER_ADMIN' | 'USER' | string
   isMe: boolean
+  isPending?: boolean
 }
 
 type ReportChatProps = {
@@ -23,49 +24,88 @@ type ReportChatProps = {
 }
 
 export function ReportChat({ reportCode, isAssignedCounsellor = false }: ReportChatProps) {
+  const router = useRouter()
   const [messages, setMessages] = useState<Message[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [sending, setSending] = useState(false)
   const [content, setContent] = useState('')
+  const [isLiveActive, setIsLiveActive] = useState(true)
+  
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const chatContainerRef = useRef<HTMLDivElement>(null)
+  const previousMessageCount = useRef(0)
 
-  const fetchMessages = async () => {
+  const fetchMessages = useCallback(async (isSilent = false) => {
     try {
       const res = await fetch(`/api/reports/${encodeURIComponent(reportCode)}/messages`)
       const data = await res.json()
 
       if (res.ok && data.ok) {
-        setMessages(data.messages)
+        setMessages((prev) => {
+          // Retain any pending messages that are still sending
+          const pending = prev.filter((m) => m.isPending)
+          const fetchedIds = new Set(data.messages.map((m: Message) => m.id))
+          const nonDuplicatedPending = pending.filter(
+            (p) => !data.messages.some((m: Message) => m.content === p.content && Math.abs(new Date(m.createdAt).getTime() - new Date(p.createdAt).getTime()) < 10000)
+          )
+          return [...data.messages, ...nonDuplicatedPending]
+        })
         setError(null)
       } else {
-        // If 403, we don't show the chat
         if (res.status === 403) {
           setError('Access denied')
-        } else {
+        } else if (!isSilent) {
           setError('Failed to load messages.')
         }
       }
     } catch {
-      setError('Network error.')
+      if (!isSilent) {
+        setError('Network error.')
+      }
     } finally {
       setLoading(false)
     }
-  }
-
-  const router = useRouter()
-
-  useEffect(() => {
-    fetchMessages()
-    router.refresh()
-    // Optional: Add polling here if needed, e.g., setInterval
-    const interval = setInterval(fetchMessages, 10000)
-    return () => clearInterval(interval)
   }, [reportCode])
 
-  const previousMessageCount = useRef(0)
-  const chatContainerRef = useRef<HTMLDivElement>(null)
+  // Fast smart polling (2.5 seconds when active, 15s when inactive)
+  useEffect(() => {
+    fetchMessages()
 
+    let intervalId: NodeJS.Timeout
+
+    const startPolling = () => {
+      clearInterval(intervalId)
+      const delay = document.visibilityState === 'visible' ? 2500 : 15000
+      setIsLiveActive(document.visibilityState === 'visible')
+      intervalId = setInterval(() => {
+        fetchMessages(true)
+      }, delay)
+    }
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchMessages(true)
+      }
+      startPolling()
+    }
+
+    const handleFocus = () => {
+      fetchMessages(true)
+    }
+
+    startPolling()
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    window.addEventListener('focus', handleFocus)
+
+    return () => {
+      clearInterval(intervalId)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      window.removeEventListener('focus', handleFocus)
+    }
+  }, [fetchMessages])
+
+  // Scroll to bottom on new messages
   useEffect(() => {
     if (messages.length > previousMessageCount.current) {
       if (chatContainerRef.current) {
@@ -75,47 +115,80 @@ export function ReportChat({ reportCode, isAssignedCounsellor = false }: ReportC
     previousMessageCount.current = messages.length
   }, [messages.length])
 
+  // Instant Optimistic Send
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!content.trim() || sending) return
+    const trimmed = content.trim()
+    if (!trimmed || sending) return
 
+    const tempId = `temp-${Date.now()}`
+    const optimisticMessage: Message = {
+      id: tempId,
+      content: trimmed,
+      createdAt: new Date().toISOString(),
+      senderId: 'me',
+      senderName: 'You',
+      senderRole: isAssignedCounsellor ? 'STAFF' : 'USER',
+      isMe: true,
+      isPending: true,
+    }
+
+    // 1. Immediately show message in chat (0ms)
+    setMessages((prev) => [...prev, optimisticMessage])
+    setContent('')
     setSending(true)
+
     try {
       const res = await fetch(`/api/reports/${encodeURIComponent(reportCode)}/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content }),
+        body: JSON.stringify({ content: trimmed }),
       })
       const data = await res.json()
 
       if (res.ok && data.ok) {
-        setMessages((prev) => [...prev, data.message])
-        setContent('')
+        // 2. Replace optimistic message with confirmed server message
+        setMessages((prev) =>
+          prev.map((msg) => (msg.id === tempId ? { ...data.message, isPending: false } : msg))
+        )
       } else {
+        // Rollback optimistic message on failure
+        setMessages((prev) => prev.filter((msg) => msg.id !== tempId))
         alert(data.error || 'Failed to send message.')
+        setContent(trimmed)
       }
     } catch {
+      setMessages((prev) => prev.filter((msg) => msg.id !== tempId))
       alert('Network error while sending.')
+      setContent(trimmed)
     } finally {
       setSending(false)
     }
   }
 
   if (error === 'Access denied') {
-    return null // Hide chat if the user/staff is not assigned to this report
+    return null
   }
 
   return (
     <div className="flex flex-col rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden h-[500px]">
       <div className="flex items-center justify-between border-b border-gray-100 bg-gray-50 px-4 py-3">
-        <Text as="h3" size="sm" weight="semibold" tone="muted" className="uppercase tracking-[0.12em] text-gray-700">Messages</Text>
+        <div className="flex items-center gap-2">
+          <Text as="h3" size="sm" weight="semibold" tone="muted" className="uppercase tracking-[0.12em] text-gray-700">
+            Messages
+          </Text>
+          <div className="flex items-center gap-1.5 pl-2">
+            <span className={`h-2 w-2 rounded-full ${isLiveActive ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} />
+            <span className="text-[11px] font-medium text-gray-500">Live</span>
+          </div>
+        </div>
         <Button 
           variant="unstyled"
-          onClick={fetchMessages}
-          className="text-gray-400 hover:text-navy transition-colors"
-          title="Refresh messages"
+          onClick={() => fetchMessages(false)}
+          className="text-gray-400 hover:text-navy transition-colors p-1"
+          title="Refresh messages now"
         >
-          <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
+          <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
         </Button>
       </div>
 
@@ -147,14 +220,17 @@ export function ReportChat({ reportCode, isAssignedCounsellor = false }: ReportC
                       {['SUPER_ADMIN', 'ADMIN', 'COUNSELOR', 'INVESTIGATOR'].includes(msg.senderRole) ? 'CEGRAD Staff' : 'Reporter'}
                     </Text>
                   )}
-                  <Text as="span" size="xs" tone="muted" className="text-[10px] text-gray-400">
+                  <Text as="span" size="xs" tone="muted" className="text-[10px] text-gray-400 flex items-center gap-1">
                     {new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit' }).format(new Date(msg.createdAt))}
+                    {msg.isMe && (
+                      msg.isPending ? <Clock size={10} className="text-gray-400" /> : <CheckCheck size={12} className="text-navy/70" />
+                    )}
                   </Text>
                 </div>
                 <div
                   className={`rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
                     msg.isMe
-                      ? 'rounded-tr-sm bg-navy text-white'
+                      ? `rounded-tr-sm bg-navy text-white ${msg.isPending ? 'opacity-70' : ''}`
                       : 'rounded-tl-sm bg-gray-100 text-gray-800'
                   }`}
                 >

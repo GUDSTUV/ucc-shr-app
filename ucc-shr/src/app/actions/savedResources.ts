@@ -22,10 +22,7 @@ async function ensurePublishedResource(resourceType: ResourceType, resourceId: s
 }
 
 export async function saveResource(resourceType: ResourceType, resourceId: string): Promise<{ ok: boolean; error?: string }> {
-  console.log('[saveResource Action] Start:', { resourceType, resourceId })
-  
   const session = await auth()
-  console.log('[saveResource Action] Session user:', session?.user?.id)
 
   if (!session?.user?.id) {
     return { ok: false, error: 'Please log in to save resources.' }
@@ -36,7 +33,6 @@ export async function saveResource(resourceType: ResourceType, resourceId: strin
   }
 
   const exists = await ensurePublishedResource(resourceType, resourceId)
-  console.log('[saveResource Action] Resource exists:', exists)
   if (!exists) {
     return { ok: false, error: 'Resource not found or not published.' }
   }
@@ -57,7 +53,6 @@ export async function saveResource(resourceType: ResourceType, resourceId: strin
         resourceId,
       },
     })
-    console.log('[saveResource Action] Upsert successful:', result)
     revalidatePath('/user/saved')
     return { ok: true }
   } catch (err) {

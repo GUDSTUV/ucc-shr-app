@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Badge } from '@/src/components/atoms/badge'
 import { Button } from '@/src/components/atoms/button'
 import { Input } from '@/src/components/atoms/input'
@@ -22,9 +23,15 @@ type TeamTableProps = {
 }
 
 export function TeamTable({ admins, currentUserId }: TeamTableProps) {
+  const router = useRouter()
+  const [teamList, setTeamList] = useState<AdminUser[]>(admins)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+
+  useEffect(() => {
+    setTeamList(admins)
+  }, [admins])
 
   async function handleCreate(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -43,6 +50,7 @@ export function TeamTable({ admins, currentUserId }: TeamTableProps) {
     } else {
       setSuccess(`Account for ${email} has been created successfully.`)
       form.reset()
+      router.refresh()
     }
     setLoading(false)
   }
@@ -59,7 +67,9 @@ export function TeamTable({ admins, currentUserId }: TeamTableProps) {
     if (res.error) {
       setError(res.error)
     } else {
+      setTeamList(prev => prev.map(a => a.id === userId ? { ...a, role: 'SUSPENDED' } : a))
       setSuccess(`Admin has been suspended successfully.`)
+      router.refresh()
     }
     setLoading(false)
   }
@@ -76,7 +86,9 @@ export function TeamTable({ admins, currentUserId }: TeamTableProps) {
     if (res.error) {
       setError(res.error)
     } else {
+      setTeamList(prev => prev.map(a => a.id === userId ? { ...a, role: 'ADMIN' } : a))
       setSuccess(`Admin has been restored successfully.`)
+      router.refresh()
     }
     setLoading(false)
   }
@@ -111,7 +123,9 @@ export function TeamTable({ admins, currentUserId }: TeamTableProps) {
     if (res.error) {
       setError(res.error)
     } else {
+      setTeamList(prev => prev.filter(a => a.id !== userId))
       setSuccess(`Suspended account has been permanently deleted.`)
+      router.refresh()
     }
     setLoading(false)
   }
@@ -139,7 +153,7 @@ export function TeamTable({ admins, currentUserId }: TeamTableProps) {
             <Input 
               type="email" 
               name="email"
-              placeholder="staff@stu.ucc.edu.gh" 
+              placeholder="staff@ucc.edu.gh" 
               required
               disabled={loading}
             />
@@ -188,7 +202,7 @@ export function TeamTable({ admins, currentUserId }: TeamTableProps) {
               </tr>
             </thead>
             <tbody>
-              {admins.map((admin) => (
+              {teamList.map((admin) => (
                 <tr key={admin.id} className="border-t border-gray-100 text-[15px]">
                   <td className="px-4 py-4">
                     <p className="font-semibold text-gray-900">{admin.name || 'No name'}</p>

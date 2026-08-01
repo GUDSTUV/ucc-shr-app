@@ -12,7 +12,6 @@ import { stats, harassmentTypes, rights, consentPrinciples, policyPoints } from 
 import { Phone, CheckCircle2 } from 'lucide-react'
 import { ConsentSection } from '@/src/components/organisms/consent-section/consent-section'
 import { HarassmentTypesSection } from '@/src/components/organisms/harassment-types'
-const ScenarioCards = dynamic(() => import('@/src/components/organisms/scenario-cards/scenario-cards').then(m => m.ScenarioCards))
 const CampaignVideoPlayer = dynamic(() => import('@/src/components/organisms/campaign-video-player').then(m => m.CampaignVideoPlayer))
 import { PageHero } from '@/src/components/organisms/page-hero/page-hero'
 

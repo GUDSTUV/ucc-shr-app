@@ -18,6 +18,11 @@ export async function createAdminAccount(formData: FormData) {
     return { error: 'Name, email, role, and password are required.' }
   }
 
+  const normalizedEmail = email.toLowerCase().trim()
+  if (!normalizedEmail.endsWith('@ucc.edu.gh') && !normalizedEmail.endsWith('@stu.ucc.edu.gh')) {
+    return { error: 'Only UCC institutional emails (@ucc.edu.gh) are allowed.' }
+  }
+
   if (!['ADMIN', 'COUNSELOR', 'INVESTIGATOR'].includes(role)) {
     return { error: 'Invalid role selected.' }
   }

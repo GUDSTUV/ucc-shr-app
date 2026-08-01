@@ -43,8 +43,6 @@ export async function GET() {
 export async function POST(request: Request) {
   const session = await auth()
 
-  console.log('[saved POST] session:', session?.user?.id ?? 'NO SESSION')
-
   if (!session?.user?.id) {
     return NextResponse.json({ ok: false, error: 'Please log in to save resources.' }, { status: 401 })
   }
@@ -54,14 +52,11 @@ export async function POST(request: Request) {
     resourceId?: unknown
   } | null
 
-  console.log('[saved POST] body:', JSON.stringify(body))
-
   if (!body || !isResourceType(body.resourceType) || typeof body.resourceId !== 'string' || body.resourceId.length < 8) {
     return NextResponse.json({ ok: false, error: 'Invalid save request.' }, { status: 400 })
   }
 
   const exists = await ensurePublishedResource(body.resourceType, body.resourceId)
-  console.log('[saved POST] resource exists & published:', exists)
 
   if (!exists) {
     return NextResponse.json({ ok: false, error: 'Resource not found or not published.' }, { status: 404 })
@@ -83,7 +78,6 @@ export async function POST(request: Request) {
         resourceId: body.resourceId,
       },
     })
-    console.log('[saved POST] upsert success')
     return NextResponse.json({ ok: true })
   } catch (err) {
     console.error('[saved POST] DB error:', err)

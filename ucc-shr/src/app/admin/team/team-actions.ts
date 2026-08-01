@@ -127,6 +127,10 @@ export async function resetAdminPassword(userId: string, newPasswordRaw: string)
 export async function deleteSuspendedAdmin(userId: string) {
   const session = await requireSuperAdmin()
   
+  if (session.user.id === userId) {
+    return { error: "You cannot delete yourself." }
+  }
+
   const targetUser = await prisma.user.findUnique({ where: { id: userId } })
   if (!targetUser) {
     return { error: "User does not exist." }
@@ -136,18 +140,31 @@ export async function deleteSuspendedAdmin(userId: string) {
     return { error: "Only suspended accounts can be deleted. Suspend the account first." }
   }
 
-  await prisma.user.delete({
-    where: { id: userId }
-  })
+  try {
+    await prisma.$transaction([
+      prisma.notificationRead.deleteMany({ where: { userId } }),
+      prisma.notificationDismissed.deleteMany({ where: { userId } }),
+      prisma.notificationState.deleteMany({ where: { userId } }),
+      prisma.savedResource.deleteMany({ where: { userId } }),
+      prisma.auditLog.deleteMany({ where: { userId } }),
+      prisma.message.deleteMany({ where: { senderId: userId } }),
+      prisma.event.deleteMany({ where: { authorId: userId } }),
+      prisma.article.deleteMany({ where: { authorId: userId } }),
+      prisma.user.delete({ where: { id: userId } }),
+    ])
 
-  logActivity({
-    userId: session.user.id!,
-    action: 'DELETED',
-    resourceType: 'USER',
-    resourceId: userId,
-    details: { targetEmail: targetUser.email, description: "Permanently deleted suspended account" },
-  })
+    logActivity({
+      userId: session.user.id!,
+      action: 'DELETED',
+      resourceType: 'USER',
+      resourceId: userId,
+      details: { targetEmail: targetUser.email, description: "Permanently deleted suspended account" },
+    })
 
-  revalidatePath('/admin/team')
-  return { success: true }
+    revalidatePath('/admin/team')
+    return { success: true }
+  } catch (error) {
+    console.error("Error deleting suspended admin:", error)
+    return { error: "Failed to delete the suspended account. Database constraint error." }
+  }
 }
