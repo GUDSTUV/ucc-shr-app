@@ -214,12 +214,17 @@ export async function sendEventAnnouncementEmail(
 
 export async function broadcastEventAnnouncement(event: EventEmailData) {
   try {
+    if (!process.env.BREVO_API_KEY) {
+      console.warn('[EMAIL WARNING] BREVO_API_KEY is not set in environment variables. Skipping event email broadcast.')
+      return { count: 0, error: 'BREVO_API_KEY is missing' }
+    }
+
     const { prisma } = await import('@/src/lib/prisma')
-    // Get all verified users with valid emails (excluding suspended users)
+    // Get all registered users with valid emails (excluding suspended users)
     const users = await prisma.user.findMany({
       where: {
-        emailVerified: true,
         role: { not: 'SUSPENDED' },
+        email: { not: '' },
       },
       select: {
         id: true,
@@ -229,26 +234,37 @@ export async function broadcastEventAnnouncement(event: EventEmailData) {
     })
 
     if (!users || users.length === 0) {
-      console.log('No verified users found to notify for event:', event.id)
+      console.log('No active registered users found to notify for event:', event.id)
       return { count: 0 }
     }
 
-    console.log(`Broadcasting event "${event.title}" to ${users.length} verified user(s)...`)
+    console.log(`Broadcasting event "${event.title}" to ${users.length} registered user(s)...`)
 
     // Send emails in batches of 5 to avoid connection flooding
     const BATCH_SIZE = 5
+    let successCount = 0
+    let failureCount = 0
+
     for (let i = 0; i < users.length; i += BATCH_SIZE) {
       const batch = users.slice(i, i + BATCH_SIZE)
-      await Promise.allSettled(
+      const results = await Promise.allSettled(
         batch.map((user) =>
-          sendEventAnnouncementEmail(user.email, user.name || 'Member', event).catch((err) => {
-            console.error(`Failed to send event email to ${user.email}:`, err)
-          })
+          sendEventAnnouncementEmail(user.email, user.name || 'Member', event)
         )
       )
+
+      for (const res of results) {
+        if (res.status === 'fulfilled') {
+          successCount++
+        } else {
+          failureCount++
+          console.error('[EMAIL ERROR] Failed to send event announcement:', res.reason)
+        }
+      }
     }
 
-    return { count: users.length }
+    console.log(`Event broadcast completed. Sent: ${successCount}, Failed: ${failureCount}`)
+    return { count: successCount, failureCount }
   } catch (error) {
     console.error('Error during broadcastEventAnnouncement:', error)
     return { count: 0, error }
