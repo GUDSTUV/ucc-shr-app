@@ -2,7 +2,12 @@
 // Handles incoming push events and notification click navigation.
 
 self.addEventListener('push', function (event) {
-  let data = { title: 'CEGRAD UCC', body: 'You have a new notification.', url: '/', icon: '/icons/logo.svg' }
+  let data = {
+    title: 'CEGRAD UCC',
+    body: 'You have a new notification.',
+    url: '/',
+    icon: '/icons/icon-192x192.png',
+  }
 
   if (event.data) {
     try {
@@ -15,9 +20,9 @@ self.addEventListener('push', function (event) {
   event.waitUntil(
     self.registration.showNotification(data.title, {
       body: data.body,
-      icon: data.icon,
-      badge: '/icons/logo.svg',
-      data: { url: data.url },
+      icon: data.icon || '/icons/icon-192x192.png',
+      badge: '/icons/icon-72x72.png',
+      data: { url: data.url || '/' },
       requireInteraction: false,
     })
   )
