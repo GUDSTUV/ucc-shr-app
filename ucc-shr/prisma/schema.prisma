@@ -48,10 +48,14 @@ model Event {
 
 model PushSubscription {
   id        String   @id @default(cuid())
+  userId    String
   endpoint  String   @unique
   p256dh    String
   auth      String
   createdAt DateTime @default(now())
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model Report {
@@ -107,6 +111,7 @@ model User {
   NotificationState     NotificationState[]
   SavedResource         SavedResource[]
   AuditLog              AuditLog[]
+  PushSubscription      PushSubscription[]
 }
 
 model NotificationState {

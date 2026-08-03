@@ -4,6 +4,7 @@ import { prisma } from '@/src/lib/prisma'
 import { auth } from '@/src/lib/auth/auth'
 import { logActivity } from '@/src/lib/audit'
 import { generateUniqueTrackingCode } from '@/src/lib/tracking-code'
+import { sendPushToAdmins } from '@/src/lib/web-push'
 
 const ALLOWED_REPORT_TYPES = ['verbal', 'physical', 'online', 'quid_pro_quo', 'other'] as const
 
@@ -109,6 +110,13 @@ export async function POST(request: NextRequest) {
         details: { code: report.code, type },
       })
     }
+
+    // Notify all admins via push that a new report has arrived
+    void sendPushToAdmins({
+      title: 'New Report Submitted',
+      body: `A new ${type} report (${report.code}) has been received.`,
+      url: `/admin/reports/${report.code}`,
+    }).catch((err) => console.error('[PUSH_ERROR]', err))
 
     return NextResponse.json({ ok: true, code: report.code, id: report.id })
   } catch {

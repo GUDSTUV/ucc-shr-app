@@ -3,6 +3,7 @@ import { auth } from '@/src/lib/auth/auth'
 import { prisma } from '@/src/lib/prisma'
 import { parseReportNotes } from '@/src/lib/auth/report-access'
 import { sendDirectEmail } from '@/src/lib/email'
+import { sendPushToUser } from '@/src/lib/web-push'
 
 // GET /api/reports/[code]/messages - Fetch messages for a report
 export async function GET(request: NextRequest, context: { params: Promise<{ code: string }> }) {
@@ -136,7 +137,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ co
       },
     })
 
-    // Email notification logic
+    // Email + push notification logic
     if (isReporter) {
       // The reporter sent the message. Notify the assigned counsellor if they exist.
       const counsellorId = notes.counsellorId
@@ -152,9 +153,15 @@ export async function POST(request: NextRequest, context: { params: Promise<{ co
             `<p>Hi ${counsellor.name || 'Counsellor'},</p><p>You have received a new message from the reporter on case <strong>${reportCode}</strong>.</p><p>Please log in to your dashboard to reply.</p>`
           ).catch((err) => console.error('[EMAIL_ERROR]', err))
         }
+        // Push to counsellor
+        void sendPushToUser(counsellorId, {
+          title: `New message on case ${reportCode}`,
+          body: `The reporter has sent a new message. Tap to reply.`,
+          url: `/admin/reports/${reportCode}?tab=messages`,
+        }).catch((err) => console.error('[PUSH_ERROR]', err))
       }
     } else {
-      // A staff member (counsellor or super admin) sent the message. Notify the reporter.
+      // A staff member sent the message. Notify the reporter.
       const emailTo = notes.reporterEmail || notes.contact
       if (emailTo) {
         sendDirectEmail(
@@ -162,6 +169,14 @@ export async function POST(request: NextRequest, context: { params: Promise<{ co
           `New message on your report: ${reportCode}`,
           `<p>You have received a new message from the CEGRAD team regarding your report (<strong>${reportCode}</strong>).</p><p>Please log in to your dashboard to view the message and reply.</p>`
         ).catch((err) => console.error('[EMAIL_ERROR]', err))
+      }
+      // Push to reporter if they have an account
+      if (notes.reporterId) {
+        void sendPushToUser(notes.reporterId, {
+          title: 'New message on your report',
+          body: `You have a reply from the CEGRAD team on case ${reportCode}.`,
+          url: `/user/userReports/${reportCode}?tab=messages`,
+        }).catch((err) => console.error('[PUSH_ERROR]', err))
       }
     }
 

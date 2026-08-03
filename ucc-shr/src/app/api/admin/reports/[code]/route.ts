@@ -12,6 +12,7 @@ import {
   type ActionTaken,
 } from '@/src/lib/auth/report-access'
 import { sendDirectEmail } from '@/src/lib/email'
+import { sendPushToUser } from '@/src/lib/web-push'
 
 type UpdatePayload = {
   status?: 'RECEIVED' | 'UNDER_REVIEW' | 'UNDER_INVESTIGATION' | 'CLOSED'
@@ -230,6 +231,14 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ c
           `Update on your report: ${reportCode}`,
           `<p>The status of your report (<strong>${reportCode}</strong>) has been updated to <strong>${nextStatus}</strong>.</p><p>Please log in to your dashboard to view the latest updates or reply to any messages.</p>`
         ).catch((err) => console.error('[EMAIL_ERROR]', err))
+      }
+      // Push notification to reporter if they have an account
+      if (notes.reporterId) {
+        void sendPushToUser(notes.reporterId, {
+          title: 'Your report has been updated',
+          body: `Report ${reportCode} status: ${nextStatus.replace('_', ' ')}.`,
+          url: `/user/userReports/${reportCode}`,
+        }).catch((err) => console.error('[PUSH_ERROR]', err))
       }
     }
 
