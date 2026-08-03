@@ -15,6 +15,7 @@ import {
   getNotificationState,
   upsertNotificationState,
 } from '@/src/lib/notification-state'
+import { TestPushButton } from '@/src/components/molecules/test-push-button/test-push-button'
 
 type PageProps = {
   searchParams?: Promise<{ status?: string }>
@@ -218,6 +219,8 @@ export default async function AdminSettingsPage({ searchParams }: PageProps) {
                 <Button variant="ghost" size="sm" className="h-10 rounded-lg">Open Notifications</Button>
               </Link>
             </div>
+
+            <TestPushButton />
           </article>
 
           <article className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">

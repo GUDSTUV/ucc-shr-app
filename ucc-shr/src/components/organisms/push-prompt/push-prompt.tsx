@@ -45,6 +45,8 @@ export function PushPrompt({ isLoggedIn }: { isLoggedIn: boolean }) {
   async function handleEnable() {
     setState('checking')
     try {
+      if (typeof window === 'undefined') return
+
       const permission = await Notification.requestPermission()
       if (permission !== 'granted') {
         setState('denied')
@@ -54,12 +56,25 @@ export function PushPrompt({ isLoggedIn }: { isLoggedIn: boolean }) {
       const reg = await navigator.serviceWorker.register('/sw.js')
       await navigator.serviceWorker.ready
 
-      const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
-      if (!publicKey) { setState('error'); return }
+      let publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
+      if (!publicKey) {
+        // Fallback: fetch from server endpoint if env var was not baked at client build time
+        const keyRes = await fetch('/api/push/subscribe')
+        if (keyRes.ok) {
+          const keyData = await keyRes.json()
+          publicKey = keyData.publicKey
+        }
+      }
+
+      if (!publicKey) {
+        console.error('[PUSH] No VAPID public key available from env or API.')
+        setState('error')
+        return
+      }
 
       const subscription = await reg.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(publicKey).buffer as ArrayBuffer,
+        applicationServerKey: urlBase64ToUint8Array(publicKey) as unknown as BufferSource,
       })
 
       const res = await fetch('/api/push/subscribe', {
@@ -71,10 +86,12 @@ export function PushPrompt({ isLoggedIn }: { isLoggedIn: boolean }) {
       if (res.ok) {
         setState('subscribed')
       } else {
+        const errorData = await res.json().catch(() => ({}))
+        console.error('[PUSH] Subscribe API failed:', errorData)
         setState('error')
       }
     } catch (err) {
-      console.error('[PUSH_PROMPT]', err)
+      console.error('[PUSH_PROMPT_ERROR]', err)
       setState('error')
     }
   }
@@ -84,8 +101,8 @@ export function PushPrompt({ isLoggedIn }: { isLoggedIn: boolean }) {
     setDismissed(true)
   }
 
-  // Don't show if: unsupported, already subscribed, dismissed, or denied (can't re-prompt)
-  if (dismissed || state === 'unsupported' || state === 'subscribed' || state === 'denied') {
+  // Don't show if: unsupported, already subscribed, or dismissed
+  if (dismissed || state === 'unsupported' || state === 'subscribed') {
     return null
   }
 
@@ -96,7 +113,7 @@ export function PushPrompt({ isLoggedIn }: { isLoggedIn: boolean }) {
     >
       <div className="flex items-start gap-3">
         <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-full bg-navy/10">
-          {state === 'error' ? (
+          {state === 'error' || state === 'denied' ? (
             <BellOff size={18} className="text-red-500" />
           ) : (
             <Bell size={18} className="text-navy" />
@@ -104,21 +121,27 @@ export function PushPrompt({ isLoggedIn }: { isLoggedIn: boolean }) {
         </span>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-gray-900">
-            {state === 'error' ? 'Could not enable notifications' : 'Stay updated instantly'}
+            {state === 'error'
+              ? 'Could not enable notifications'
+              : state === 'denied'
+              ? 'Notifications are blocked'
+              : 'Stay updated instantly'}
           </p>
           <p className="mt-0.5 text-xs text-gray-500 leading-snug">
             {state === 'error'
-              ? 'Please try again or check your browser settings.'
+              ? 'Please try again or verify network connection.'
+              : state === 'denied'
+              ? 'Please enable notifications in your browser/site settings.'
               : 'Get notified about replies and updates on your reports.'}
           </p>
-          {state !== 'error' && (
+          {state !== 'denied' && (
             <button
               onClick={handleEnable}
               disabled={state === 'checking'}
               className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-navy px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-navy-dark disabled:opacity-60"
             >
               <Bell size={12} />
-              {state === 'checking' ? 'Enabling…' : 'Enable Notifications'}
+              {state === 'checking' ? 'Enabling…' : state === 'error' ? 'Try Again' : 'Enable Notifications'}
             </button>
           )}
         </div>

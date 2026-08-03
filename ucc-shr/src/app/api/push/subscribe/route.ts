@@ -3,6 +3,15 @@ import { auth } from '@/src/lib/auth/auth'
 import { prisma } from '@/src/lib/prisma'
 
 /**
+ * GET /api/push/subscribe
+ * Returns the VAPID public key so client can subscribe even if env was not baked at build time.
+ */
+export async function GET() {
+  const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || process.env.VAPID_PUBLIC_KEY || ''
+  return NextResponse.json({ ok: true, publicKey })
+}
+
+/**
  * POST /api/push/subscribe
  * Save a push subscription for the currently logged-in user.
  */
