@@ -18,7 +18,17 @@ const poppins = Poppins({
 
 export const metadata: Metadata = {
   title: 'CEGRAD UCC',
-  description: 'Campus sexual harassment reporting and support platform',
+  description: 'Campus sexual harassment reporting and support platform for University of Cape Coast.',
+  manifest: '/manifest.json',
+  icons: {
+    icon: '/icons/icon-192x192.png',
+    apple: '/icons/apple-touch-icon.png',
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'CEGRAD UCC',
+  },
 }
 
 export default async function RootLayout({
