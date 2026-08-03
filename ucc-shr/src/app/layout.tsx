@@ -4,6 +4,7 @@ import { Poppins } from 'next/font/google'
 import './globals.css'
 import { BottomNav } from '@/src/components/organisms/bottom-nav'
 import { Navbar } from '@/src/components/organisms/Navbar'
+import { NotificationPoller } from '@/src/components/organisms/notification-poller'
 import { auth } from '@/src/lib/auth/auth'
 import { Toaster } from 'react-hot-toast'
 
@@ -42,6 +43,7 @@ export default async function RootLayout({
     <html lang="en" className={poppins.variable} suppressHydrationWarning>
       <body className="bg-gray-50 text-gray-900 font-sans" suppressHydrationWarning>
         <Toaster position="top-center" />
+        <NotificationPoller isLoggedIn={!!session?.user} />
         <Suspense fallback={null}>
           <Navbar 
             user={user} 
