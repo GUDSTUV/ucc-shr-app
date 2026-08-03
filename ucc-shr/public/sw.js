@@ -18,13 +18,21 @@ self.addEventListener('push', function (event) {
   }
 
   event.waitUntil(
-    self.registration.showNotification(data.title, {
-      body: data.body,
-      icon: data.icon || '/icons/icon-192x192.png',
-      badge: '/icons/icon-72x72.png',
-      data: { url: data.url || '/' },
-      requireInteraction: false,
-    })
+    self.registration
+      .showNotification(data.title, {
+        body: data.body,
+        icon: data.icon || '/icons/icon-192x192.png',
+        badge: '/icons/icon-72x72.png',
+        data: { url: data.url || '/' },
+        requireInteraction: false,
+      })
+      .then(function () {
+        return clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (clientList) {
+          for (const client of clientList) {
+            client.postMessage({ type: 'PUSH_NOTIFICATION_RECEIVED', payload: data })
+          }
+        })
+      })
   )
 })
 

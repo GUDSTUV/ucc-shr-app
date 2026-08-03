@@ -1,29 +1,39 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/src/lib/auth/auth'
-import { isAdminRole } from '@/src/lib/auth/roles'
+import { isAdminRole, isCaseOfficerRole } from '@/src/lib/auth/roles'
+import { getAdminNotifications, getUserNotifications } from '@/src/lib/notification-service'
 
 /**
  * GET /api/user/notifications/count
- * Returns the unread notification count for the currently logged-in user.
- * Used by the client-side polling component to keep the bell badge live.
+ * Returns live unread counts for both Users and Administrators.
+ * Used by the client-side poller to keep badges updated in real-time without page reload.
  */
 export async function GET() {
   const session = await auth()
-  if (!session?.user) {
-    return NextResponse.json({ unreadCount: 0 }, { status: 200 })
+  if (!session?.user?.id) {
+    return NextResponse.json({ unreadCount: 0, unreadReportsCount: 0, unreadMessagesCount: 0 }, { status: 200 })
   }
 
-  // Admins use a different notification system; skip polling for them
-  if (isAdminRole(session.user.role)) {
-    return NextResponse.json({ unreadCount: 0 }, { status: 200 })
-  }
+  const role = session.user.role ?? ''
 
   try {
-    const { getUserNotifications } = await import('@/src/lib/notification-service')
+    if (isAdminRole(role) || isCaseOfficerRole(role)) {
+      const { unreadReportsCount, unreadMessagesCount } = await getAdminNotifications(session.user.id, role)
+      return NextResponse.json({
+        unreadCount: unreadReportsCount + unreadMessagesCount,
+        unreadReportsCount,
+        unreadMessagesCount,
+      }, { status: 200 })
+    }
+
     const { unreadCount } = await getUserNotifications(session.user.id, session.user.email ?? null)
-    return NextResponse.json({ unreadCount }, { status: 200 })
+    return NextResponse.json({
+      unreadCount,
+      unreadReportsCount: unreadCount,
+      unreadMessagesCount: 0,
+    }, { status: 200 })
   } catch (error) {
-    console.error('Failed to fetch notification count:', error)
-    return NextResponse.json({ unreadCount: 0 }, { status: 200 })
+    console.error('[NOTIFICATIONS_COUNT_ERROR]', error)
+    return NextResponse.json({ unreadCount: 0, unreadReportsCount: 0, unreadMessagesCount: 0 }, { status: 200 })
   }
 }
