@@ -24,7 +24,9 @@ self.addEventListener('push', function (event) {
         icon: data.icon || '/icons/icon-192x192.png',
         badge: '/icons/icon-72x72.png',
         data: { url: data.url || '/' },
-        requireInteraction: false,
+        tag: data.url || 'cegrad-notification',
+        renotify: true,
+        vibrate: [200, 100, 200],
       })
       .then(function () {
         return clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (clientList) {
