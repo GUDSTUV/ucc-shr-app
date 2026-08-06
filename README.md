@@ -99,12 +99,6 @@ SEED_ADMIN_NAME="Super Admin"
 
 ---
 
-## Deployment
-
-Deploy on [Vercel](https://vercel.com/). Set all environment variables in the Vercel project settings before deploying.
-
-> Ensure your PostgreSQL provider allows connections from Vercel, or enable connection pooling via `@prisma/adapter-pg`.
-
 ---
 
 <div align="center">
